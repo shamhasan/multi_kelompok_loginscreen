@@ -62,7 +62,7 @@ class LoginScreen extends StatelessWidget {
       color: Colors.teal[50],
       child: Center(
         child: Text(
-          "Portrait UI",
+          "Portrait UI by al",
           style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
         ),
       ),
