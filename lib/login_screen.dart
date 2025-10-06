@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MaterialApp(home: LoginScreen()));
+  runApp(MaterialApp(home: LoginScreen(), debugShowCheckedModeBanner: false,));
 }
 
 class LoginScreen extends StatelessWidget {
@@ -617,23 +617,23 @@ class LoginScreen extends StatelessWidget {
   }
 
   Widget _desktopSocialButton(
-    IconData icon,
+    String icon,
     String title, 
     VoidCallback? onPressed,
   ) {
     return ElevatedButton.icon(
       onPressed: onPressed,
-      label: Text(title, style: TextStyle(fontSize: 18, color: Colors.black45)),
+      label: Text(title, style: TextStyle(fontSize: 12, color: Colors.black45)),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
           side: const BorderSide(color: Colors.black54),
         ),
       ),
-      icon: Icon(icon),
+      icon: Image.network(icon,width: 32, height: 32,),
       
     );
   }
@@ -739,9 +739,9 @@ class LoginScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _desktopSocialButton(Icons.g_mobiledata, "Google", (){}),
+                    _desktopSocialButton("assets/images/google.png", "Google", (){}),
                     SizedBox(width: 32),
-                    _desktopSocialButton(Icons.facebook, "Facebook", (){}),
+                    _desktopSocialButton("assets/images/facebook.png", "Facebook", (){}),
                   ],
                 ),
               ),
