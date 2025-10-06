@@ -97,8 +97,9 @@ class LoginScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -115,8 +116,9 @@ class LoginScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                          ),
                         ),
                       ),
 
@@ -140,7 +142,8 @@ class LoginScreen extends StatelessWidget {
                             backgroundColor: Colors.green,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           onPressed: () {},
                           child: const Text("Masuk"),
@@ -149,10 +152,7 @@ class LoginScreen extends StatelessWidget {
                       const SizedBox(height: 5),
 
                       // daftar
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text("Daftar"),
-                      ),
+                      TextButton(onPressed: () {}, child: const Text("Daftar")),
 
                       const SizedBox(height: 5),
                       const Text("Lanjutkan dengan"),
@@ -164,15 +164,21 @@ class LoginScreen extends StatelessWidget {
                           CircleAvatar(
                             radius: 22,
                             backgroundColor: Colors.white,
-                            child: Icon(Icons.g_mobiledata,
-                                size: 28, color: Colors.red),
+                            child: Icon(
+                              Icons.g_mobiledata,
+                              size: 28,
+                              color: Colors.red,
+                            ),
                           ),
                           SizedBox(width: 16),
                           CircleAvatar(
                             radius: 22,
                             backgroundColor: Colors.white,
-                            child: Icon(Icons.facebook,
-                                size: 28, color: Colors.blue),
+                            child: Icon(
+                              Icons.facebook,
+                              size: 28,
+                              color: Colors.blue,
+                            ),
                           ),
                         ],
                       ),
@@ -186,7 +192,6 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
-
 
   // Widget untuk tampilan potret
   Widget _buildPortrait(double screenWidth) {
@@ -217,7 +222,10 @@ class LoginScreen extends StatelessWidget {
             const Text(
               "Login",
               style: TextStyle(
-                  fontSize: 26, fontWeight: FontWeight.bold, color: Colors.green),
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
             ),
             const SizedBox(height: 6),
             const Text(
@@ -258,8 +266,10 @@ class LoginScreen extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () {},
-                child: const Text("Lupa Kata Sandi?",
-                    style: TextStyle(color: Colors.black54, fontSize: 13)),
+                child: const Text(
+                  "Lupa Kata Sandi?",
+                  style: TextStyle(color: Colors.black54, fontSize: 13),
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -270,11 +280,15 @@ class LoginScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => controller.jumpToPage(2),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8))),
-                child: const Text("Masuk",
-                    style: TextStyle(color: Colors.white, fontSize: 16)),
+                  backgroundColor: Colors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  "Masuk",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ),
             ),
             const SizedBox(height: 14),
@@ -284,9 +298,10 @@ class LoginScreen extends StatelessWidget {
               child: const Text(
                 "Daftar",
                 style: TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15),
+                  color: Colors.green,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
               ),
             ),
             const SizedBox(height: 30),
@@ -321,11 +336,16 @@ class LoginScreen extends StatelessWidget {
             const Text(
               "Register",
               style: TextStyle(
-                  fontSize: 26, fontWeight: FontWeight.bold, color: Colors.green),
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
             ),
             const SizedBox(height: 6),
-            const Text("Daftar Pengguna",
-                style: TextStyle(fontSize: 15, color: Colors.black54)),
+            const Text(
+              "Daftar Pengguna",
+              style: TextStyle(fontSize: 15, color: Colors.black54),
+            ),
             const SizedBox(height: 40),
 
             _textField("Email"),
@@ -345,10 +365,13 @@ class LoginScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child: const Text("Daftar",
-                    style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: const Text(
+                  "Daftar",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ),
             ),
             const SizedBox(height: 14),
@@ -363,7 +386,9 @@ class LoginScreen extends StatelessWidget {
                     TextSpan(
                       text: "Masuk",
                       style: TextStyle(
-                          color: Colors.green, fontWeight: FontWeight.w600),
+                        color: Colors.green,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -404,9 +429,10 @@ class LoginScreen extends StatelessWidget {
                   icon: const Icon(Icons.arrow_back),
                 ),
                 const SizedBox(width: 8),
-                const Text("Edit Profile",
-                    style: TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Edit Profile",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -417,14 +443,20 @@ class LoginScreen extends StatelessWidget {
                 const CircleAvatar(
                   radius: 55,
                   backgroundImage: NetworkImage(
-                      "https://i.pravatar.cc/150?img=47"), // contoh gambar
+                    "https://i.pravatar.cc/150?img=47",
+                  ), // contoh gambar
                 ),
                 Container(
                   decoration: const BoxDecoration(
-                      color: Colors.green, shape: BoxShape.circle),
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
                   padding: const EdgeInsets.all(6),
-                  child: const Icon(Icons.camera_alt,
-                      color: Colors.white, size: 18),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
               ],
             ),
@@ -432,9 +464,10 @@ class LoginScreen extends StatelessWidget {
 
             Align(
               alignment: Alignment.centerLeft,
-              child: const Text("Detail Profil",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16)),
+              child: const Text(
+                "Detail Profil",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
             ),
             const SizedBox(height: 12),
 
@@ -445,9 +478,10 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 24),
             Align(
               alignment: Alignment.centerLeft,
-              child: const Text("Pengaturan",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16)),
+              child: const Text(
+                "Pengaturan",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
             ),
             const SizedBox(height: 12),
 
@@ -458,8 +492,7 @@ class LoginScreen extends StatelessWidget {
             TextButton.icon(
               onPressed: () => controller.jumpToPage(0),
               icon: const Icon(Icons.logout, color: Colors.red),
-              label: const Text("Keluar",
-                  style: TextStyle(color: Colors.red)),
+              label: const Text("Keluar", style: TextStyle(color: Colors.red)),
             ),
             const SizedBox(height: 30),
 
@@ -471,10 +504,13 @@ class LoginScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-                child: const Text("Edit Akun",
-                    style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: const Text(
+                  "Edit Akun",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ),
             ),
           ],
@@ -488,12 +524,23 @@ class LoginScreen extends StatelessWidget {
       obscureText: isPassword,
       decoration: InputDecoration(
         hintText: hint,
-        suffixIcon:
-        isPassword ? const Icon(Icons.visibility_off_outlined) : null,
+        suffixIcon: isPassword
+            ? const Icon(Icons.visibility_off_outlined)
+            : null,
         filled: true,
         fillColor: Colors.grey[200],
+        hintStyle: TextStyle(
+          fontSize: 20,
+          fontFamily: "Poppins",
+          color: Colors.grey[700],
+          fontWeight: FontWeight.w200,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 20,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide.none,
         ),
       ),
@@ -514,10 +561,17 @@ class LoginScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-              Text(value,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w500)),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
         ],
@@ -540,9 +594,13 @@ class LoginScreen extends StatelessWidget {
             children: [
               Icon(icon, color: Colors.black87),
               const SizedBox(width: 12),
-              Text(title,
-                  style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
           const Icon(Icons.chevron_right, color: Colors.black45),
@@ -563,14 +621,137 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  Widget _desktopSocialButton(
+    IconData icon,
+    String title, 
+    VoidCallback? onPressed,
+  ) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      label: Text(title, style: TextStyle(fontSize: 18, color: Colors.black45)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.black54),
+        ),
+      ),
+      icon: Icon(icon),
+      
+    );
+  }
+
   // Widget untuk tampilan dekstop
   Widget _buildDesktop(double screenWidth) {
-    return Container(
-      color: Colors.amber[50],
-      child: Center(
-        child: Text(
-          "Desktop UI",
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "Masuk Di sini",
+                style: TextStyle(
+                  fontSize: 42,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF329A71),
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                "Selamat Datang Kembali!",
+                style: TextStyle(fontSize: 24, color: Colors.black),
+              ),
+              SizedBox(height: 64),
+              Container(width: screenWidth * 0.4, child: _textField("Email")),
+              SizedBox(height: 32),
+              Container(
+                width: screenWidth * 0.4,
+                child: _textField("Kata sandi", isPassword: true),
+              ),
+              SizedBox(height: 32),
+              Container(
+                width: screenWidth * 0.4,
+                child: Text(
+                  "Lupa Kata Sandi?",
+                  textAlign: TextAlign.right,
+                  style: TextStyle(color: Colors.black, fontSize: 18),
+                ),
+              ),
+              SizedBox(height: 60),
+              Container(
+                width: screenWidth * 0.4,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF329A71),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Masuk",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Container(
+                width: screenWidth * 0.4,
+                child: TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    "Daftar",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 32),
+              Container(
+                width: screenWidth * 0.25,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Divider(color: Colors.black54, thickness: 1),
+                    ),
+                    SizedBox(width: 16),
+                    Text(
+                      "Lanjutkan dengan",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Divider(color: Colors.black54, thickness: 1),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24),
+              Container(
+                width: screenWidth * 0.25,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _desktopSocialButton(Icons.g_mobiledata, "Google", (){}),
+                    SizedBox(width: 32),
+                    _desktopSocialButton(Icons.facebook, "Facebook", (){}),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
