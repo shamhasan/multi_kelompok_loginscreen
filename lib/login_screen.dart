@@ -97,9 +97,8 @@ class LoginScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                          ),
+                          contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -116,9 +115,8 @@ class LoginScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                          ),
+                          contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16),
                         ),
                       ),
 
@@ -142,8 +140,7 @@ class LoginScreen extends StatelessWidget {
                             backgroundColor: Colors.green,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           onPressed: () {},
                           child: const Text("Masuk"),
@@ -152,7 +149,10 @@ class LoginScreen extends StatelessWidget {
                       const SizedBox(height: 5),
 
                       // daftar
-                      TextButton(onPressed: () {}, child: const Text("Daftar")),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text("Daftar"),
+                      ),
 
                       const SizedBox(height: 5),
                       const Text("Lanjutkan dengan"),
@@ -164,21 +164,15 @@ class LoginScreen extends StatelessWidget {
                           CircleAvatar(
                             radius: 22,
                             backgroundColor: Colors.white,
-                            child: Icon(
-                              Icons.g_mobiledata,
-                              size: 28,
-                              color: Colors.red,
-                            ),
+                            child: Icon(Icons.g_mobiledata,
+                                size: 28, color: Colors.red),
                           ),
                           SizedBox(width: 16),
                           CircleAvatar(
                             radius: 22,
                             backgroundColor: Colors.white,
-                            child: Icon(
-                              Icons.facebook,
-                              size: 28,
-                              color: Colors.blue,
-                            ),
+                            child: Icon(Icons.facebook,
+                                size: 28, color: Colors.blue),
                           ),
                         ],
                       ),
@@ -192,6 +186,7 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+
 
   // Widget untuk tampilan potret
   Widget _buildPortrait(double screenWidth) {
