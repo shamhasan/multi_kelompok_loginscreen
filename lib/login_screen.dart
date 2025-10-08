@@ -31,8 +31,8 @@ class LoginScreen extends StatelessWidget {
                     child: isDesktop
                         ? _buildDesktop(screenWidth)
                         : (isPortrait
-                              ? _buildPortrait(screenWidth)
-                              : _buildLanscape(screenWidth)),
+                        ? _buildEditProfileUI()
+                        : _buildLanscape(screenWidth)),
                   );
                 },
               ),
@@ -57,23 +57,7 @@ class LoginScreen extends StatelessWidget {
   }
 
   // Widget untuk tampilan potret
-  Widget _buildPortrait(double screenWidth) {
-    final PageController controller = PageController();
-
-    return Scaffold(
-      body: PageView(
-        controller: controller,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          _buildLoginUIWithNav(controller),
-          _buildRegisterUIWithNav(controller),
-          _buildEditProfileUIWithNav(controller),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoginUIWithNav(PageController controller) {
+  Widget _buildLoginUI() {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -136,7 +120,9 @@ class LoginScreen extends StatelessWidget {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () => controller.jumpToPage(2),
+                onPressed: () {
+                  // Add your login logic here
+                },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(
@@ -148,7 +134,9 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 14),
 
             GestureDetector(
-              onTap: () => controller.jumpToPage(1),
+              onTap: () {
+                // Add navigation logic to the Register page if needed
+              },
               child: const Text(
                 "Daftar",
                 style: TextStyle(
@@ -178,7 +166,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRegisterUIWithNav(PageController controller) {
+  Widget _buildRegisterUI() {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -209,7 +197,9 @@ class LoginScreen extends StatelessWidget {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () => controller.jumpToPage(0),
+                onPressed: () {
+                  // Add your registration logic here
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   shape: RoundedRectangleBorder(
@@ -222,7 +212,9 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 14),
 
             GestureDetector(
-              onTap: () => controller.jumpToPage(0),
+              onTap: () {
+                // Add navigation logic to the Login page if needed
+              },
               child: const Text.rich(
                 TextSpan(
                   text: "Sudah punya akun? ",
@@ -257,7 +249,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEditProfileUIWithNav(PageController controller) {
+  Widget _buildEditProfileUI() {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -268,7 +260,9 @@ class LoginScreen extends StatelessWidget {
             Row(
               children: [
                 IconButton(
-                  onPressed: () => controller.jumpToPage(0),
+                  onPressed: () {
+                    // Add back navigation logic here
+                  },
                   icon: const Icon(Icons.arrow_back),
                 ),
                 const SizedBox(width: 8),
@@ -298,9 +292,9 @@ class LoginScreen extends StatelessWidget {
             ),
             const SizedBox(height: 30),
 
-            Align(
+            const Align(
               alignment: Alignment.centerLeft,
-              child: const Text("Detail Profil",
+              child: Text("Detail Profil",
                   style: TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16)),
             ),
@@ -311,9 +305,9 @@ class LoginScreen extends StatelessWidget {
             _profileField(Icons.phone, "No Telp", "082247283745"),
 
             const SizedBox(height: 24),
-            Align(
+            const Align(
               alignment: Alignment.centerLeft,
-              child: const Text("Pengaturan",
+              child: Text("Pengaturan",
                   style: TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16)),
             ),
@@ -324,7 +318,9 @@ class LoginScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
             TextButton.icon(
-              onPressed: () => controller.jumpToPage(0),
+              onPressed: () {
+                // Add logout logic here
+              },
               icon: const Icon(Icons.logout, color: Colors.red),
               label: const Text("Keluar",
                   style: TextStyle(color: Colors.red)),
@@ -335,7 +331,9 @@ class LoginScreen extends StatelessWidget {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Add logic for "Edit Akun" button
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   shape: RoundedRectangleBorder(
