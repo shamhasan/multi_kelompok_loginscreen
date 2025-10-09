@@ -32,13 +32,8 @@ class LoginScreen extends StatelessWidget {
                     child: isDesktop
                         ? _buildDesktop(screenWidth)
                         : (isPortrait
-<<<<<<< HEAD
                               ? _buildPortrait(screenWidth)
                               : _buildLandscape(screenWidth)),
-=======
-                        ? _buildEditProfileUI()
-                        : _buildLanscape(screenWidth)),
->>>>>>> 1173d5e24a7c208b6dee9b4f7d87ef260fb2c1a3
                   );
                 },
               ),
@@ -195,7 +190,23 @@ class LoginScreen extends StatelessWidget {
 
 
   // Widget untuk tampilan potret
-  Widget _buildLoginUI() {
+  Widget _buildPortrait(double screenWidth) {
+    final PageController controller = PageController();
+
+    return Scaffold(
+      body: PageView(
+        controller: controller,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          _buildLoginUIWithNav(controller),
+          _buildRegisterUIWithNav(controller),
+          _buildEditProfileUIWithNav(controller),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoginUIWithNav(PageController controller) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -314,7 +325,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRegisterUI() {
+  Widget _buildRegisterUIWithNav(PageController controller) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -407,7 +418,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEditProfileUI() {
+  Widget _buildEditProfileUIWithNav(PageController controller) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -431,7 +442,6 @@ class LoginScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-
             Stack(
               alignment: Alignment.bottomRight,
               children: [
@@ -459,16 +469,11 @@ class LoginScreen extends StatelessWidget {
 
             const Align(
               alignment: Alignment.centerLeft,
-<<<<<<< HEAD
               child: const Text(
                 "Detail Profil",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
-=======
-              child: Text("Detail Profil",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16)),
->>>>>>> 1173d5e24a7c208b6dee9b4f7d87ef260fb2c1a3
+             
             ),
             const SizedBox(height: 12),
 
@@ -479,16 +484,11 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 24),
             const Align(
               alignment: Alignment.centerLeft,
-<<<<<<< HEAD
               child: const Text(
                 "Pengaturan",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
-=======
-              child: Text("Pengaturan",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16)),
->>>>>>> 1173d5e24a7c208b6dee9b4f7d87ef260fb2c1a3
+              
             ),
             const SizedBox(height: 12),
 
