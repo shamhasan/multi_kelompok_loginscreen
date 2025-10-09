@@ -14,6 +14,7 @@ class LoginScreen extends StatelessWidget {
     bool isDesktop = screenWidth > 960; // Deteksi jika perangkat adalah Desktop
 
     return Scaffold(
+      // backgroundColor: Colors.white,
       body: SafeArea(
         child: OrientationBuilder(
           builder: (context, orientation) {
@@ -24,9 +25,9 @@ class LoginScreen extends StatelessWidget {
                 builder: (context, builder) {
                   return Container(
                     width: isDesktop
-                        ? 960
+                        ? 1200
                         : (isPortrait ? screenWidth * 0.9 : screenWidth * 0.65),
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(0.0),
                     height: screenHeight,
                     child: isDesktop
                         ? _buildDesktop(screenWidth)
