@@ -81,7 +81,7 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Film Populer'),
+        title: const Text('Popular Movie'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
