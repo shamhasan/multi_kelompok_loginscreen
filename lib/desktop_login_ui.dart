@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/profile_ui.dart';
+import 'package:multi_kelompok/register_ui.dart';
 import 'package:multi_kelompok/widgets/desktop_social_button.dart';
 import 'package:multi_kelompok/widgets/text_field.dart';
 
@@ -54,7 +56,9 @@ class DesktopLoginUi extends StatelessWidget {
                 width: screenWidth * 0.4,
                 height: 55,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileUi() ,));
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF329A71),
                     shape: RoundedRectangleBorder(
@@ -71,7 +75,9 @@ class DesktopLoginUi extends StatelessWidget {
               Container(
                 width: screenWidth * 0.4,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterUi() ,));
+                  },
                   child: Text(
                     "Daftar",
                     style: TextStyle(
