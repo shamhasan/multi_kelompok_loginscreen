@@ -5,7 +5,7 @@ import 'package:multi_kelompok/portrait_ui.dart';
 import 'package:multi_kelompok/popular_movie_ui.dart';
 
 void main() {
-  runApp(MaterialApp(home: PopularMoviesPage(), debugShowCheckedModeBanner: false));
+  runApp(MaterialApp(home: LoginScreen(), debugShowCheckedModeBanner: false));
 }
 
 class LoginScreen extends StatelessWidget {
