@@ -26,7 +26,7 @@ class Movie {
 final List<Movie> popularMovies = [
   Movie(
     title: 'Dune: Part Two',
-    posterUrl: 'https://m.media-amazon.com/images/M/MV5BN2QyZGU4ZDctOWMzMy00NTc5LThlOGQtMzg4NTI3ZDNlM2MyXkEyXkFqcGdeQXVyMTM112GNyCoordinate@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+    posterUrl: 'images/poster_duneparttwo.png',
     rating: 8.6,
     overview: 'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family. Faced with a choice between the love of his life and the fate of the universe, he endeavors to prevent a terrible future that only he can foresee.',
     genres: ['Sci-Fi', 'Adventure', 'Action'],
@@ -36,7 +36,7 @@ final List<Movie> popularMovies = [
   ),
   Movie(
     title: 'Wednesday',
-    posterUrl: 'https://m.media-amazon.com/images/M/MV5BMjllNDU5YjYtOGM2Zi00YTMxLWI2MWItMjM4MDA5ZmI0ODc0XkEyXkFqcGdeQXVyMTU5OTA4NTIz._V1_QL75_UX380_CR0,0,380,562_.jpg',
+    posterUrl: 'images/poster_wednesday.png',
     rating: 8.1,
     overview: 'A sleuthing, supernaturally infused mystery charting Wednesday Addams\' years as a student at Nevermore Academy, where she attempts to master her emerging psychic ability and solve a monstrous killing spree.',
     genres: ['Comedy', 'Crime', 'Fantasy'],
@@ -46,7 +46,7 @@ final List<Movie> popularMovies = [
   ),
   Movie(
     title: 'Furiosa: A Mad Max Saga',
-    posterUrl: 'https://m.media-amazon.com/images/M/MV5BMmU1NjY3MTYtM2M5MS00MDFlLTg2MWYtNjI2NmMwZTM4OLI@._V1_QL75_UX380_CR0,0,380,562_.jpg',
+    posterUrl: 'images/poster_furiosa.png',
     rating: 7.8,
     overview: 'The origin story of renegade warrior Furiosa before she teamed up with Mad Max. Snatched from the Green Place of Many Mothers, young Furiosa is captured by a great Biker Horde led by the Warlord Dementus. As two tyrants war for dominance, Furiosa must survive many trials while piecing together the means to find her way home.',
     genres: ['Action', 'Adventure', 'Sci-Fi'],
@@ -56,7 +56,7 @@ final List<Movie> popularMovies = [
   ),
   Movie(
     title: 'Inside Out 2',
-    posterUrl: 'https://m.media-amazon.com/images/M/MV5BYWJkY2Q4NmYtOGRlMi00YTg5LWE2ZmQtY2U5NzNlZGMyZjY3XkEyXkFqcGdeQXVyMTY3ODkyNDkz._V1_QL75_UX380_CR0,0,380,562_.jpg',
+    posterUrl: 'images/poster_insideout.png',
     rating: 7.9,
     overview: 'Follows Riley in her teenage years, where she encounters the complexities of high school and friendships. The existing emotions—Joy, Sadness, Anger, Fear, and Disgust—are suddenly thrown into chaos with the arrival of new, more complex emotions like Anxiety, Envy, and Embarrassment.',
     genres: ['Animation', 'Adventure', 'Comedy'],
@@ -131,11 +131,9 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
                       height: posterHeight,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8.0),
-                        child: Image.network(
+                        child: Image.asset(
                           movie.posterUrl,
                           fit: BoxFit.cover,
-                          loadingBuilder: (context, child, progress) =>
-                          progress == null ? child : const Center(child: CircularProgressIndicator()),
                           errorBuilder: (context, error, stackTrace) =>
                           const Icon(Icons.movie, color: Colors.grey, size: 40),
                         ),
