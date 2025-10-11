@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 void main() {
-  runApp(MaterialApp(home: PopularMoviesPage()));
+  runApp(MaterialApp(home: LoginScreen()));
 }
 
 class LoginScreen extends StatelessWidget {
