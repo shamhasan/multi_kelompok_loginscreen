@@ -60,7 +60,7 @@ class LoginScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: const [
                   Text(
-                    "Masuk Di sini",
+                    "Login",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -71,7 +71,10 @@ class LoginScreen extends StatelessWidget {
                   Text(
                     "Selamat Datang\nKembali!",
                     textAlign: TextAlign.right,
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black54,
+                    ),
                   ),
                 ],
               ),
@@ -144,7 +147,10 @@ class LoginScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12)),
                           ),
                           onPressed: () {},
-                          child: const Text("Masuk"),
+                          child: const Text(
+                            "Masuk",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 5),
@@ -152,7 +158,10 @@ class LoginScreen extends StatelessWidget {
                       // daftar
                       TextButton(
                         onPressed: () {},
-                        child: const Text("Daftar"),
+                        child: const Text(
+                          "Daftar",
+                          style: TextStyle(color: Colors.green, fontSize: 16),
+                        ),
                       ),
 
                       const SizedBox(height: 5),
@@ -469,7 +478,7 @@ class LoginScreen extends StatelessWidget {
 
             const Align(
               alignment: Alignment.centerLeft,
-              child: const Text(
+              child: Text(
                 "Detail Profil",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
@@ -484,7 +493,7 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 24),
             const Align(
               alignment: Alignment.centerLeft,
-              child: const Text(
+              child: Text(
                 "Pengaturan",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
