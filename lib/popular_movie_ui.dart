@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+import 'package:multi_kelompok/data/movie.dart';
+
 class Movie {
   final String title;
   final String posterUrl;
@@ -22,49 +24,6 @@ class Movie {
     required this.ageRating,
   });
 }
-
-final List<Movie> popularMovies = [
-  Movie(
-    title: 'Dune: Part Two',
-    posterUrl: 'https://m.media-amazon.com/images/M/MV5BN2QyZGU4ZDctOWMzMy00NTc5LThlOGQtMzg4NTI3ZDNlM2MyXkEyXkFqcGdeQXVyMTM112GNyCoordinate@._V1_QL75_UX380_CR0,0,380,562_.jpg',
-    rating: 8.6,
-    overview: 'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family. Faced with a choice between the love of his life and the fate of the universe, he endeavors to prevent a terrible future that only he can foresee.',
-    genres: ['Sci-Fi', 'Adventure', 'Action'],
-    year: 2024,
-    duration: '2h 46m',
-    ageRating: 'PG-13',
-  ),
-  Movie(
-    title: 'Wednesday',
-    posterUrl: 'https://m.media-amazon.com/images/M/MV5BMjllNDU5YjYtOGM2Zi00YTMxLWI2MWItMjM4MDA5ZmI0ODc0XkEyXkFqcGdeQXVyMTU5OTA4NTIz._V1_QL75_UX380_CR0,0,380,562_.jpg',
-    rating: 8.1,
-    overview: 'A sleuthing, supernaturally infused mystery charting Wednesday Addams\' years as a student at Nevermore Academy, where she attempts to master her emerging psychic ability and solve a monstrous killing spree.',
-    genres: ['Comedy', 'Crime', 'Fantasy'],
-    year: 2022,
-    duration: '8 Episodes',
-    ageRating: 'TV-14',
-  ),
-  Movie(
-    title: 'Furiosa: A Mad Max Saga',
-    posterUrl: 'https://m.media-amazon.com/images/M/MV5BMmU1NjY3MTYtM2M5MS00MDFlLTg2MWYtNjI2NmMwZTM4OLI@._V1_QL75_UX380_CR0,0,380,562_.jpg',
-    rating: 7.8,
-    overview: 'The origin story of renegade warrior Furiosa before she teamed up with Mad Max. Snatched from the Green Place of Many Mothers, young Furiosa is captured by a great Biker Horde led by the Warlord Dementus. As two tyrants war for dominance, Furiosa must survive many trials while piecing together the means to find her way home.',
-    genres: ['Action', 'Adventure', 'Sci-Fi'],
-    year: 2024,
-    duration: '2h 28m',
-    ageRating: 'R',
-  ),
-  Movie(
-    title: 'Inside Out 2',
-    posterUrl: 'https://m.media-amazon.com/images/M/MV5BYWJkY2Q4NmYtOGRlMi00YTg5LWE2ZmQtY2U5NzNlZGMyZjY3XkEyXkFqcGdeQXVyMTY3ODkyNDkz._V1_QL75_UX380_CR0,0,380,562_.jpg',
-    rating: 7.9,
-    overview: 'Follows Riley in her teenage years, where she encounters the complexities of high school and friendships. The existing emotions—Joy, Sadness, Anger, Fear, and Disgust—are suddenly thrown into chaos with the arrival of new, more complex emotions like Anxiety, Envy, and Embarrassment.',
-    genres: ['Animation', 'Adventure', 'Comedy'],
-    year: 2024,
-    duration: '1h 36m',
-    ageRating: 'PG',
-  ),
-];
 
 
 class PopularMoviesPage extends StatefulWidget {

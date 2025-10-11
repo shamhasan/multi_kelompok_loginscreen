@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/home_screen.dart';
 import 'package:multi_kelompok/login_screen.dart';
 import 'package:multi_kelompok/profile_ui.dart';
 import 'package:multi_kelompok/widgets/social_button.dart';
@@ -70,7 +71,7 @@ class RegisterUi extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  MaterialPageRoute(builder: (context) => HomeScreen()),
                 );
               },
               child: const Text.rich(

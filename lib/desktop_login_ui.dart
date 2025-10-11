@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/home_screen.dart';
 import 'package:multi_kelompok/profile_ui.dart';
 import 'package:multi_kelompok/register_ui.dart';
 import 'package:multi_kelompok/widgets/desktop_social_button.dart';
@@ -76,7 +77,7 @@ class DesktopLoginUi extends StatelessWidget {
                 width: screenWidth * 0.4,
                 child: TextButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterUi() ,));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen() ,));
                   },
                   child: Text(
                     "Daftar",

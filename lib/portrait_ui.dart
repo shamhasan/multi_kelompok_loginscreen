@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/home_screen.dart';
 import 'package:multi_kelompok/profile_ui.dart';
 import 'package:multi_kelompok/register_ui.dart';
 import 'package:multi_kelompok/widgets/social_button.dart';
@@ -80,7 +81,7 @@ class PortraitUi extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProfileUi()),
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(

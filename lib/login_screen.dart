@@ -4,10 +4,6 @@ import 'package:multi_kelompok/landscape_ui.dart';
 import 'package:multi_kelompok/portrait_ui.dart';
 import 'package:multi_kelompok/popular_movie_ui.dart';
 
-void main() {
-  runApp(MaterialApp(home: LoginScreen(), debugShowCheckedModeBanner: false));
-}
-
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 

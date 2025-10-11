@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/home_screen.dart';
 import 'package:multi_kelompok/profile_ui.dart';
 import 'package:multi_kelompok/register_ui.dart';
 
@@ -111,7 +112,7 @@ class LandscapeUI extends StatelessWidget {
                             ),
                           ),
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileUi() ));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen() ));
                           },
                           child: const Text("Masuk"),
                         ),
