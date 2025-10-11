@@ -8,9 +8,9 @@ class ProfileUi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
+    return Container(
+      color: Colors.white,
+      child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 50),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
