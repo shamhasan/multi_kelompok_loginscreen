@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:multi_kelompok/desktop_login_ui.dart';
 import 'package:multi_kelompok/landscape_ui.dart';
 import 'package:multi_kelompok/portrait_ui.dart';
+import 'package:multi_kelompok/popular_movie_ui.dart';
 
 void main() {
   runApp(MaterialApp(home: LoginScreen(), debugShowCheckedModeBanner: false));
