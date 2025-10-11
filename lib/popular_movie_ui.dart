@@ -35,6 +35,16 @@ final List<Movie> popularMovies = [
     ageRating: 'PG-13',
   ),
   Movie(
+    title: 'Wednesday',
+    posterUrl: 'https://m.media-amazon.com/images/M/MV5BMjllNDU5YjYtOGM2Zi00YTMxLWI2MWItMjM4MDA5ZmI0ODc0XkEyXkFqcGdeQXVyMTU5OTA4NTIz._V1_QL75_UX380_CR0,0,380,562_.jpg',
+    rating: 8.1,
+    overview: 'A sleuthing, supernaturally infused mystery charting Wednesday Addams\' years as a student at Nevermore Academy, where she attempts to master her emerging psychic ability and solve a monstrous killing spree.',
+    genres: ['Comedy', 'Crime', 'Fantasy'],
+    year: 2022,
+    duration: '8 Episodes',
+    ageRating: 'TV-14',
+  ),
+  Movie(
     title: 'Furiosa: A Mad Max Saga',
     posterUrl: 'https://m.media-amazon.com/images/M/MV5BMmU1NjY3MTYtM2M5MS00MDFlLTg2MWYtNjI2NmMwZTM4OLI@._V1_QL75_UX380_CR0,0,380,562_.jpg',
     rating: 7.8,
@@ -53,16 +63,6 @@ final List<Movie> popularMovies = [
     year: 2024,
     duration: '1h 36m',
     ageRating: 'PG',
-  ),
-  Movie(
-    title: 'Wednesday',
-    posterUrl: 'https://m.media-amazon.com/images/M/MV5BMjllNDU5YjYtOGM2Zi00YTMxLWI2MWItMjM4MDA5ZmI0ODc0XkEyXkFqcGdeQXVyMTU5OTA4NTIz._V1_QL75_UX380_CR0,0,380,562_.jpg',
-    rating: 8.1,
-    overview: 'A sleuthing, supernaturally infused mystery charting Wednesday Addams\' years as a student at Nevermore Academy, where she attempts to master her emerging psychic ability and solve a monstrous killing spree.',
-    genres: ['Comedy', 'Crime', 'Fantasy'],
-    year: 2022,
-    duration: '8 Episodes',
-    ageRating: 'TV-14',
   ),
 ];
 
