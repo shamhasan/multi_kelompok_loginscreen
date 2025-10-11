@@ -31,7 +31,7 @@ class LoginScreen extends StatelessWidget {
                     child: isDesktop
                         ? _buildDesktop(screenWidth)
                         : (isPortrait
-                        ? _buildEditProfileUI()
+                        ? _buildLoginUI()
                         : _buildLanscape(screenWidth)),
                   );
                 },
@@ -261,7 +261,6 @@ class LoginScreen extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: () {
-                    // Add back navigation logic here
                   },
                   icon: const Icon(Icons.arrow_back),
                 ),
