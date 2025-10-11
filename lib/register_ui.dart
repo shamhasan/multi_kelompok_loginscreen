@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/login_screen.dart';
+import 'package:multi_kelompok/profile_ui.dart';
 import 'package:multi_kelompok/widgets/social_button.dart';
 import 'package:multi_kelompok/widgets/text_field.dart';
 
@@ -9,11 +11,6 @@ class RegisterUi extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(body: _buildRegisterUIWithNav(screenWidth));
-  }
-}
-
- Widget _buildRegisterUIWithNav(double screenWidth) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -38,11 +35,11 @@ class RegisterUi extends StatelessWidget {
 
             CustomTextField(hint: "Email"),
             const SizedBox(height: 16),
-            CustomTextField(hint:"Username"),
+            CustomTextField(hint: "Username"),
             const SizedBox(height: 16),
-            CustomTextField(hint:"Kata sandi", isPassword: true),
+            CustomTextField(hint: "Kata sandi", isPassword: true),
             const SizedBox(height: 16),
-            CustomTextField(hint:"Tulis ulang kata sandi", isPassword: true),
+            CustomTextField(hint: "Tulis ulang kata sandi", isPassword: true),
             const SizedBox(height: 24),
 
             SizedBox(
@@ -50,7 +47,10 @@ class RegisterUi extends StatelessWidget {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  // Add your registration logic here
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfileUi()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -68,7 +68,10 @@ class RegisterUi extends StatelessWidget {
 
             GestureDetector(
               onTap: () {
-                // Add navigation logic to the Login page if needed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
               },
               child: const Text.rich(
                 TextSpan(
@@ -105,3 +108,4 @@ class RegisterUi extends StatelessWidget {
       ),
     );
   }
+}
