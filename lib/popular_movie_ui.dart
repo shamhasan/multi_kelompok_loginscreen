@@ -40,7 +40,7 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Film Populer'),
+        title: const Text('Popular Movie'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
@@ -90,11 +90,9 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
                       height: posterHeight,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8.0),
-                        child: Image.network(
+                        child: Image.asset(
                           movie.posterUrl,
                           fit: BoxFit.cover,
-                          loadingBuilder: (context, child, progress) =>
-                          progress == null ? child : const Center(child: CircularProgressIndicator()),
                           errorBuilder: (context, error, stackTrace) =>
                           const Icon(Icons.movie, color: Colors.grey, size: 40),
                         ),
