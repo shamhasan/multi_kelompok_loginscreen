@@ -31,7 +31,7 @@ class LoginScreen extends StatelessWidget {
                     child: isDesktop
                         ? _buildDesktop(screenWidth)
                         : (isPortrait
-                        ? _buildLoginUI()
+                        ? _buildEditProfileUI()
                         : _buildLanscape(screenWidth)),
                   );
                 },
