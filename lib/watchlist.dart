@@ -1,134 +1,129 @@
 import 'package:flutter/material.dart';
+import 'watchlist_service.dart';
+import 'movie_detail.dart';
 
-void main() {
-  runApp(MaterialApp(home: Watchlist()));
-}
-
-class Watchlist extends StatelessWidget {
-  const Watchlist ({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: WatchlistPage(),
-    );
-  }
-}
-
-class WatchlistPage extends StatelessWidget {
+class WatchlistPage extends StatefulWidget {
   const WatchlistPage({super.key});
 
-  final List<Map<String, String>> watchlistitems =const [
-    {
-      'title':'Breaking Bad',
-      'duration':'5 Season',
-      'genre':'Genre: Action',
-      'imageurl':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfQnh9Q8lrQ1hNKN47ECCAtGDR-GNclcr57g&s'
-    },
-    {
-      'title': 'Arcane',
-      'duration':'2 Season',
-      'genre':'Genre: Action',
-      'imageurl':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMPqCv2EodaysWtgTw1XFckTFTZ_WjiN4z0emeh_KiLXmM6yaN0s8TIZAzM0LqBTbIOENae5mOEnop2re9FRzIl53hfvh2hBvI3TZfU0MB'
-    },
-    {
-      'title':'The Last of Us',
-      'duration':'6 Season',
-      'genre':'Genre: Action',
-      'imageurl':'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcT-0IQBKt5Rp7z_z6U5sWMyxHtFqDdBPIFzHGYoQOoO1mJM7Flvap3y_fXcnxT6m1zwQ5PCvFBkqXucOc_bNwDErSbNaaogjiQXOkGahBVu'
-    },
-    {
-      'title':'Stranger Thing',
-      'duration':'6 Season',
-      'genre':'Genre: Horror',
-      'imageurl':'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSuQHP-yhfyQhH-YWnEDhtRqPZ6rQztuOvbdCnuKkpJLYJ762XsqDyVC7v3qIIBDazBe6ahyp9RBqaYyaOhWjtcj6GriHllfaoKHukdkH7s'
-    },
-    {
-      'title':'Girl from Nowhere',
-      'duration':'2 Season',
-      'genre':'Genre: Action',
-      'imageurl':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlyLkyQDi8X9EUr6JkZIbVP73Lqz5ALwELIrUJdr6emfUmzS44n_zVRo9XqPYKFCLlnRvxlpIbJ94HbAkK6nBUOJAN1uYKksf7Guv3I7VACw'
-    },
-    {
-      'title':'The Gifted',
-      'duration':'2 Season',
-      'genre':'Genre: Action',
-      'imageurl':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSFDG1z755aH0D7LKDJvHwgdCNxf2yZcEUhrCXc59KWJvj6hBq'
+  @override
+  State<WatchlistPage> createState() => _WatchlistPageState();
+}
+
+class _WatchlistPageState extends State<WatchlistPage> {
+  final _service = WatchlistService();
+  late Future<List<Map<String, dynamic>>> _watchlistFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _watchlistFuture = _service.getWatchlist();
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _watchlistFuture = _service.getWatchlist();
+    });
+  }
+
+  // Fungsi untuk mengubah status (Update)
+  Future<void> _toggleStatus(int watchlistId, String currentStatus) async {
+    final newStatus = currentStatus == 'watched' ? 'unwatched' : 'watched';
+    try {
+      await _service.updateStatus(watchlistId, newStatus);
+      _refresh();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Status diubah menjadi $newStatus')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal update status: $e')),
+      );
     }
-  ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: const Text("Watchlist Movie")),
-      body: ListView.builder(
-        itemCount: watchlistitems.length,
-        itemBuilder: (context, index) {
-          final item = watchlistitems[index];
-          return Container(
-            margin: const EdgeInsets.symmetric(vertical: 8,horizontal: 16),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 5,
-                  offset: Offset(0,3)
-                ),
-              ],
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    item ['imageurl']!,
-                    width: 80,
-                    height: 120,
-                    fit: BoxFit.cover,
+      appBar: AppBar(title: const Text("My Watchlist")),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _watchlistFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Tampilkan error (termasuk jika user belum login, dicek di service)
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+            return const Center(child: Text("Watchlist kosong"));
+          }
+
+          final items = snapshot.data!;
+          return RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final watch = items[index];
+                final movie = watch['movies']; // Relasi JOIN dari Supabase
+
+                return ListTile(
+                  leading: movie != null && movie['poster_url'] != null
+                      ? Image.network(movie['poster_url'], width: 60, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported))
+                      : const Icon(Icons.image_not_supported),
+
+                  title: Text(movie != null ? movie['title'] : "Movie Deleted"),
+                  subtitle: Text('Status: ${watch['status']}'),
+
+                  // Tombol Update Status dan Delete
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Tombol Update Status (Inovasi)
+                      IconButton(
+                        icon: Icon(
+                          watch['status'] == 'watched'
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: watch['status'] == 'watched' ? Colors.green : Colors.grey,
+                        ),
+                        onPressed: () => _toggleStatus(watch['id'], watch['status']),
+                        tooltip: watch['status'] == 'watched' ? 'Mark as Unwatched' : 'Mark as Watched',
+                      ),
+
+                      // Tombol Delete (Remove from Watchlist)
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () async {
+                          await _service.removeFromWatchlist(watch['id']);
+                          _refresh();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Film dihapus dari watchlist 🗑️')),
+                          );
+                        },
+                        tooltip: 'Remove from Watchlist',
+                      ),
+                    ],
                   ),
-                ),
 
-                const SizedBox(width: 16),
-                Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item['title']!,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                  // Navigasi ke Detail Film (Detail - Aturan #4)
+                  onTap: () {
+                    if (movie != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MovieDetailPage(
+                            movieId: movie['id'],
+                            title: movie['title'],
+                            overview: movie['overview'],
+                            imageUrl: movie['poster_url'] ?? '',
                           ),
                         ),
-
-                        const SizedBox(height: 7),
-                        Text(
-                          item['genre']!,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold
-                          ),
-                        ),
-
-                        const SizedBox(height: 8),
-                        Text(
-                          item['duration']!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[900],
-                          ),
-                        ),
-                      ],
-                    ),
-                ),
-              ],
-            )
+                      ).then((_) => _refresh()); // Muat ulang saat kembali dari Detail
+                    }
+                  },
+                );
+              },
+            ),
           );
         },
       ),
@@ -138,3 +133,92 @@ class WatchlistPage extends StatelessWidget {
 
 
 
+
+// import 'package:flutter/material.dart';
+// import 'package:multi_kelompok/data/movie.dart';
+//
+// class WatchlistPage extends StatelessWidget {
+//   const WatchlistPage({super.key});
+//
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//           title: const Text("Watchlist Movie")),
+//       body: ListView.builder(
+//         itemCount: watchlistitems.length,
+//         itemBuilder: (context, index) {
+//           final item = watchlistitems[index];
+//           return Container(
+//             margin: const EdgeInsets.symmetric(vertical: 8,horizontal: 16),
+//             padding: const EdgeInsets.all(12),
+//             decoration: BoxDecoration(
+//               color: Colors.grey[300],
+//               borderRadius: BorderRadius.circular(10),
+//               boxShadow: const [
+//                 BoxShadow(
+//                   color: Colors.black12,
+//                   blurRadius: 5,
+//                   offset: Offset(0,3)
+//                 ),
+//               ],
+//             ),
+//             child: Row(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 ClipRRect(
+//                   borderRadius: BorderRadius.circular(8),
+//                   child: Image.network(
+//                     item ['imageurl']!,
+//                     width: 80,
+//                     height: 120,
+//                     fit: BoxFit.cover,
+//                   ),
+//                 ),
+//
+//                 const SizedBox(width: 16),
+//                 Expanded(
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         Text(
+//                           item['title']!,
+//                           style: const TextStyle(
+//                             fontSize: 18,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         ),
+//
+//                         const SizedBox(height: 7),
+//                         Text(
+//                           item['genre']!,
+//                           style: TextStyle(
+//                             fontSize: 15,
+//                             color: Colors.black,
+//                             fontWeight: FontWeight.bold
+//                           ),
+//                         ),
+//
+//                         const SizedBox(height: 8),
+//                         Text(
+//                           item['duration']!,
+//                           style: TextStyle(
+//                             fontSize: 14,
+//                             color: Colors.grey[900],
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                 ),
+//               ],
+//             )
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
+//
+//
+//
