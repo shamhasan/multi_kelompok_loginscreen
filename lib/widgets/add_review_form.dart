@@ -101,7 +101,7 @@ class _AddReviewFormState extends State<AddReviewForm> {
                 backgroundColor: Colors.green,
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
-              child: const Text('Kirim Review', style: TextStyle(fontSize: 16)),
+              child: const Text('Kirim Review', style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ),
         ],
