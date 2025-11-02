@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:multi_kelompok/admin/genre_admin_screen.dart';
 import 'package:multi_kelompok/admin/movie_admin_screen.dart';
+import 'package:multi_kelompok/profile_ui.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -16,6 +17,7 @@ class _AdminScreenState extends State<AdminScreen> {
   static final List<Widget> _widgetOptions = <Widget>[
     const MovieAdminScreen(),
     const GenreAdminScreen(),
+    const ProfileUi(),
   ];
 
   void onItemTapped(int index) {
@@ -37,6 +39,7 @@ class _AdminScreenState extends State<AdminScreen> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.movie), label: 'Movies'),
           BottomNavigationBarItem(icon: Icon(Icons.category), label: 'Genres'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Profile'),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
