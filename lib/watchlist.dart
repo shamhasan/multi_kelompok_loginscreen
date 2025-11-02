@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/data/movie.dart';
 import 'package:multi_kelompok/models/movie.dart';
-import 'package:multi_kelompok/movie_detail_screen.dart';
+import 'package:multi_kelompok/screens/movie_detail_screen.dart';
 
 class WatchlistPage extends StatelessWidget {
   const WatchlistPage({super.key});

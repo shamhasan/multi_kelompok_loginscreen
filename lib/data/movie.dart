@@ -23,7 +23,7 @@ final List<Map<String, String>> nowPlayingItems = const [
           'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcT-0IQBKt5Rp7z_z6U5sWMyxHtFqDdBPIFzHGYoQOoO1mJM7Flvap3y_fXcnxT6m1zwQ5PCvFBkqXucOc_bNwDErSbNaaogjiQXOkGahBVu',
     },
     {
-      'title': 'Stranger Thing',
+      'title': 'Stranger Things',
       'duration': '6 Season',
       'genre': 'Genre: Horror',
       'imageurl':
@@ -81,7 +81,7 @@ final List<Map<String, String>> nowPlayingItems = const [
   ),
   Movie(
     id: '8',
-    title: 'Stranger Thing',
+    title: 'Stranger Things',
     imageUrl: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSuQHP-yhfyQhH-YWnEDhtRqPZ6rQztuOvbdCnuKkpJLYJ762XsqDyVC7v3qIIBDazBe6ahyp9RBqaYyaOhWjtcj6GriHllfaoKHukdkH7s',
     rating: 8.7,
     overview: 'When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.',

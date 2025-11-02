@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/data/movie.dart';
+import 'package:multi_kelompok/models/movie.dart';
 import 'package:multi_kelompok/daftar_genre.dart';
 import 'package:multi_kelompok/popular_movie_ui.dart';
 import 'package:multi_kelompok/profile_ui.dart';
