@@ -10,14 +10,14 @@ class ReviewProvider with ChangeNotifier {
     Review(
       id: 'rev1',
       userId: 'user123',
-      movieId: '1', 
+      movieId: '1',
       rating: 9.0,
       comment: 'Sinematografinya luar biasa! Ceritanya juga lebih dalam dari film pertama.',
     ),
     Review(
       id: 'rev2',
       userId: 'user456',
-      movieId: '1', 
+      movieId: '1',
       rating: 10.0,
       comment: 'Salah satu film sci-fi terbaik dekade ini. Wajib tonton!',
     ),
@@ -131,6 +131,117 @@ class ReviewProvider with ChangeNotifier {
       movieId: '4',
       rating: 9.5,
       comment: 'Semua orang perlu nonton ini. Penggambaran Anxiety sangat akurat.',
+    ),
+
+    // --- Reviews for Watchlist Movies ---
+
+    // Reviews for Movie ID '5' (Breaking Bad)
+    Review(
+        id: 'rev18',
+        userId: 'heisenbergFan',
+        movieId: '5', rating: 10.0,
+        comment: 'Masterpiece. The best show ever created.'
+    ),
+    Review(
+        id: 'rev19',
+        userId: 'tvCritic',
+        movieId: '5',
+        rating: 9.8,
+        comment: 'Character development is unparalleled. A must-watch.'
+    ),
+    Review(
+        id: 'rev20',
+        userId: 'bingeWatcher',
+        movieId: '5',
+        rating: 9.5,
+        comment: 'Gak bisa berhenti nonton. Tiap episode bikin nagih!'
+    ),
+
+    // Reviews for Movie ID '6' (Arcane)
+    Review(
+        id: 'rev21',
+        userId: 'lolPlayer',
+        movieId: '6',
+        rating: 10.0,
+        comment: 'As a fan of the game, this is beyond my wildest dreams. The animation is art.'
+    ),
+    Review(
+        id: 'rev22',
+        userId: 'artStudent',
+        movieId: '6',
+        rating: 9.7,
+        comment: 'Setiap frame adalah lukisan. Visualnya juara dunia.'
+    ),
+    Review(
+        id: 'rev23',
+        userId: 'casualViewer',
+        movieId: '6',
+        rating: 9.0,
+        comment: 'Gak main gamenya tapi ceritanya bagus banget. Highly recommended!'
+    ),
+
+    // Reviews for Movie ID '7' (The Last of Us)
+    Review(
+        id: 'rev24',
+        userId: 'joelAndEllie',
+        movieId: '7',
+        rating: 9.5,
+        comment: 'Adaptasi game terbaik yang pernah ada. Pedro dan Bella luar biasa.'
+    ),
+    Review(
+        id: 'rev25',
+        userId: 'zombieFan',
+        movieId: '7',
+        rating: 9.0,
+        comment: 'Bukan sekadar serial zombie, tapi drama manusianya yang kuat.'
+    ),
+
+    // Reviews for Movie ID '8' (Stranger Thing)
+    Review(
+        id: 'rev26',
+        userId: 'upsideDownGal',
+        movieId: '8',
+        rating: 8.5,
+        comment: 'Nostalgia 80-an nya dapet banget. Soundtracknya keren!'
+    ),
+    Review(
+        id: 'rev27',
+        userId: 'horrorGeek',
+        movieId: '8',
+        rating: 9.0,
+        comment: 'Vecna is terrifying! Season 4 is the best one yet.'
+    ),
+
+    // Reviews for Movie ID '9' (Girl from Nowhere)
+    Review(
+        id: 'rev28',
+        userId: 'nannoIsQueen',
+        movieId: '9',
+        rating: 9.0,
+        comment: 'Nanno is my hero. Serial Thai yang cerdas dan beda.'
+    ),
+    Review(
+        id: 'rev29',
+        userId: 'karmaBeliever',
+        movieId: '9',
+        rating: 8.5,
+        comment: 'Tiap episode punya cerita yang nusuk. Bikin mikir.'
+    ),
+
+    // Reviews for Movie ID '10' (The Gifted)
+    Review(
+        id: 'rev30',
+        userId: 'mutantPower',
+        movieId: '10',
+        rating: 8.0,
+        comment: 'Sayang banget cuma 2 season. Padahal ceritanya seru.'
+    ),
+    Review(
+        id: 'rev31',
+        userId: 'xmenFollower',
+        movieId: '10',
+        rating: 7.5,
+        comment: 'Good take on the X-Men universe. Polaris is awesome.'
     ),
   ];
 
