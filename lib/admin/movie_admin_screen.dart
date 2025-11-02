@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/admin/add_movie_screen.dart';
 import 'package:multi_kelompok/data/movie.dart';
+import 'package:multi_kelompok/models/movie.dart'; // Import model Movie
 
 class MovieAdminScreen extends StatelessWidget {
   const MovieAdminScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // 1. Gabungkan kedua list menjadi satu
+    final List<Movie> allMovies = [...popularMovies, ...watchlistitems];
+
     return Stack(
       children: [
         ListView.builder(
@@ -14,6 +18,9 @@ class MovieAdminScreen extends StatelessWidget {
           shrinkWrap: true,
           physics: const BouncingScrollPhysics(),
           itemBuilder: (context, index) {
+            // Buat variabel lokal untuk akses yang lebih mudah
+            final movie = allMovies[index];
+
             return Container(
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               padding: const EdgeInsets.all(12),
@@ -35,7 +42,7 @@ class MovieAdminScreen extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
                       child: Image.network(
-                        allMovies[index]["posterUrl"]!,
+                        movie.imageUrl,
                         height: 200,
                         width: 130,
                         fit: BoxFit.cover,
@@ -47,30 +54,30 @@ class MovieAdminScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            allMovies[index]["title"]!,
+                            movie.title,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            allMovies[index]['genres'].join(', '),
-                            style: TextStyle(
+                            movie.genres.join(', '),
+                            style: const TextStyle(
                               fontSize: 15,
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            allMovies[index]["duration"]!,
+                            movie.duration,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[900],
                             ),
                           ),
                           Text(
-                            "⭐" + allMovies[index]["rating"]!.toString(),
-                            style: TextStyle(
+                            "⭐" + movie.rating.toString(),
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -115,10 +122,10 @@ class MovieAdminScreen extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AddMovieScreen()),
+                MaterialPageRoute(builder: (context) => const AddMovieScreen()),
               );
             },
-            child: Icon(Icons.add),
+            child: const Icon(Icons.add),
             backgroundColor: Colors.white,
           ),
         ),

@@ -76,7 +76,7 @@ class MovieDetailScreen extends StatelessWidget {
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                               const Text(
-                                ' / 5.0',
+                                ' / 10.0',
                                 style: TextStyle(fontSize: 14, color: Colors.black54),
                               )
                             ],

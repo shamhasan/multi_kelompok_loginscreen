@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:multi_kelompok/data/movie.dart';
+import 'package:multi_kelompok/models/movie.dart'; // Import yang diperlukan
 
 class AddMovieScreen extends StatefulWidget {
   const AddMovieScreen({super.key});
@@ -11,15 +11,32 @@ class AddMovieScreen extends StatefulWidget {
 }
 
 class _AddMovieScreenState extends State<AddMovieScreen> {
-  final List<String> _ageRatings = allMovies
-      .map((movie) => movie["ageRating"] as String)
-      .toSet()
-      .toList();
+  // Pindahkan inisialisasi ke initState agar lebih aman
+  List<String> _ageRatings = [];
   late String _selectedAgeRating;
 
   final List _allGenres = genres.map((e) => e).toList();
 
   final List<String> _selectedGenres = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // 1. Gabungkan semua movie dari data source
+    final allMovies = [...popularMovies, ...watchlistitems];
+
+    // 2. Ambil semua ageRating, hilangkan duplikat, dan jadikan list
+    _ageRatings = allMovies.map((movie) => movie.ageRating).toSet().toList();
+
+    // 3. Atur nilai awal dengan aman
+    if (_ageRatings.isNotEmpty) {
+      _selectedAgeRating = _ageRatings[0];
+    } else {
+      // Fallback jika tidak ada data rating sama sekali
+      _selectedAgeRating = "NR";
+      _ageRatings.add("NR");
+    }
+  }
 
   void _showGenreDialog() {
     showDialog(
@@ -70,13 +87,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
   }
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _selectedAgeRating = _ageRatings[0];
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -87,7 +97,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Center(
-          child: Container(
+          child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -129,7 +139,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  initialValue: _selectedAgeRating,
+                  value: _selectedAgeRating, // Gunakan 'value' bukan 'initialValue'
                   onChanged: (newAgeRate) {
                     setState(() {
                       _selectedAgeRating = newAgeRate.toString();

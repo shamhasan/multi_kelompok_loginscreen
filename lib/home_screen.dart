@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/data/movie.dart';
-import 'package:multi_kelompok/models/movie.dart';
 import 'package:multi_kelompok/daftar_genre.dart';
 import 'package:multi_kelompok/popular_movie_ui.dart';
 import 'package:multi_kelompok/profile_ui.dart';
+import 'package:multi_kelompok/providers/review_provider.dart';
+import 'package:multi_kelompok/screens/movie_detail_screen.dart';
 import 'package:multi_kelompok/watchlist.dart';
 import 'dart:math';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -90,9 +92,8 @@ class _HomeContent extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 50, // Tinggi tetap untuk ListView horizontal
+            height: 50,
             child: ListView.builder(
-              // Mengubah arah gulir menjadi horizontal
               scrollDirection: Axis.horizontal,
               itemCount: genres.length,
               itemBuilder: (context, index) {
@@ -287,79 +288,110 @@ class _HomeContent extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     final item = popularMovies[index];
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 16,
-                      ),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.blueGrey[200],
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MovieDetailScreen(movie: item),
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              item.imageUrl,
-                              width: 80,
-                              height: 120,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blueGrey[200],
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                item.imageUrl,
                                 width: 80,
                                 height: 120,
-                                color: Colors.grey[200],
-                                child: const Icon(
-                                  Icons.movie,
-                                  color: Colors.blue,
-                                  size: 40,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                  width: 80,
+                                  height: 120,
+                                  color: Colors.grey[200],
+                                  child: const Icon(
+                                    Icons.movie,
+                                    color: Colors.blue,
+                                    size: 40,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.title,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.title,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 7),
-                                Text(
-                                  item.genres.join(', '),
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
+                                  const SizedBox(height: 7),
+                                  Text(
+                                    item.genres.join(', '),
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  item.duration,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[900],
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    item.duration,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[900],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 8),
+                                  Consumer<ReviewProvider>(
+                                    builder: (context, reviewProvider, child) {
+                                      final averageRating = reviewProvider.getAverageRating(item.id);
+                                      return Row(
+                                        children: [
+                                          const Icon(Icons.star, color: Colors.amber, size: 20),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            averageRating > 0
+                                                ? averageRating.toStringAsFixed(1)
+                                                : "N/A",
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },
