@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/admin/admin_screen.dart';
+import 'package:multi_kelompok/admin/genre_admin_screen.dart';
+import 'package:multi_kelompok/admin/movie_admin_screen.dart';
 import 'package:multi_kelompok/home_screen.dart';
 import 'package:multi_kelompok/login_screen.dart';
 import 'package:multi_kelompok/popular_movie_ui.dart';
@@ -15,13 +18,16 @@ void main() async {
 
   runApp(
     MaterialApp(
+      debugShowCheckedModeBanner: false,
       home:
           // HomeScreen()
           // WatchlistPage()
           // PopularMoviesPage()
           // GenreListPage()
-          LoginScreen(),
-      debugShowCheckedModeBanner: false,
+          // LoginScreen(),
+          // MovieAdminScreen(),
+          // GenreAdminScreen()
+          AdminScreen()
     ),
   );
 }
