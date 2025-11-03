@@ -1,68 +1,180 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/data/movie.dart';
 
-class GenreListPage extends StatelessWidget {
-  const GenreListPage({super.key});
+class GenreAdminPage extends StatefulWidget {
+  const GenreAdminPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // The Scaffold provides the basic structure for the page (AppBar, body, etc.)
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Daftar Genre Film"),
-        backgroundColor: Colors.green,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          // GridView.builder is efficient for lists/grids
-          // It only builds the items that are visible on the screen.
-          itemCount: genres.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            // Sets the number of columns in the grid
-            crossAxisCount: 2, // 2 columns by default
-            childAspectRatio: 3 / 1, // Aspect ratio of each grid item (width/height)
-            crossAxisSpacing: 16, // Spacing between columns
-            mainAxisSpacing: 16, // Spacing between rows
+  State<GenreAdminPage> createState() => _GenreAdminPageState();
+}
+
+class _GenreAdminPageState extends State<GenreAdminPage> {
+  final List<String> _genres = ['Action', 'Comedy', 'Horror', 'Drama'];
+
+  void _addGenre() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Tambah Genre Baru"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: "Nama genre",
+            border: OutlineInputBorder(),
           ),
-          itemBuilder: (context, index) {
-            // Build each genre card
-            return _buildGenreCard(context, genres[index]);
-          },
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            onPressed: () {
+              final text = controller.text.trim();
+              if (text.isNotEmpty) {
+                setState(() => _genres.add(text));
+                Navigator.pop(context);
+              }
+            },
+            child: const Text("Simpan"),
+          ),
+        ],
       ),
     );
   }
 
-  // Helper method to create the visual card for a single genre
-  Widget _buildGenreCard(BuildContext context, String genreName) {
-    return InkWell(
-      onTap: () {
-        // Handle genre tap (e.g., navigate to a list of movies in that genre)
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Melihat film genre: $genreName")),
-        );
-      },
-      child: Card(
-        // Card is a material design container with rounded corners and elevation
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        color: Colors.lightGreen[100],
-        child: Center(
-          child: Text(
-            genreName,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.green,
-            ),
+  void _editGenre(int index) {
+    final controller = TextEditingController(text: _genres[index]);
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Edit Genre"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: "Nama genre",
+            border: OutlineInputBorder(),
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            onPressed: () {
+              final text = controller.text.trim();
+              if (text.isNotEmpty) {
+                setState(() => _genres[index] = text);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text("Simpan"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteGenre(int index) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Hapus Genre"),
+        content: Text("Yakin ingin menghapus genre '${_genres[index]}'?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              setState(() => _genres.removeAt(index));
+              Navigator.pop(context);
+            },
+            child: const Text("Hapus"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const Text("Manajemen Genre"),
+        backgroundColor: Colors.green,
+        elevation: 2,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: _genres.isEmpty
+            ? const Center(
+          child: Text(
+            "Belum ada genre.\nTekan tombol + untuk menambah.",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey, fontSize: 16),
+          ),
+        )
+            : ListView.builder(
+          itemCount: _genres.length,
+          itemBuilder: (_, i) {
+            final g = _genres[i];
+            return Card(
+              elevation: 3,
+              margin: const EdgeInsets.only(bottom: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ListTile(
+                leading: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: Colors.green[100],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.category, color: Colors.green),
+                ),
+                title: Text(
+                  g,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                trailing: Wrap(
+                  spacing: 4,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () => _editGenre(i),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _deleteGenre(i),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _addGenre,
+        backgroundColor: Colors.green,
+        icon: const Icon(Icons.add),
+        label: const Text("Tambah Genre"),
       ),
     );
   }
 }
-
