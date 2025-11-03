@@ -114,7 +114,8 @@ class LandscapeUI extends StatelessWidget {
                           onPressed: () {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen() ));
                           },
-                          child: const Text("Masuk"),
+                          child: const Text("Masuk",
+                          style: TextStyle(color: Colors.white)),
                         ),
                       ),
                       const SizedBox(height: 5),
@@ -122,7 +123,8 @@ class LandscapeUI extends StatelessWidget {
                       // daftar
                       TextButton(onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) =>RegisterUi()));
-                      }, child: const Text("Daftar")),
+                      }, child: const Text("Daftar",
+                      style: TextStyle(color: Colors.green))),
       
                       const SizedBox(height: 5),
                       const Text("Lanjutkan dengan"),
