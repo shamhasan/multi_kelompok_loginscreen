@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+final supabase = Supabase.instance.client;
 
 // --- Model ---
 class Genre {
   final int id;
   String name;
+  final DateTime createdAt;
 
-  Genre({required this.id, required this.name});
+  Genre({required this.id, required this.name, required this.createdAt});
+  // 👈 PERUBAHAN: Tambahkan Factory Constructor ini
+  factory Genre.fromMap(Map<String, dynamic> map) {
+    return Genre(
+      // 1. Ambil 'id' dan pastikan tipenya int.
+      id: map['id'] as int,
+
+      // 2. Ambil 'name' dan pastikan tipenya String.
+      name: map['name'] as String,
+
+      // 3. Ambil 'created_at' (yang dikirim Supabase sebagai String ISO)
+      //    lalu konversi menjadi objek DateTime menggunakan DateTime.parse().
+      createdAt: DateTime.parse(map['created_at'] as String),
+    );
+  }
 }
 
 // --- Main Widget ---
@@ -17,15 +35,9 @@ class GenreAdminPage extends StatefulWidget {
 }
 
 class _GenreAdminPageState extends State<GenreAdminPage> {
-  // Data State
-  final List<Genre> _genres = [
-    Genre(id: 1, name: 'Action'),
-    Genre(id: 2, name: 'Comedy'),
-    Genre(id: 3, name: 'Horror'),
-    Genre(id: 4, name: 'Sci-Fi'),
-    Genre(id: 5, name: 'Thriller'),
-  ];
-  int _nextId = 6;
+  List<Genre> _genres = []; // 👈 PERUBAHAN: List kosong, akan diisi dari DB
+  bool _isLoading = true;  // 👈 PERUBAHAN: State untuk indikator loading
+
 
   // Konstanta Warna untuk Tema yang Lebih Segar (Cerulean Blue)
   static const Color _primaryColor = Color(0xFF0077B6);
@@ -33,25 +45,131 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
   static const Color _accentColor = Color(0xFF48CAE4);
   static const Color _backgroundColor = Color(0xFFF0F8FF); // Light Blue Background
 
-  // --- Logic Metode CRUD (Tetap sama) ---
-
-  void _addGenre(String name) {
-    setState(() {
-      _genres.add(Genre(id: _nextId++, name: name.trim()));
-    });
+  @override
+  void initState() {
+    super.initState();
+    _fetchGenres(); // 👈 PERUBAHAN: Panggil fungsi READ di sini
   }
 
-  void _editGenre(int id, String newName) {
-    setState(() {
-      final i = _genres.indexWhere((g) => g.id == id);
-      if (i != -1) _genres[i].name = newName.trim();
-    });
+  // --- 3. Logic Metode CRUD (Terintegrasi Supabase) ---
+
+  // 1. ⚙️ READ: Mengambil semua genre
+  Future<void> _fetchGenres() async {
+    // Memeriksa apakah widget masih terpasang
+    if (!mounted) return;
+
+    // Mulai loading, tampilkan CircularProgressIndicator
+    setState(() => _isLoading = true);
+
+    try {
+      // Panggil Supabase: SELECT data dari tabel 'genres', ambil 3 kolom, lalu urutkan
+      final List<Map<String, dynamic>> response = await supabase
+          .from('genres') // Target tabel: genres
+          .select('id, name, created_at')
+          .order('id', ascending: true);
+
+      // Konversi hasil respons Map ke List<Genre> menggunakan Genre.fromMap
+      final fetchedGenres = response
+          .map((item) => Genre.fromMap(item))
+          .toList();
+
+      // Perbarui state lokal dengan data yang baru diambil
+      setState(() {
+        _genres = fetchedGenres;
+      });
+    } catch (e) {
+      // Tampilkan error jika gagal mengambil data
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error Read Data: ${e.toString()}')));
+      }
+    } finally {
+      // Selalu hentikan loading, baik sukses maupun gagal
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
-  void _deleteGenre(int id) {
-    setState(() {
-      _genres.removeWhere((g) => g.id == id);
-    });
+  // 2. ➕ CREATE: Menambah genre baru
+  Future<void> _addGenre(String name) async {
+    try {
+      // INSERT data ke Supabase dan KUNCI: gunakan .select() untuk mendapatkan ID dan created_at
+      final List<Map<String, dynamic>> response = await supabase
+          .from('genres')
+          .insert({'name': name.trim()})
+          .select();
+
+      if (response.isNotEmpty) {
+        // Konversi data balikan (row baru) ke objek Genre
+        final newGenre = Genre.fromMap(response.first);
+
+        // Perbarui state lokal (tambahkan ke list yang ada)
+        setState(() => _genres.add(newGenre));
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Genre "${newGenre.name}" berhasil ditambahkan!')));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal menambah genre: ${e.toString()}')));
+      }
+    }
+  }
+
+  // 3. ✍️ UPDATE: Mengedit nama genre
+  Future<void> _editGenre(int id, String newName) async {
+    try {
+      // UPDATE data: set kolom 'name' dan FILTER dengan .eq('id', id)
+      await supabase
+          .from('genres')
+          .update({'name': newName.trim()})
+          .eq('id', id);
+
+      // Perbarui state lokal (cari index dan ubah namanya)
+      setState(() {
+        final i = _genres.indexWhere((g) => g.id == id);
+        if (i != -1) _genres[i].name = newName.trim();
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Genre berhasil diperbarui!')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal mengedit genre: ${e.toString()}')));
+      }
+    }
+  }
+
+  // 4. ❌ DELETE: Menghapus genre
+  Future<void> _deleteGenre(int id, String name) async {
+    try {
+      // DELETE data: FILTER dengan .eq('id', id)
+      await supabase
+          .from('genres')
+          .delete()
+          .eq('id', id);
+
+      // Hapus dari state lokal
+      setState(() {
+        _genres.removeWhere((g) => g.id == id);
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Genre "$name" berhasil dihapus!')));
+      }
+    } catch (e) {
+      if (mounted) {
+        // Penanganan error FK Constraint (jika genre masih terhubung ke tabel movie_genres)
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal menghapus genre. Mungkin genre masih terhubung ke Film (Tabel movie_genres). Detail: ${e.toString()}')));
+      }
+    }
   }
 
   // --- Dialog Tambah/Edit (Peningkatan Desain) ---
@@ -60,10 +178,13 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
     final controller = TextEditingController(text: genre?.name ?? '');
     final isNew = genre == null;
     final formKey = GlobalKey<FormState>();
+    bool isSaving = false;
 
     await showDialog(
       context: context,
-      builder: (context) => Dialog(
+        builder: (context) => StatefulBuilder( // 👈 GUNAKAN INI
+            builder: (context, setStateSB) { // setStateSB adalah fungsi setState khusus dialog
+              return Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)), // Radius lebih besar
         elevation: 10,
         child: SingleChildScrollView(
@@ -85,7 +206,7 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    isNew ? 'Masukkan nama genre film yang unik.' : 'Perbarui nama genre film.',
+                    isNew ? 'Masukkan nama genre film.' : 'Perbarui nama genre film.',
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 28),
@@ -100,7 +221,7 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
                     },
                     decoration: InputDecoration(
                       labelText: 'Nama Genre',
-                      hintText: 'Misalnya: Fantasi',
+                      hintText: '',
                       prefixIcon: const Icon(Icons.category_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16), // Radius lebih besar
@@ -121,18 +242,29 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
                             foregroundColor: Colors.grey[600]),
                         child: const Text('Batal'),
                       ),
-                      const SizedBox(width: 12),
-                      FilledButton.icon(
-                        icon: Icon(isNew ? Icons.add : Icons.save),
-                        onPressed: () {
+                      const SizedBox(width: 12),FilledButton.icon(
+                        icon: isSaving
+                            ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) // 👈 Tampilkan Spinner
+                            : Icon(isNew ? Icons.add : Icons.save),
+                        onPressed: isSaving
+                            ? null // Disable tombol saat isSaving = true
+                            : () async {
                           if (formKey.currentState!.validate()) {
+                            setStateSB(() => isSaving = true); // 👈 1. Mulai loading di dialog
                             final name = controller.text.trim();
                             if (isNew) {
-                              _addGenre(name);
+                              await _addGenre(name); // 👈 await di sini
                             } else {
-                              _editGenre(genre!.id, name);
+                              await _editGenre(genre!.id, name); // 👈 await di sini
                             }
-                            Navigator.pop(context);
+
+                            setStateSB(() => isSaving = false); // 3. Hentikan loading
+
+                            // 4. Tutup dialog hanya jika proses CRUD selesai
+                            if (mounted) Navigator.pop(context);
                           }
                         },
                         style: FilledButton.styleFrom(
@@ -142,7 +274,7 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
                               borderRadius: BorderRadius.circular(16)),
                         ),
                         label: Text(
-                          isNew ? 'Tambahkan' : 'Simpan Perubahan',
+                          isSaving ? 'Menyimpan...' : (isNew ? 'Tambahkan' : 'Simpan Perubahan'),
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -153,8 +285,9 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
             ),
           ),
         ),
-      ),
-    );
+      );
+    }
+     )     );
   }
 
   // --- Dialog Konfirmasi Hapus (Peningkatan Desain) ---
@@ -183,8 +316,6 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
         ],
       ),
     );
-
-    if (ok == true) _deleteGenre(g.id);
   }
 
   // --- Widget Build ---
@@ -214,10 +345,19 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
         appBar: AppBar(
           title: const Text('🚀 Manajemen Genre Film'),
           centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              onPressed: _fetchGenres, // 👈 Panggil fungsi READ di sini
+            ),
+            const SizedBox(width: 8),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          child: _genres.isEmpty
+          child: _isLoading // 👈 Gunakan Ternary Operator
+              ? Center(child: CircularProgressIndicator(color: _primaryColor.withOpacity(0.7))) // KONDISI TRUE: Tampilkan Loading
+              : _genres.isEmpty
               ? Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
