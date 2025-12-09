@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:multi_kelompok/models/movie.dart';
 
+// --- Model Movie (Tidak Berubah) ---
 class Movie {
   final int id;
   final String title;
@@ -34,7 +34,7 @@ class Movie {
   }
 }
 
-// Model Genre (Seperti yang sudah Anda miliki)
+// --- Model Genre (Tidak Berubah) ---
 class Genre {
   final int id;
   String name;
@@ -53,48 +53,39 @@ class Genre {
   }
 }
 
-// Asumsi model Movie dan Genre sudah di-import atau dideklarasikan di atas file ini.
+
 final supabase = Supabase.instance.client;
-const Color _primaryColor = Color(0xFF469756); // Warna tema yang sama
+const Color _primaryColor = Color(0xFF469756);
+const Color _accentColor = Color(0xFF88D68A);
 
 // ---------------------------------------------
-// ⚙️ LOGIKA SUPABASE
+// ⚙ LOGIKA SUPABASE (Tidak Berubah)
 // ---------------------------------------------
 
 Future<List<Movie>> fetchMoviesByGenreId(int genreId) async {
   try {
-    // Query menggunakan JOIN dengan notasi Supabase:
-    // 1. Ambil semua kolom dari tabel 'movies'
-    // 2. JOIN ke tabel 'movie_genres' (!inner memastikan hanya data yang berelasi yang diambil)
-    // 3. FILTER berdasarkan genre_id yang cocok
     final response = await supabase
         .from('movies')
-        .select('''
-          id, title, overview, poster_url, is_now_playing, vote_count, created_at,
-          movie_genres!inner(genre_id) 
-        ''')
-        .eq('movie_genres.genre_id', genreId);
+        .select('*')
+        .eq('genre_id', genreId);
 
-    // Konversi hasil respons ke List<Movie>
+    debugPrint('Response dari Supabase: ${response.length} items ditemukan.');
+
     return (response as List)
         .map((item) => Movie.fromMap(item))
         .toList();
 
   } catch (e) {
-    // Di lingkungan produksi, gunakan logger.
     debugPrint('Error fetching movies by genre: $e');
     return [];
   }
 }
 
-class fromMap {
-}
-
 // ---------------------------------------------
-// 🎨 WIDGET HALAMAN
+// 🎨 WIDGET HALAMAN (DIUBAH MENJADI StatelessWidget)
 // ---------------------------------------------
 
-class MoviesByGenrePage extends StatefulWidget {
+class MoviesByGenrePage extends StatelessWidget { // 👈 Perubahan di sini
   final int genreId;
   final String genreName;
 
@@ -104,64 +95,63 @@ class MoviesByGenrePage extends StatefulWidget {
     required this.genreName,
   });
 
-  @override
-  State<MoviesByGenrePage> createState() => _MoviesByGenrePageState();
-}
-
-class _MoviesByGenrePageState extends State<MoviesByGenrePage> {
-  List<Movie> _movies = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadMovies(); // Panggil fungsi pengambilan data saat widget dibuat
-  }
-
-  Future<void> _loadMovies() async {
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-
-    final movies = await fetchMoviesByGenreId(widget.genreId);
-
-    if (!mounted) return;
-    setState(() {
-      _movies = movies;
-      _isLoading = false;
-    });
-  }
-
+  // Karena ini StatelessWidget, kita menggunakan FutureBuilder di metode build
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text('${widget.genreName} Films'), // Judul dinamis: Misal "Action Films"
+        title: Text('${genreName} Cinema'), // Menggunakan genreName
         backgroundColor: _primaryColor,
         titleTextStyle: const TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
+            fontWeight: FontWeight.w900, fontSize: 22, color: Colors.white),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: _primaryColor))
-          : _movies.isEmpty
-          ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.theaters, size: 80, color: Colors.grey[400]),
-            const SizedBox(height: 20),
-            Text(
-              'Tidak ada film dalam genre ${widget.genreName}.',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-            ),
-          ],
-        ),
-      )
-          : ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _movies.length,
-        itemBuilder: (context, index) {
-          final movie = _movies[index];
-          return MovieListItem(movie: movie);
+      body: FutureBuilder<List<Movie>>( // 👈 Mengganti stateful logic dengan FutureBuilder
+        future: fetchMoviesByGenreId(genreId), // Panggil fungsi asinkronus
+        builder: (context, snapshot) {
+          // --- 1. KONDISI LOADING ---
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+                child: CircularProgressIndicator(color: _primaryColor));
+          }
+
+          // --- 2. KONDISI ERROR (Opsional) ---
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Gagal memuat film: ${snapshot.error}', style: TextStyle(color: Colors.red)),
+            );
+          }
+
+          // --- 3. KONDISI DATA KOSONG ---
+          // snapshot.data bisa null, jadi gunakan List kosong jika null
+          final movies = snapshot.data ?? [];
+          if (movies.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.theaters_outlined,
+                      size: 80, color: Colors.grey[400]),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Oops! Belum ada film di box office genre $genreName.',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
+
+          // --- 4. KONDISI DATA ADA ---
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: movies.length,
+            itemBuilder: (context, index) {
+              final movie = movies[index];
+              return FunMovieCard(movie: movie);
+            },
+          );
         },
       ),
     );
@@ -169,65 +159,152 @@ class _MoviesByGenrePageState extends State<MoviesByGenrePage> {
 }
 
 // ---------------------------------------------
-// WIDGET ITEM FILM (Custom ListItem)
+// WIDGET ITEM FILM BARU (FunMovieCard) - Tidak Berubah
 // ---------------------------------------------
 
-class MovieListItem extends StatelessWidget {
+class FunMovieCard extends StatelessWidget {
   final Movie movie;
 
-  const MovieListItem({super.key, required this.movie});
+  const FunMovieCard({super.key, required this.movie});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(10),
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: movie.posterUrl.isNotEmpty
-              ? Image.network(
-            movie.posterUrl,
-            width: 50,
-            height: 80,
-            fit: BoxFit.cover,
-            errorBuilder: (c, o, s) => const Icon(Icons.movie, size: 50),
-          )
-              : const Icon(Icons.movie, size: 50, color: _primaryColor),
-        ),
-        title: Text(
-          movie.title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                movie.overview,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 13, color: Colors.grey[700]),
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Icon(Icons.star, color: Colors.amber, size: 16),
-                  const SizedBox(width: 4),
-                  Text('${movie.voteCount} Votes', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                ],
-              ),
-            ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        ],
+      ),
+      child: InkWell(
         onTap: () {
           // TODO: Navigasi ke Halaman Detail Film (Fitur 1)
           debugPrint('Go to details of: ${movie.title}');
         },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Poster Film (30% Lebar Card)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: movie.posterUrl.isNotEmpty
+                    ? Image.network(
+                  movie.posterUrl,
+                  width: 80,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (c, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      width: 80,
+                      height: 120,
+                      color: Colors.grey[300],
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(
+                          color: _accentColor, strokeWidth: 2),
+                    );
+                  },
+                  errorBuilder: (c, o, s) => Container(
+                    width: 80,
+                    height: 120,
+                    color: _primaryColor.withOpacity(0.1),
+                    child: const Icon(Icons.movie_filter_outlined,
+                        size: 40, color: _primaryColor),
+                  ),
+                )
+                    : Container(
+                  width: 80,
+                  height: 120,
+                  color: _primaryColor.withOpacity(0.1),
+                  child: const Icon(Icons.movie_filter_outlined,
+                      size: 40, color: _primaryColor),
+                ),
+              ),
+              const SizedBox(width: 16),
+
+              // 2. Detail Film (70% Lebar Card)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // --- Judul Film ---
+                    Text(
+                      movie.title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 18,
+                          color: Colors.black87),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+
+                    // --- Status Film (Now Playing/Upcoming) ---
+                    if (movie.isNowPlaying)
+                      const Chip(
+                        avatar:
+                        Icon(Icons.star, color: Colors.white, size: 16),
+                        label: Text('NOW PLAYING',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10)),
+                        backgroundColor: Colors.redAccent,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: EdgeInsets.zero,
+                      )
+                    else
+                      const Chip(
+                        avatar:
+                        Icon(Icons.schedule, color: Colors.white, size: 16),
+                        label: Text('UPCOMING',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10)),
+                        backgroundColor: Colors.blueGrey,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: EdgeInsets.zero,
+                      ),
+                    const SizedBox(height: 8),
+
+                    // --- Sinopsis Singkat ---
+                    Text(
+                      movie.overview,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // --- Vote Count ---
+                    Row(
+                      children: [
+                        Icon(Icons.thumb_up_alt_outlined,
+                            color: _primaryColor, size: 16),
+                        const SizedBox(width: 6),
+                        Text('${movie.voteCount} Likes',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: _primaryColor,
+                                fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
