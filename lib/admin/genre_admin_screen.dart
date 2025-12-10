@@ -1,50 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/Providers/MovieProvider.dart';
 import 'package:multi_kelompok/admin/add_genre_screen.dart';
-import 'package:multi_kelompok/admin/movie_admin_screen.dart';
-import 'package:multi_kelompok/data/movie.dart';
+import 'package:provider/provider.dart';
 
-class GenreAdminScreen extends StatelessWidget {
+class GenreAdminScreen extends StatefulWidget {
   const GenreAdminScreen({super.key});
 
   @override
+  State<GenreAdminScreen> createState() => _GenreAdminScreenState();
+}
+
+class _GenreAdminScreenState extends State<GenreAdminScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        Provider.of<MovieProvider>(context, listen: false).fetchGenres();
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GridView.builder(
-            // GridView.builder is efficient for lists/grids
-            // It only builds the items that are visible on the screen.
-            itemCount: genres.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              // Sets the number of columns in the grid
-              crossAxisCount: 2, // 2 columns by default
-              childAspectRatio:
-                  3 / 1, // Aspect ratio of each grid item (width/height)
-              crossAxisSpacing: 8, // Spacing between columns
-              mainAxisSpacing: 8, // Spacing between rows
+    return Consumer(
+      builder: (BuildContext context, MovieProvider provider, Widget? child) {
+        final genres = provider.genres;
+
+        if (genres.isEmpty) {
+          return const Center(child: Text("Belum ada data genre."));
+        }
+        return Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: GridView.builder(
+                itemCount: genres.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // 2 columns by default
+                  childAspectRatio:
+                      3 / 1, // Aspect ratio of each grid item (width/height)
+                  crossAxisSpacing: 8, // Spacing between columns
+                  mainAxisSpacing: 8, // Spacing between rows
+                ),
+                itemBuilder: (context, index) {
+                  final genreName = genres[index].name;
+                  // Build each genre card
+                  return _buildGenreCard(context, genreName);
+                },
+              ),
             ),
-            itemBuilder: (context, index) {
-              // Build each genre card
-              return _buildGenreCard(context, genres[index]);
-            },
-          ),
-        ),
-        Container(
-          alignment: Alignment.bottomRight,
-          margin: const EdgeInsets.all(16),
-          child: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddGenreScreen()),
-              );
-            },
-            child: Icon(Icons.add),
-            backgroundColor: Colors.white,
-          ),
-        ),
-      ],
+            Container(
+              alignment: Alignment.bottomRight,
+              margin: const EdgeInsets.all(16),
+              child: FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddGenreScreen()),
+                  );
+                },
+                child: Icon(Icons.add),
+                backgroundColor: Colors.white,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

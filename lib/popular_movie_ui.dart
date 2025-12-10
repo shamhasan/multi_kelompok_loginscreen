@@ -2,28 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 import 'package:multi_kelompok/data/movie.dart';
+import 'package:multi_kelompok/models/movie_model.dart';
 
-class Movie {
-  final String title;
-  final String posterUrl;
-  final double rating;
-  final String overview;
-  final List<String> genres;
-  final int year;
-  final String duration;
-  final String ageRating;
-
-  Movie({
-    required this.title,
-    required this.posterUrl,
-    required this.rating,
-    required this.overview,
-    required this.genres,
-    required this.year,
-    required this.duration,
-    required this.ageRating,
-  });
-}
 
 
 class PopularMoviesPage extends StatefulWidget {
