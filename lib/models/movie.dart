@@ -1,5 +1,5 @@
 class Movie {
-  final String id;
+  final int id;
   final String title;
   final String posterUrl;
   final double rating;

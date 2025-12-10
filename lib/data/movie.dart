@@ -86,7 +86,7 @@ final List<Map<String, String>> nowPlayingItems = const [
 
   final List<Movie> popularMovies = [
   Movie(
-    id: '1',
+    id: 1,
     title: 'Dune: Part Two',
     posterUrl: 'https://image.tmdb.org/t/p/w500/1m1rX1i42tN3rzzb8D0_aYt2xXP.jpg',
     rating: 8.6,
@@ -97,7 +97,7 @@ final List<Map<String, String>> nowPlayingItems = const [
     ageRating: 'PG-13',
   ),
   Movie(
-    id: '2',
+    id: 2,
     title: 'Furiosa: A Mad Max Saga',
     posterUrl: 'https://image.tmdb.org/t/p/w500/iADOJ8Zymht2JPMoy3R7xceZprc.jpg',
     rating: 7.8,
@@ -108,7 +108,7 @@ final List<Map<String, String>> nowPlayingItems = const [
     ageRating: 'R',
   ),
   Movie(
-    id: '3',
+    id: 3,
     title: 'Inside Out 2',
     posterUrl: 'https://image.tmdb.org/t/p/w500/fS5JGw1qI5t2uMIi0mB84xw61aI.jpg',
     rating: 7.9,
@@ -119,7 +119,7 @@ final List<Map<String, String>> nowPlayingItems = const [
     ageRating: 'PG',
   ),
   Movie(
-    id: '4',
+    id: 4,
     title: 'Wednesday',
     posterUrl: 'https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpMygczOkv.jpg',
     rating: 8.1,

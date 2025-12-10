@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/login_screen.dart';
-import 'package:multi_kelompok/my_reviews_screen.dart'; // Impor halaman MyReviewsScreen
+import 'package:multi_kelompok/my_votes_screen.dart'; // Diperbarui ke my_votes_screen.dart
 import 'package:multi_kelompok/widgets/profile_field.dart';
 import 'package:multi_kelompok/widgets/setting_field.dart';
 
@@ -88,15 +88,14 @@ class ProfileUi extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Menambahkan item "Ulasan Saya"
             GestureDetector(
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const MyReviewsScreen()),
+                  MaterialPageRoute(builder: (context) => const MyVotesScreen()),
                 );
               },
-              child: SettingField(icon: Icons.rate_review, title: "Ulasan Saya"),
+              child: SettingField(icon: Icons.poll, title: "Riwayat Vote"),
             ),
 
             SettingField(icon: Icons.notifications, title: "Atur Notifikasi"),

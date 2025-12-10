@@ -3,7 +3,8 @@ import 'dart:math';
 
 import 'package:multi_kelompok/data/movie.dart';
 import 'package:multi_kelompok/models/movie.dart';
-import 'package:multi_kelompok/providers/review_provider.dart';
+import 'package:multi_kelompok/providers/vote_provider.dart';
+
 import 'package:multi_kelompok/screens/movie_detail_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -110,15 +111,25 @@ class PopularMoviesPage extends StatelessWidget {
                         }).toList(),
                       ),
                       const SizedBox(height: 8),
-                      Consumer<ReviewProvider>(
-                        builder: (context, reviewProvider, child) {
-                          final averageRating = reviewProvider.getAverageRating(movie.id);
+                      Consumer<VoteProvider>(
+                        builder: (context, voteProvider, child) {
+                          voteProvider.fetchVotes(movie.id);
+                          final likes = voteProvider.likes[movie.id] ?? 0;
+                          final dislikes = voteProvider.dislikes[movie.id] ?? 0;
+
                           return Row(
                             children: [
-                              Icon(Icons.star, color: Colors.amber, size: detailSize + 4),
+                              Icon(Icons.thumb_up, color: Colors.green, size: detailSize + 2),
                               const SizedBox(width: 4),
                               Text(
-                                averageRating > 0 ? averageRating.toStringAsFixed(1) : "N/A",
+                                likes.toString(),
+                                style: TextStyle(fontSize: detailSize, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 12),
+                              Icon(Icons.thumb_down, color: Colors.red, size: detailSize + 2),
+                              const SizedBox(width: 4),
+                              Text(
+                                dislikes.toString(),
                                 style: TextStyle(fontSize: detailSize, fontWeight: FontWeight.bold),
                               ),
                             ],
