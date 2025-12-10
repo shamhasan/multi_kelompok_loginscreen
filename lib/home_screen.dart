@@ -75,7 +75,7 @@ class _HomeContent extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const GenreAdminPage(),
+                        builder: (context) => const GenreViewPage(),
                       ),
                     );
                   },

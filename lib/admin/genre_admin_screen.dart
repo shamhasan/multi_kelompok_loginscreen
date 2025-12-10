@@ -1,23 +1,10 @@
-// lib/admin/genre_admin_screen.dart (Nama file dari folder structure Anda)
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// 👈 Import Provider dari folder providers
 import '../providers/genre_provider.dart';
-// 👈 Import model dari folder models
 import '../models/genre.dart';
-// Asumsi 'movies_by_genres.dart' ada di folder yang dapat diakses, mungkin di 'lib/widgets' atau 'lib/screens'
+import '../movies_by_genres.dart' hide Genre;
 
-// Jika movies_by_genres.dart ada di lib/screens/movies_by_genres.dart
-// import '../screens/movies_by_genres.dart'; 
-// Jika movies_by_genres.dart ada di lib/movies_by_genres.dart (seperti di kode awal Anda)
-import '../movies_by_genres.dart' hide Genre; // Sesuaikan path ini jika perlu
-
-// ... (Sisa kode GenreAdminPage dan _GenreListItem sama persis dengan yang ada di Langkah 2, 
-//       hanya memastikan semua import dan pemanggilan provider sudah benar) ...
-
-// --- Main Widget ---
-class GenreAdminScreen extends StatefulWidget { // Ganti nama kelas dari Page ke Screen
+class GenreAdminScreen extends StatefulWidget {
   const GenreAdminScreen({super.key});
 
   @override
@@ -25,8 +12,6 @@ class GenreAdminScreen extends StatefulWidget { // Ganti nama kelas dari Page ke
 }
 
 class _GenreAdminScreenState extends State<GenreAdminScreen> {
-  // ... (Sisa kode initState, _showAddEditDialog, _confirmDelete, dan build) ...
-
   static const Color _primaryColor = Color(0xFF469756);
   static const Color _secondaryColor = Color(0xFF88D68A);
   static const Color _accentColor = Color(0xFF457346);
@@ -39,17 +24,6 @@ class _GenreAdminScreenState extends State<GenreAdminScreen> {
       Provider.of<GenreProvider>(context, listen: false).fetchGenres(context);
     });
   }
-
-  // Logika _showAddEditDialog dan _confirmDelete tetap sama seperti di Langkah 2.
-  // Pastikan menggunakan:
-  // final provider = context.read<GenreProvider>();
-  // untuk memanggil fungsi.
-
-  // Logika build tetap sama seperti di Langkah 2.
-  // Pastikan menggunakan:
-  // final provider = context.watch<GenreProvider>();
-  // final genres = provider.genres;
-  // final isLoading = provider.isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -149,8 +123,6 @@ class _GenreAdminScreenState extends State<GenreAdminScreen> {
     );
   }
 
-  // Masukkan implementasi _showAddEditDialog dan _confirmDelete di sini
-  // ...
   Future<void> _showAddEditDialog({Genre? genre}) async {
     final nameController = TextEditingController(text: genre?.name ?? '');
     final descController = TextEditingController(text: genre?.description ?? '');
@@ -196,7 +168,6 @@ class _GenreAdminScreenState extends State<GenreAdminScreen> {
                         },
                         decoration: InputDecoration(
                           labelText: 'Nama Genre',
-                          hintText: '',
                           prefixIcon: const Icon(Icons.category_outlined),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -213,8 +184,7 @@ class _GenreAdminScreenState extends State<GenreAdminScreen> {
                         maxLines: 2,
                         maxLength: 100,
                         decoration: InputDecoration(
-                          labelText: 'Deskripsi Singkat',
-                          hintText: 'Misalnya: Film yang bergenre aksi penuh ledakan.',
+                          labelText: 'Deskripsi Singpat',
                           prefixIcon: const Icon(Icons.short_text_rounded),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                           focusedBorder: OutlineInputBorder(
@@ -229,17 +199,17 @@ class _GenreAdminScreenState extends State<GenreAdminScreen> {
                         children: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            style: TextButton.styleFrom(
-                                foregroundColor: Colors.grey[600]),
+                            style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
                             child: const Text('Batal'),
                           ),
                           const SizedBox(width: 12),
                           FilledButton.icon(
                             icon: isSaving
                                 ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
                                 : Icon(isNew ? Icons.add : Icons.save),
                             onPressed: isSaving
                                 ? null
@@ -264,8 +234,8 @@ class _GenreAdminScreenState extends State<GenreAdminScreen> {
                             style: FilledButton.styleFrom(
                               backgroundColor: _primaryColor,
                               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16)),
+                              shape:
+                              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
                             label: Text(
                               isSaving ? 'Menyimpan...' : (isNew ? 'Tambahkan' : 'Simpan Perubahan'),
@@ -292,7 +262,8 @@ class _GenreAdminScreenState extends State<GenreAdminScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         icon: const Icon(Icons.delete_forever_rounded, color: Colors.red, size: 40),
         title: const Text('Hapus Genre?', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: Text('Anda yakin ingin menghapus genre "${g.name}"? Tindakan ini tidak dapat dibatalkan.'),
+        content:
+        Text('Anda yakin ingin menghapus genre "${g.name}"? Tindakan ini tidak dapat dibatalkan.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -300,11 +271,12 @@ class _GenreAdminScreenState extends State<GenreAdminScreen> {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.red[600],
+              backgroundColor: Colors.red,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Hapus', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('Hapus',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           )
         ],
       ),
@@ -336,7 +308,7 @@ class _GenreListItem extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MoviesByGenrePage( // Pastikan MoviesByGenrePage menerima parameter ini
+              builder: (context) => MoviesByGenrePage(
                 genreId: genre.id,
                 genreName: genre.name,
               ),
@@ -358,8 +330,8 @@ class _GenreListItem extends StatelessWidget {
             ),
             title: Text(
               genre.name,
-              style: const TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+              style:
+              const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,9 +347,10 @@ class _GenreListItem extends StatelessWidget {
                 Text(
                   'ID: ${genre.id}',
                   style: TextStyle(
-                      fontSize: 12,
-                      color: primaryColor.withOpacity(0.8),
-                      fontWeight: FontWeight.w700),
+                    fontSize: 12,
+                    color: primaryColor.withOpacity(0.8),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
@@ -390,14 +363,15 @@ class _GenreListItem extends StatelessWidget {
               },
               itemBuilder: (_) => [
                 const PopupMenuItem(
-                    value: 'edit',
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit_outlined, size: 22, color: Colors.green),
-                        SizedBox(width: 12),
-                        Text('Edit Genre'),
-                      ],
-                    )),
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit_outlined, size: 22, color: Colors.green),
+                      SizedBox(width: 12),
+                      Text('Edit Genre'),
+                    ],
+                  ),
+                ),
                 PopupMenuItem(
                   value: 'delete',
                   child: Row(

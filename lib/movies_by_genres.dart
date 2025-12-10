@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:multi_kelompok/models/movie.dart';
 
 // --- Model Movie (Tidak Berubah) ---
 class Movie {
