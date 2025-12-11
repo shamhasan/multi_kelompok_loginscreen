@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/daftar_genre.dart';
+import 'package:multi_kelompok/genre_list.dart';
 import 'package:multi_kelompok/home_screen.dart';
 import 'package:multi_kelompok/login_screen.dart';
 import 'package:multi_kelompok/movies_by_genres.dart';
