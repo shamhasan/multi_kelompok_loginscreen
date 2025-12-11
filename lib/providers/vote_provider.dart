@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class VoteProvider with ChangeNotifier {
   final SupabaseClient _supabase = Supabase.instance.client;
 
+  // Maps untuk menyimpan data vote
   Map<int, int> _likes = {};
   Map<int, int> _dislikes = {};
   Map<int, bool?> _userVotes = {};
@@ -13,6 +14,37 @@ class VoteProvider with ChangeNotifier {
   Map<int, int> get dislikes => _dislikes;
   Map<int, bool?> get userVotes => _userVotes;
 
+  // Mengambil semua data vote dan menghitungnya sekaligus.
+  Future<void> fetchAllVoteCounts() async {
+    try {
+      final response = await _supabase.from('votes').select('movie_id, is_like');
+      
+      // Buat map sementara untuk perhitungan
+      final Map<int, int> newLikes = {};
+      final Map<int, int> newDislikes = {};
+
+      for (var voteData in response as List) {
+        final int movieId = voteData['movie_id'];
+        final bool isLike = voteData['is_like'];
+
+        if (isLike) {
+          newLikes[movieId] = (newLikes[movieId] ?? 0) + 1;
+        } else {
+          newDislikes[movieId] = (newDislikes[movieId] ?? 0) + 1;
+        }
+      }
+
+      // Ganti state lama dengan yang baru dan beri tahu listener
+      _likes = newLikes;
+      _dislikes = newDislikes;
+      notifyListeners();
+
+    } catch (e) {
+      print('Error fetching all vote counts: $e');
+    }
+  }
+
+  // -- FUNGSI LAMA (masih digunakan di halaman detail) -- 
   Future<void> fetchVotes(int movieId) async {
     try {
       final response = await _supabase
@@ -69,10 +101,11 @@ class VoteProvider with ChangeNotifier {
       _userVotes[movieId] = isLike;
     }
 
-    await fetchVotes(movieId);
+    // Ambil ulang semua vote untuk memperbarui seluruh UI
+    await fetchAllVoteCounts();
+    await fetchVotes(movieId); // juga perbarui vote spesifik untuk halaman detail
   }
 
-  // Fungsi baru untuk mengambil riwayat vote pengguna
   Future<List<Vote>> getVotesByUser(String userId) async {
     try {
       final response = await _supabase
