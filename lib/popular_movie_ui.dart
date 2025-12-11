@@ -1,30 +1,99 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-import 'package:multi_kelompok/data/movie.dart';
 import 'package:multi_kelompok/models/movie.dart';
 import 'package:multi_kelompok/providers/vote_provider.dart';
 
 import 'package:multi_kelompok/screens/movie_detail_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class PopularMoviesPage extends StatelessWidget {
+class PopularMoviesPage extends StatefulWidget {
   const PopularMoviesPage({super.key});
 
   @override
+  State<PopularMoviesPage> createState() => _PopularMoviesPageState();
+}
+
+class _PopularMoviesPageState extends State<PopularMoviesPage> {
+  List<Movie> _movies = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchInitialData();
+  }
+
+  // Mengambil data film dan data vote secara bersamaan
+  Future<void> _fetchInitialData() async {
+    try {
+      // 1. Ambil data vote terlebih dahulu
+      await Provider.of<VoteProvider>(context, listen: false).fetchAllVoteCounts();
+
+      // 2. Ambil data film
+      final response = await Supabase.instance.client
+          .from('movies')
+          .select();
+
+      if (mounted) {
+        setState(() {
+          _movies = (response as List).map((data) => Movie.fromJson(data)).toList();
+          _isLoading = false;
+        });
+      }
+
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Gagal memuat data: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Film Populer'),
+          backgroundColor: Colors.green,
+          foregroundColor: Colors.white,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Error'),
+          backgroundColor: Colors.green,
+          foregroundColor: Colors.white,
+        ),
+        body: Center(child: Text(_error!)),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Film Populer'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
-      body: ListView.builder(
-        itemCount: popularMovies.length,
-        itemBuilder: (context, index) {
-          final movie = popularMovies[index];
-          return _buildMovieListItem(context, movie);
-        },
+      body: RefreshIndicator(
+        onRefresh: _fetchInitialData, // Memungkinkan pull-to-refresh
+        child: ListView.builder(
+          itemCount: _movies.length,
+          itemBuilder: (context, index) {
+            final movie = _movies[index];
+            return _buildMovieListItem(context, movie);
+          },
+        ),
       ),
     );
   }
@@ -50,9 +119,9 @@ class PopularMoviesPage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MovieDetailScreen(movie: movie),
+                builder: (context) => MovieDetailScreen(movieId: movie.id),
               ),
-            );
+            ).then((_) => _fetchInitialData()); // Ambil ulang data saat kembali dari halaman detail
           },
           child: Padding(
             padding: const EdgeInsets.all(12.0),
@@ -102,7 +171,7 @@ class PopularMoviesPage extends StatelessWidget {
                         runSpacing: 4.0,
                         children: movie.genres.map((genre) {
                           return Chip(
-                            label: Text(genre),
+                            label: Text(genre.trim()),
                             backgroundColor: Colors.green.shade100,
                             labelStyle: TextStyle(color: Colors.green.shade900, fontSize: chipTextSize),
                             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
@@ -113,7 +182,6 @@ class PopularMoviesPage extends StatelessWidget {
                       const SizedBox(height: 8),
                       Consumer<VoteProvider>(
                         builder: (context, voteProvider, child) {
-                          voteProvider.fetchVotes(movie.id);
                           final likes = voteProvider.likes[movie.id] ?? 0;
                           final dislikes = voteProvider.dislikes[movie.id] ?? 0;
 
