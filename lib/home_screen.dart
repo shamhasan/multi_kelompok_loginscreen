@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/daftar_genre.dart';
 import 'package:multi_kelompok/data/movie.dart';
+import 'package:multi_kelompok/daftar_genre.dart';
 import 'package:multi_kelompok/popular_movie_ui.dart';
 import 'package:multi_kelompok/profile_ui.dart';
+import 'package:multi_kelompok/providers/review_provider.dart';
+import 'package:multi_kelompok/screens/movie_detail_screen.dart';
 import 'package:multi_kelompok/watchlist.dart';
+import 'dart:math';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -49,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _HomeContent extends StatelessWidget {
- const _HomeContent({Key? key}) : super(key: key);
+  const _HomeContent({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +66,7 @@ class _HomeContent extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Genres',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
@@ -71,11 +75,11 @@ class _HomeContent extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const GenreListPage(),
+                        builder: (context) => const GenreAdminPage(),
                       ),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     'See More',
                     style: TextStyle(
                       fontSize: 16,
@@ -87,10 +91,9 @@ class _HomeContent extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            height: 50, // Tinggi tetap untuk ListView horizontal
+          SizedBox(
+            height: 50,
             child: ListView.builder(
-              // Mengubah arah gulir menjadi horizontal
               scrollDirection: Axis.horizontal,
               itemCount: genres.length,
               itemBuilder: (context, index) {
@@ -110,14 +113,14 @@ class _HomeContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text(
                     "Now Playing",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Container(
+                SizedBox(
                   height: 300,
                   child: ListView.builder(
                     itemCount: nowPlayingItems.length,
@@ -159,7 +162,7 @@ class _HomeContent extends StatelessWidget {
                                 Text(
                                   nowPlayingItems[index %
                                       nowPlayingItems.length]['genre']!,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -184,8 +187,8 @@ class _HomeContent extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
                       child: Text(
                         "Watchlist",
                         style: TextStyle(
@@ -203,7 +206,7 @@ class _HomeContent extends StatelessWidget {
                           ),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'See More',
                         style: TextStyle(
                           fontSize: 16,
@@ -214,25 +217,29 @@ class _HomeContent extends StatelessWidget {
                     ),
                   ],
                 ),
-                GridView.count(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
+                GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: min(6, watchlistitems.length),
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  children: List.generate(6, (index) {
+                  itemBuilder: (context, index) {
+                    final movie = watchlistitems[index];
                     return Container(
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: NetworkImage(
-                            watchlistitems[index]['imageurl']!,
+                            movie.imageUrl,
                           ),
                           fit: BoxFit.cover,
                         ),
                         borderRadius: BorderRadius.circular(15.0),
                       ),
                     );
-                  }),
+                  },
                 ),
               ],
             ),
@@ -245,8 +252,8 @@ class _HomeContent extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
                       child: Text(
                         "Popular Movie",
                         style: TextStyle(
@@ -260,11 +267,11 @@ class _HomeContent extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PopularMoviesPage(),
+                            builder: (context) => const PopularMoviesPage(),
                           ),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'See More',
                         style: TextStyle(
                           fontSize: 16,
@@ -276,87 +283,115 @@ class _HomeContent extends StatelessWidget {
                   ],
                 ),
                 ListView.builder(
-                  itemCount: 4,
+                  itemCount: min(4, popularMovies.length),
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     final item = popularMovies[index];
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 16,
-                      ),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.blueGrey[200],
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MovieDetailScreen(movie: item),
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              item.posterUrl,
-                              width: 80,
-                              height: 120,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                    width: 80,
-                                    height: 120,
-                                    color: Colors.grey[200],
-                                    child: const Icon(
-                                      Icons.movie,
-                                      color: Colors.blue,
-                                      size: 40,
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blueGrey[200],
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                item.imageUrl,
+                                width: 80,
+                                height: 120,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                  width: 80,
+                                  height: 120,
+                                  color: Colors.grey[200],
+                                  child: const Icon(
+                                    Icons.movie,
+                                    color: Colors.blue,
+                                    size: 40,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.title,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  const SizedBox(height: 7),
+                                  Text(
+                                    item.genres.join(', '),
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    item.duration,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[900],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Consumer<ReviewProvider>(
+                                    builder: (context, reviewProvider, child) {
+                                      final averageRating = reviewProvider.getAverageRating(item.id);
+                                      return Row(
+                                        children: [
+                                          const Icon(Icons.star, color: Colors.amber, size: 20),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            averageRating > 0
+                                                ? averageRating.toStringAsFixed(1)
+                                                : "N/A",
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.title,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 7),
-                                Text(
-                                  item.genres.join(', '),
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 8),
-                                Text(
-                                  item.duration,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[900],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },

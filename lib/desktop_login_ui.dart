@@ -7,7 +7,9 @@ import 'package:multi_kelompok/widgets/text_field.dart';
 
 class DesktopLoginUi extends StatelessWidget {
   final double screenWidth;
-  const DesktopLoginUi({super.key, required this.screenWidth});
+  DesktopLoginUi({super.key, required this.screenWidth});
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +38,58 @@ class DesktopLoginUi extends StatelessWidget {
               SizedBox(height: 64),
               Container(
                 width: screenWidth * 0.4,
-                child: CustomTextField(hint: "Email"),
+                child: TextField(
+                  controller: emailController,
+                  obscureText: false,
+                  decoration: InputDecoration(
+                    hintText: "Email",
+                    suffixIcon:  const Icon(Icons.email_outlined),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    hintStyle: TextStyle(
+                      fontSize: 20,
+                      fontFamily: "Poppins",
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w200,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 20,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
               ),
               SizedBox(height: 32),
               Container(
                 width: screenWidth * 0.4,
-                child: CustomTextField(hint: "Kata sandi", isPassword: true),
+                child: TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: "Email",
+                    suffixIcon: const Icon(Icons.visibility_off_outlined),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    hintStyle: TextStyle(
+                      fontSize: 20,
+                      fontFamily: "Poppins",
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w200,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 20,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
               ),
               SizedBox(height: 32),
               Container(
@@ -58,7 +106,10 @@ class DesktopLoginUi extends StatelessWidget {
                 height: 55,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileUi() ,));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfileUi()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF329A71),
@@ -77,7 +128,10 @@ class DesktopLoginUi extends StatelessWidget {
                 width: screenWidth * 0.4,
                 child: TextButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen() ,));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
                   },
                   child: Text(
                     "Daftar",
@@ -119,12 +173,12 @@ class DesktopLoginUi extends StatelessWidget {
                   children: [
                     DesktopSocialButton(
                       icon: "assets/images/google.png",
-                      title:"Google",
+                      title: "Google",
                       onPressed: () {},
                     ),
                     SizedBox(width: 32),
                     DesktopSocialButton(
-                      icon:"assets/images/facebook.png",
+                      icon: "assets/images/facebook.png",
                       title: "Facebook",
                       onPressed: () {},
                     ),

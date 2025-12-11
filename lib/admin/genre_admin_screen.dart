@@ -1,17 +1,32 @@
+// lib/admin/genre_admin_screen.dart (Nama file dari folder structure Anda)
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:multi_kelompok/providers/genre_provider.dart';
-import 'package:multi_kelompok/movies_by_genres.dart' hide Genre;
-import 'package:multi_kelompok/models/genre.dart';
+// 👈 Import Provider dari folder providers
+import '../providers/genre_provider.dart';
+// 👈 Import model dari folder models
+import '../models/genre.dart';
+// Asumsi 'movies_by_genres.dart' ada di folder yang dapat diakses, mungkin di 'lib/widgets' atau 'lib/screens'
 
-class GenreAdminPage extends StatefulWidget {
-  const GenreAdminPage({super.key});
+// Jika movies_by_genres.dart ada di lib/screens/movies_by_genres.dart
+// import '../screens/movies_by_genres.dart'; 
+// Jika movies_by_genres.dart ada di lib/movies_by_genres.dart (seperti di kode awal Anda)
+import '../movies_by_genres.dart' hide Genre; // Sesuaikan path ini jika perlu
+
+// ... (Sisa kode GenreAdminPage dan _GenreListItem sama persis dengan yang ada di Langkah 2, 
+//       hanya memastikan semua import dan pemanggilan provider sudah benar) ...
+
+// --- Main Widget ---
+class GenreAdminScreen extends StatefulWidget { // Ganti nama kelas dari Page ke Screen
+  const GenreAdminScreen({super.key});
 
   @override
-  State<GenreAdminPage> createState() => _GenreAdminPageState();
+  State<GenreAdminScreen> createState() => _GenreAdminScreenState();
 }
 
-class _GenreAdminPageState extends State<GenreAdminPage> {
+class _GenreAdminScreenState extends State<GenreAdminScreen> {
+  // ... (Sisa kode initState, _showAddEditDialog, _confirmDelete, dan build) ...
+
   static const Color _primaryColor = Color(0xFF469756);
   static const Color _secondaryColor = Color(0xFF88D68A);
   static const Color _accentColor = Color(0xFF457346);
@@ -24,6 +39,17 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
       Provider.of<GenreProvider>(context, listen: false).fetchGenres(context);
     });
   }
+
+  // Logika _showAddEditDialog dan _confirmDelete tetap sama seperti di Langkah 2.
+  // Pastikan menggunakan:
+  // final provider = context.read<GenreProvider>();
+  // untuk memanggil fungsi.
+
+  // Logika build tetap sama seperti di Langkah 2.
+  // Pastikan menggunakan:
+  // final provider = context.watch<GenreProvider>();
+  // final genres = provider.genres;
+  // final isLoading = provider.isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -123,6 +149,8 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
     );
   }
 
+  // Masukkan implementasi _showAddEditDialog dan _confirmDelete di sini
+  // ...
   Future<void> _showAddEditDialog({Genre? genre}) async {
     final nameController = TextEditingController(text: genre?.name ?? '');
     final descController = TextEditingController(text: genre?.description ?? '');
@@ -308,7 +336,7 @@ class _GenreListItem extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MoviesByGenrePage(
+              builder: (context) => MoviesByGenrePage( // Pastikan MoviesByGenrePage menerima parameter ini
                 genreId: genre.id,
                 genreName: genre.name,
               ),
