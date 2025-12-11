@@ -29,9 +29,9 @@ void main() async {
           home:
           // HomeScreen()
           // WatchlistPage()
-          // PopularMoviesPage()
+          PopularMoviesPage()
           // GenreListPage()
-           LoginScreen(),
+          // LoginScreen(),
           // MovieAdminScreen(),
           // GenreAdminPage()
         // AdminScreen()
