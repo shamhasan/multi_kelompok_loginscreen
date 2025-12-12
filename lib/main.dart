@@ -4,8 +4,13 @@ import 'package:multi_kelompok/Providers/MovieProvider.dart';
 import 'package:multi_kelompok/widgets/auth/AuthGate.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'package:multi_kelompok/providers/review_provider.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   await Supabase.initialize(
     url: "https://vafjsmuirzjuwvuocpwq.supabase.co",
     anonKey:
