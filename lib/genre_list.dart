@@ -4,24 +4,24 @@ import 'package:multi_kelompok/providers/genre_provider.dart';
 import 'package:multi_kelompok/movies_by_genres.dart' hide Genre;
 import 'package:multi_kelompok/models/genre.dart';
 
-// Halaman utama untuk menampilkan daftar genre (sekarang hanya View)
-class GenreViewPage extends StatefulWidget {
-  const GenreViewPage({super.key});
+// Halaman utama untuk manajemen Genre (CRUD)
+class GenreAdminPage extends StatefulWidget {
+  const GenreAdminPage({super.key});
 
   @override
-  State<GenreViewPage> createState() => _GenreViewPageState();
+  State<GenreAdminPage> createState() => _GenreAdminPageState();
 }
 
-class _GenreViewPageState extends State<GenreViewPage> {
-  // Konstanta Warna
-  static const Color _primaryColor = Color(0xFF469756);
-  static const Color _secondaryColor = Color(0xFF88D68A);
-  static const Color _backgroundColor = Color(0xFFF0F8FF);
+class _GenreAdminPageState extends State<GenreAdminPage> {
+  // --- KONSTANTA WARNA ---
+  static const Color _primaryColor = Color(0xFF469756); // Hijau Primer
+  static const Color _secondaryColor = Color(0xFF88D68A); // Hijau Sekunder
+  static const Color _backgroundColor = Color(0xFFF0F8FF); // Latar Belakang
 
   @override
   void initState() {
     super.initState();
-    // Memastikan pemanggilan fetchGenres dilakukan setelah widget tree selesai dibangun
+    // Memuat data genre saat inisialisasi
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<GenreProvider>(context, listen: false).fetchGenres(context);
     });
@@ -29,7 +29,6 @@ class _GenreViewPageState extends State<GenreViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Menggunakan context.watch untuk mendengarkan perubahan pada GenreProvider
     final provider = context.watch<GenreProvider>();
     final genres = provider.genres;
     final isLoading = provider.isLoading;
@@ -55,10 +54,9 @@ class _GenreViewPageState extends State<GenreViewPage> {
       child: Scaffold(
         backgroundColor: _backgroundColor,
         appBar: AppBar(
-          title: const Text('🎬 Movies By Genres'),
+          title: const Text('🎬 Cinema Genre'),
           centerTitle: true,
           actions: [
-            // Tombol refresh untuk memuat ulang daftar genre
             IconButton(
               icon: const Icon(Icons.refresh, color: Colors.white),
               onPressed: () => provider.fetchGenres(context),
@@ -71,7 +69,7 @@ class _GenreViewPageState extends State<GenreViewPage> {
           child: isLoading
               ? Center(child: CircularProgressIndicator(color: _primaryColor.withOpacity(0.7)))
               : genres.isEmpty
-              ? _EmptyState(primaryColor: _primaryColor) // Tampilan saat tidak ada genre
+              ? const _EmptyStateWidget()
               : ListView.separated(
             physics: const BouncingScrollPhysics(),
             itemCount: genres.length,
@@ -81,21 +79,87 @@ class _GenreViewPageState extends State<GenreViewPage> {
               return _GenreListItem(
                 genre: g,
                 primaryColor: _primaryColor,
+                onEdit: () => _showAddEditDialog(genre: g),
+                onDelete: () async {
+                  final ok = await _confirmDelete(g);
+                  if (ok == true) {
+                    // Memanggil deleteGenre dari provider
+                    provider.deleteGenre(context, g.id, g.name);
+                  }
+                },
               );
             },
           ),
         ),
-        // FloatingActionButton dihapus karena tidak ada fungsi tambah genre
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _showAddEditDialog(),
+          backgroundColor: _primaryColor,
+          elevation: 8,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          label: const Row(
+            children: [
+              Icon(Icons.add_circle_outline, color: Colors.white),
+              SizedBox(width: 10),
+              Text('Tambah Genre',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- LOGIKA DIALOG TAMBAH/EDIT GENRE ---
+  Future<void> _showAddEditDialog({Genre? genre}) async {
+    await showDialog(
+      context: context,
+      builder: (context) => _AddEditGenreDialog(
+        genre: genre,
+        primaryColor: _primaryColor,
+      ),
+    ).then((result) {
+      // Memastikan genre list di-refresh jika ada perubahan dari dialog
+      if (result == true) {
+        context.read<GenreProvider>().fetchGenres(context);
+      }
+    });
+  }
+
+  // --- LOGIKA DIALOG KONFIRMASI HAPUS ---
+  Future<bool?> _confirmDelete(Genre g) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        icon: const Icon(Icons.delete_forever_rounded, color: Colors.red, size: 40),
+        title: const Text('Hapus Genre?', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text('Anda yakin ingin menghapus genre "${g.name}"? Tindakan ini tidak dapat dibatalkan.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal', style: TextStyle(color: _primaryColor)),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red[600],
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Hapus', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          )
+        ],
       ),
     );
   }
 }
 
-// Widget untuk menampilkan state kosong
-class _EmptyState extends StatelessWidget {
-  final Color primaryColor;
+// ====================================================================
+// --- WIDGET BARU UNTUK MERAPIKAN KODE ---
+// ====================================================================
 
-  const _EmptyState({required this.primaryColor});
+// Widget untuk Tampilan State Kosong
+class _EmptyStateWidget extends StatelessWidget {
+  const _EmptyStateWidget();
 
   @override
   Widget build(BuildContext context) {
@@ -103,15 +167,15 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.movie_filter_outlined, size: 100, color: primaryColor.withOpacity(0.4)),
+          Icon(Icons.movie_filter_outlined, size: 100, color: Colors.grey[400]),
           const SizedBox(height: 24),
           Text(
-            'Belum ada genre yang tersedia.',
+            'Belum ada genre yang ditambahkan.',
             style: TextStyle(fontSize: 18, color: Colors.grey[600]),
           ),
           const SizedBox(height: 4),
           Text(
-            'Coba refresh atau cek koneksi Anda.',
+            'Tekan tombol "+" untuk memulai.',
             style: TextStyle(fontSize: 14, color: Colors.grey[500]),
           ),
         ],
@@ -120,28 +184,173 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-// Item daftar genre yang sekarang hanya berfungsi untuk navigasi
-class _GenreListItem extends StatelessWidget {
-  final Genre genre;
+
+// Widget untuk Dialog Tambah/Edit Genre
+class _AddEditGenreDialog extends StatefulWidget {
+  final Genre? genre;
   final Color primaryColor;
 
-  const _GenreListItem({
-    required this.genre,
-    required this.primaryColor,
-  });
+  const _AddEditGenreDialog({this.genre, required this.primaryColor});
 
-  // Fungsi untuk navigasi ke halaman film berdasarkan genre
-  void _navigateToMovies(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MoviesByGenrePage(
-          genreId: genre.id,
-          genreName: genre.name,
+  @override
+  State<_AddEditGenreDialog> createState() => __AddEditGenreDialogState();
+}
+
+class __AddEditGenreDialogState extends State<_AddEditGenreDialog> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _descController;
+  final _formKey = GlobalKey<FormState>();
+  bool _isSaving = false;
+  late final bool _isNew;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.genre?.name ?? '');
+    _descController = TextEditingController(text: widget.genre?.description ?? '');
+    _isNew = widget.genre == null;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSave() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSaving = true);
+
+    final provider = context.read<GenreProvider>();
+    final name = _nameController.text.trim();
+    final description = _descController.text.trim();
+    bool success;
+
+    if (_isNew) {
+      success = await provider.addGenre(context, name, description);
+    } else {
+      success = await provider.editGenre(context, widget.genre!.id, name, description);
+    }
+
+    if (mounted) {
+      // Menggunakan pop dengan true untuk memberi tahu halaman utama agar refresh
+      Navigator.pop(context, success);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 10,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _isNew ? 'Tambah Genre Baru' : 'Edit Genre',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: widget.primaryColor,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                TextFormField(
+                  controller: _nameController,
+                  autofocus: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Nama genre tidak boleh kosong.';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Nama Genre',
+                    prefixIcon: const Icon(Icons.category_outlined),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: widget.primaryColor, width: 2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _descController,
+                  maxLines: 2,
+                  maxLength: 100,
+                  decoration: InputDecoration(
+                    labelText: 'Deskripsi Singkat',
+                    hintText: 'Misalnya: Film yang bergenre aksi penuh ledakan.',
+                    prefixIcon: const Icon(Icons.short_text_rounded),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: widget.primaryColor, width: 2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
+                      child: const Text('Batal'),
+                    ),
+                    const SizedBox(width: 12),
+                    FilledButton.icon(
+                      icon: _isSaving
+                          ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : Icon(_isNew ? Icons.add : Icons.save),
+                      onPressed: _isSaving ? null : _handleSave,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: widget.primaryColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      label: Text(
+                        _isSaving ? 'Menyimpan...' : (_isNew ? 'Tambahkan' : 'Simpan Perubahan'),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
+}
+
+
+// Widget untuk Setiap Item Genre di Daftar
+class _GenreListItem extends StatelessWidget {
+  final Genre genre;
+  final Color primaryColor;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const _GenreListItem({
+    required this.genre,
+    required this.primaryColor,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -150,8 +359,18 @@ class _GenreListItem extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       margin: EdgeInsets.zero,
       child: InkWell(
-        // Logika onTap yang akan menavigasi ke MoviesByGenrePage
-        onTap: () => _navigateToMovies(context),
+        onTap: () {
+          // Navigasi ke halaman film berdasarkan genre
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MoviesByGenrePage(
+                genreId: genre.id,
+                genreName: genre.name,
+              ),
+            ),
+          );
+        },
         borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -190,11 +409,35 @@ class _GenreListItem extends StatelessWidget {
                 ),
               ],
             ),
-            // Tombol opsi (PopupMenuButton) dihapus
-            trailing: Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: primaryColor,
-              size: 20,
+            trailing: PopupMenuButton<String>(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              elevation: 4,
+              onSelected: (v) {
+                if (v == 'edit') onEdit();
+                if (v == 'delete') onDelete();
+              },
+              itemBuilder: (_) => [
+                const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_outlined, size: 22, color: Colors.green),
+                        SizedBox(width: 12),
+                        Text('Edit Genre'),
+                      ],
+                    )),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete_sweep_outlined, color: Colors.red, size: 22),
+                      SizedBox(width: 12),
+                      Text('Hapus Genre', style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
+              ],
+              icon: Icon(Icons.more_horiz, color: Colors.grey[700], size: 28),
             ),
           ),
         ),

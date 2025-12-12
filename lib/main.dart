@@ -35,10 +35,10 @@ void main() async {
         // HomeScreen()
         // WatchlistPage()
         //PopularMoviesPage()
-         LoginScreen(),
+         //LoginScreen(),
        //MoviesByGenrePage(genreId: 8, genreName: 'Action',),
         //MovieAdminScreen(),
-        //GenreViewPage(),
+        GenreAdminPage(),
         //AdminScreen()
       ),
     ),

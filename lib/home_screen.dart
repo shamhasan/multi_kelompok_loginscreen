@@ -87,7 +87,7 @@ class _HomeContent extends StatelessWidget {
               onPressed: () {
                 // Navigasi yang disederhanakan
                 if (title == 'Genres') {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const GenreViewPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const GenreAdminPage()));
                 } else if (title == 'Watchlist') {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const WatchlistPage()));
                 } else if (title == 'Popular Movies') {
