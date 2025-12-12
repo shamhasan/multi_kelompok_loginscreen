@@ -10,7 +10,9 @@ class Movie {
   final int year;
   final String duration;
   final String ageRating;
-  final bool isNowPlaying; // Properti baru
+  final bool isNowPlaying;
+  final int voteCount;
+  final int dislikeCount;
 
   Movie({
     required this.id,
@@ -22,10 +24,11 @@ class Movie {
     required this.year,
     required this.duration,
     required this.ageRating,
-    required this.isNowPlaying, // Diperbarui di constructor
+    required this.isNowPlaying,
+    required this.voteCount,
+    required this.dislikeCount,
   });
 
-  // Factory constructor untuk membuat instance Movie dari JSON
   factory Movie.fromJson(Map<String, dynamic> json) {
     List<String> genresList;
     if (json['genres'] is String) {
@@ -47,7 +50,9 @@ class Movie {
       year: json['year'] ?? 0,
       duration: json['duration'] ?? 'N/A',
       ageRating: json['age_rating'] ?? 'N/A',
-      isNowPlaying: json['is_now_playing'] ?? false, // Diperbarui di fromJson
+      isNowPlaying: json['is_now_playing'] ?? false,
+      voteCount: json['vote_count'] ?? 0,
+      dislikeCount: json['dislike_count'] ?? 0,
     );
   }
 }

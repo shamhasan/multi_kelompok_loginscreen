@@ -21,16 +21,13 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
     _initialDataFuture = _fetchInitialData();
   }
 
-  // Mengambil semua data yang dibutuhkan (votes dan movies) dalam satu pemanggilan
   Future<Map<String, dynamic>> _fetchInitialData() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) {
-      // Jika user tidak login, kembalikan data kosong dengan error
       throw Exception('Pengguna tidak login.');
     }
 
     try {
-      // Menggunakan Future.wait untuk menjalankan kedua future secara bersamaan
       final results = await Future.wait([
         Provider.of<VoteProvider>(context, listen: false).getVotesByUser(userId),
         _fetchAllMovies(),
@@ -41,7 +38,6 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
         'allMovies': results[1] as List<Movie>,
       };
     } catch (e) {
-      // Jika ada error, lempar lagi untuk ditangkap oleh FutureBuilder
       rethrow;
     }
   }
@@ -67,7 +63,6 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
           }
 
           if (snapshot.hasError) {
-            // Menangani error spesifik jika pengguna tidak login
             if (snapshot.error.toString().contains('Pengguna tidak login')) {
               return const Center(
                 child: Text(
@@ -102,8 +97,20 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
               final vote = userVotes[index];
               final movie = allMovies.firstWhere(
                 (m) => m.id == vote.movieId,
-                // Perbaikan di sini: tambahkan isNowPlaying
-                orElse: () => Movie(id: vote.movieId, title: 'Unknown Movie', posterUrl: '', rating: 0, overview: '', genres: [], year: 0, duration: '', ageRating: '', isNowPlaying: false),
+                orElse: () => Movie(
+                  id: vote.movieId, 
+                  title: 'Unknown Movie', 
+                  posterUrl: '', 
+                  rating: 0, 
+                  overview: '', 
+                  genres: [], 
+                  year: 0, 
+                  duration: '', 
+                  ageRating: '', 
+                  isNowPlaying: false, 
+                  voteCount: 0,
+                  dislikeCount: 0,
+                ),
               );
 
               return Card(

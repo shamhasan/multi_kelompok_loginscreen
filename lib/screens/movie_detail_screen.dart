@@ -23,6 +23,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     _fetchMovie();
   }
 
+  // Refresh data film setiap kali halaman ini dibuka kembali
   Future<void> _fetchMovie() async {
     try {
       final response = await Supabase.instance.client
@@ -57,23 +58,16 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
       );
     }
 
-    if (_error != null) {
+    if (_error != null || _movie == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Error'), backgroundColor: Colors.green, foregroundColor: Colors.white),
         body: Center(child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Text(_error!),
+          child: Text(_error ?? 'Film tidak ditemukan.'),
         )),
       );
     }
     
-    if (_movie == null) {
-       return Scaffold(
-        appBar: AppBar(title: const Text('Error'), backgroundColor: Colors.green, foregroundColor: Colors.white),
-        body: const Center(child: Text('Film tidak ditemukan.')),
-      );
-    }
-
     final movie = _movie!;
 
     return Scaffold(
@@ -82,78 +76,69 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    movie.posterUrl,
-                    width: 120,
-                    height: 180,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.movie_creation_outlined, size: 120, color: Colors.grey),
+      // Gunakan RefreshIndicator agar bisa pull-to-refresh
+      body: RefreshIndicator(
+        onRefresh: _fetchMovie,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      movie.posterUrl,
+                      width: 120,
+                      height: 180,
+                      fit: BoxFit.cover,
+                      errorBuilder: (c, e, s) => const Icon(Icons.movie_creation_outlined, size: 120, color: Colors.grey),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        movie.title,
-                        style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${movie.year} • ${movie.duration}',
-                        style: const TextStyle(
-                            fontSize: 16, color: Colors.black54),
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 6.0,
-                        runSpacing: 4.0,
-                        children: movie.genres
-                            .map((genre) => Chip(
-                                  label: Text(genre.trim()),
-                                  backgroundColor:
-                                      Colors.lightGreen.shade100,
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
-                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                ))
-                            .toList(),
-                      ),
-                    ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(movie.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text('${movie.year} • ${movie.duration}', style: const TextStyle(fontSize: 16, color: Colors.black54)),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6.0,
+                          runSpacing: 4.0,
+                          children: movie.genres.map((g) => Chip(label: Text(g.trim()), backgroundColor: Colors.lightGreen.shade100)).toList(),
+                        ),
+                        const SizedBox(height: 8),
+                        // Menampilkan jumlah vote langsung dari data film
+                        Row(
+                          children: [
+                            const Icon(Icons.thumb_up, color: Colors.green, size: 16),
+                            const SizedBox(width: 4),
+                            Text(movie.voteCount.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const SizedBox(width: 16),
+                            const Icon(Icons.thumb_down, color: Colors.red, size: 16),
+                            const SizedBox(width: 4),
+                            Text(movie.dislikeCount.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              movie.overview,
-              style: const TextStyle(fontSize: 16, height: 1.5),
-            ),
-            const SizedBox(height: 24),
-            const Divider(thickness: 1),
-            const SizedBox(height: 16),
-            const Text(
-              'Berikan Penilaian Anda',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            
-            // --- PERGANTIAN DARI REVIEW KE VOTE ---
-            VoteWidget(movieId: movie.id),
-
-          ],
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(movie.overview, style: const TextStyle(fontSize: 16, height: 1.5)),
+              const SizedBox(height: 24),
+              const Divider(thickness: 1),
+              const SizedBox(height: 16),
+              const Text('Berikan Penilaian Anda', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              VoteWidget(movieId: movie.id),
+            ],
+          ),
         ),
       ),
     );
