@@ -1,41 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/models/movie.dart'; 
-import 'package:multi_kelompok/providers/review_provider.dart';
-import 'package:multi_kelompok/widgets/add_review_form.dart';
-import 'package:multi_kelompok/widgets/review_list.dart';
-import 'package:provider/provider.dart';
+import 'package:multi_kelompok/models/movie.dart';
+import 'package:multi_kelompok/widgets/vote_widget.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class MovieDetailScreen extends StatelessWidget {
-  // Halaman ini menerima objek Movie untuk ditampilkan
-  final Movie movie;
+class MovieDetailScreen extends StatefulWidget {
+  final int movieId;
 
-  const MovieDetailScreen({super.key, required this.movie});
+  const MovieDetailScreen({super.key, required this.movieId});
+
+  @override
+  State<MovieDetailScreen> createState() => _MovieDetailScreenState();
+}
+
+class _MovieDetailScreenState extends State<MovieDetailScreen> {
+  Movie? _movie;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMovie();
+  }
+
+  Future<void> _fetchMovie() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('movies')
+          .select()
+          .eq('id', widget.movieId)
+          .single();
+      
+      if (mounted) {
+        setState(() {
+          _movie = Movie.fromJson(response);
+          _isLoading = false;
+        });
+      }
+
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Gagal memuat detail film: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(backgroundColor: Colors.green, foregroundColor: Colors.white, elevation: 0),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Error'), backgroundColor: Colors.green, foregroundColor: Colors.white),
+        body: Center(child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(_error!),
+        )),
+      );
+    }
+    
+    if (_movie == null) {
+       return Scaffold(
+        appBar: AppBar(title: const Text('Error'), backgroundColor: Colors.green, foregroundColor: Colors.white),
+        body: const Center(child: Text('Film tidak ditemukan.')),
+      );
+    }
+
+    final movie = _movie!;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(movie.title),
         backgroundColor: Colors.green,
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Bagian Detail Film
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Image.network(
-                    movie.imageUrl, //<- Perbaikan 1: Menggunakan posterUrl
+                    movie.posterUrl,
                     width: 120,
                     height: 180,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => 
-                      const Icon(Icons.movie_creation_outlined, size: 120),
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.movie_creation_outlined, size: 120, color: Colors.grey),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -45,43 +108,28 @@ class MovieDetailScreen extends StatelessWidget {
                     children: [
                       Text(
                         movie.title,
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         '${movie.year} • ${movie.duration}',
-                        style: const TextStyle(fontSize: 16, color: Colors.black54),
+                        style: const TextStyle(
+                            fontSize: 16, color: Colors.black54),
                       ),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 6.0,
                         runSpacing: 4.0,
-                        children: movie.genres.map((genre) => Chip(
-                          label: Text(genre),
-                          backgroundColor: Colors.lightGreen.shade100,
-                          padding: EdgeInsets.zero,
-                        )).toList(),
-                      ),
-                      const SizedBox(height: 8),
-                      // Perbaikan 2: Menambahkan tampilan Rating Rata-rata
-                      Consumer<ReviewProvider>(
-                        builder: (context, reviewProvider, child) {
-                          final averageRating = reviewProvider.getAverageRating(movie.id);
-                          return Row(
-                            children: [
-                              const Icon(Icons.star, color: Colors.amber, size: 22),
-                              const SizedBox(width: 4),
-                              Text(
-                                averageRating.toStringAsFixed(1),
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              const Text(
-                                ' / 10.0',
-                                style: TextStyle(fontSize: 14, color: Colors.black54),
-                              )
-                            ],
-                          );
-                        },
+                        children: movie.genres
+                            .map((genre) => Chip(
+                                  label: Text(genre.trim()),
+                                  backgroundColor:
+                                      Colors.lightGreen.shade100,
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ))
+                            .toList(),
                       ),
                     ],
                   ),
@@ -93,34 +141,18 @@ class MovieDetailScreen extends StatelessWidget {
               movie.overview,
               style: const TextStyle(fontSize: 16, height: 1.5),
             ),
-
             const SizedBox(height: 24),
             const Divider(thickness: 1),
             const SizedBox(height: 16),
-
-            // Bagian Review
             const Text(
-              'Ulasan & Rating Pengguna',
+              'Berikan Penilaian Anda',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
+            
+            // --- PERGANTIAN DARI REVIEW KE VOTE ---
+            VoteWidget(movieId: movie.id),
 
-            // Menampilkan daftar review menggunakan widget yang sudah dibuat
-            ReviewList(movieId: movie.id),
-
-            const SizedBox(height: 24),
-            const Divider(thickness: 1),
-            const SizedBox(height: 16),
-
-            // Bagian Form Tambah Review
-            const Text(
-              'Tulis Ulasan Anda',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
-            // Menampilkan form tambah review menggunakan widget yang sudah dibuat
-            AddReviewForm(movieId: movie.id),
           ],
         ),
       ),

@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
-import 'package:multi_kelompok/Providers/MovieProvider.dart';
-import 'package:multi_kelompok/widgets/auth/AuthGate.dart';
+import 'package:multi_kelompok/providers/auth_provider/AuthProvider.dart';
+import 'package:multi_kelompok/providers/vote_provider.dart';
+import 'package:multi_kelompok/widgets/auth/AuthGate.dart'; // Impor AuthGate
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter/material.dart';
-import 'package:multi_kelompok/providers/review_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,21 +17,21 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => MovieProvider()),
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(create: (context) => VoteProvider()),
       ],
-      child: MaterialApp(
+      child: const MaterialApp(
         debugShowCheckedModeBanner: false,
         home:
-            // HomeScreen()
-            // WatchlistPage()
-            // PopularMoviesPage()
-            // GenreListPage()
-            // LoginScreen(),
-            // MovieAdminScreen(),
-            // GenreAdminScreen()
-            // AdminScreen()
-            AuthGate(),
+        // HomeScreen(),
+        // WatchlistPage(),
+        // PopularMoviesPage(),
+        // GenreListPage(),
+        // LoginScreen(),
+        // MovieAdminScreen(),
+        // GenreAdminScreen(),
+        // AdminScreen(),
+        AuthGate(),
       ),
     ),
   );

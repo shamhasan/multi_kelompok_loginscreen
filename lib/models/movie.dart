@@ -3,7 +3,7 @@ import 'dart:convert';
 class Movie {
   final int id;
   final String title;
-  final String imageUrl;
+  final String posterUrl;
   final double rating;
   final String overview;
   final List<String> genres;
@@ -15,7 +15,7 @@ class Movie {
   Movie({
     required this.id,
     required this.title,
-    required this.imageUrl,
+    required this.posterUrl,
     required this.rating,
     required this.overview,
     required this.genres,

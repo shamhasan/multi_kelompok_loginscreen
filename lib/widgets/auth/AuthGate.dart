@@ -1,7 +1,6 @@
-// File: lib/widgets/auth_gate.dart (sesuaikan path)
 
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
+import 'package:multi_kelompok/providers/auth_provider/AuthProvider.dart';
 import 'package:multi_kelompok/screen/admin/admin_screen.dart';
 import 'package:multi_kelompok/screen/home_screen.dart';
 import 'package:multi_kelompok/screen/login_screen.dart';

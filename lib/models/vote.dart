@@ -2,7 +2,7 @@ class Vote {
   final int id;
   final String userId;
   final int movieId;
-  final bool isLike;
+  final bool isLike; // true for like, false for dislike
 
   Vote({
     required this.id,
@@ -11,6 +11,7 @@ class Vote {
     required this.isLike,
   });
 
+  // Konversi objek Vote menjadi format JSON untuk dikirim ke Supabase
   Map<String, dynamic> toJson() {
     return {
       'user_id': userId,
@@ -19,12 +20,13 @@ class Vote {
     };
   }
 
+  // Membuat objek Vote dari data JSON yang diterima dari Supabase
   factory Vote.fromJson(Map<String, dynamic> json) {
     return Vote(
-      id: json['id'],
-      userId: json['user_id'],
-      movieId: json['movie_id'],
-      isLike: json['is_like'],
+      id: json['id'] as int,
+      userId: json['user_id'] as String,
+      movieId: json['movie_id'] as int,
+      isLike: json['is_like'] as bool,
     );
   }
 }

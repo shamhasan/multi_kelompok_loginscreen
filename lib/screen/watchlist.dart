@@ -1,109 +1,190 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/data/movie.dart';
 import 'package:multi_kelompok/models/movie.dart';
 import 'package:multi_kelompok/screens/movie_detail_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class WatchlistPage extends StatelessWidget {
+class WatchlistPage extends StatefulWidget {
   const WatchlistPage({super.key});
+
+  @override
+  State<WatchlistPage> createState() => _WatchlistPageState();
+}
+
+class _WatchlistPageState extends State<WatchlistPage> {
+  bool _isLoading = true;
+  String? _error;
+  List<Movie> _watchlistMovies = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWatchlist();
+  }
+
+  Future<void> _fetchWatchlist() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) {
+        throw Exception('Anda harus login untuk melihat watchlist.');
+      }
+
+      // 1. Ambil semua movie_id dari tabel watchlist milik pengguna
+      final watchlistResponse = await Supabase.instance.client
+          .from('watchlist')
+          .select('movie_id')
+          .eq('user_id', userId);
+
+      final movieIds = (watchlistResponse as List).map((item) => item['movie_id'] as int).toList();
+
+      if (movieIds.isEmpty) {
+        if (mounted) {
+          setState(() {
+            _watchlistMovies = [];
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
+      // 2. Ambil semua detail film berdasarkan movie_id yang didapat
+      final moviesResponse = await Supabase.instance.client
+          .from('movies')
+          .select()
+          .inFilter('id', movieIds);
+
+      if (mounted) {
+        final movies = (moviesResponse as List).map((data) => Movie.fromJson(data)).toList();
+        setState(() {
+          _watchlistMovies = movies;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = "Gagal memuat watchlist: $e";
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Watchlist Movie")),
-      body: ListView.builder(
-        itemCount: watchlistitems.length,
+      appBar: AppBar(
+        title: const Text("My Watchlist"),
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.white,
+      ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(_error!, style: const TextStyle(color: Colors.red), textAlign: TextAlign.center),
+        ),
+      );
+    }
+
+    if (_watchlistMovies.isEmpty) {
+      return const Center(
+        child: Text(
+          'Watchlist Anda masih kosong.',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _fetchWatchlist,
+      child: ListView.builder(
+        itemCount: _watchlistMovies.length,
+        padding: const EdgeInsets.all(16.0),
         itemBuilder: (context, index) {
-          // Langsung gunakan objek Movie karena watchlistitems sudah List<Movie>
-          final Movie movie = watchlistitems[index];
+          final movie = _watchlistMovies[index];
           return InkWell(
             onTap: () {
-              // Tidak perlu lagi mencari, langsung navigasi dengan objek movie
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MovieDetailScreen(movie: movie),
+                  builder: (context) => MovieDetailScreen(movieId: movie.id),
                 ),
-              );
+              ).then((_) => _fetchWatchlist()); // Refresh data saat kembali
             },
-            child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Colors.black12, blurRadius: 5, offset: Offset(0, 3)),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        movie.imageUrl, // Langsung pakai atribut dari objek Movie
-                        width: 80,
-                        height: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 80,
-                            height: 120,
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.movie_creation_outlined, color: Colors.grey, size: 40),
-                          );
-                        },
-                      ),
+            child: Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              elevation: 4,
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Image.network(
+                    movie.posterUrl, // Menggunakan properti yang benar
+                    width: 100,
+                    height: 150,
+                    fit: BoxFit.cover,
+                    errorBuilder: (c, e, s) => Container(
+                      width: 100,
+                      height: 150,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.movie, color: Colors.grey, size: 40),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            movie.title, // Langsung pakai atribut dari objek Movie
+                            movie.title,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 7),
-                          Text(
-                            movie.genres.join(', '), // Gabungkan genre menjadi satu string
-                            style: const TextStyle(
-                                fontSize: 15,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          ),
                           const SizedBox(height: 8),
                           Text(
-                            movie.duration, // Langsung pakai atribut dari objek Movie
+                            movie.genres.join(', '),
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey[900],
+                              color: Colors.grey[600],
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 8),
-                          // Penambahan Atribut Rating
-                          Row(
-                            children: [
-                              const Icon(Icons.star, color: Colors.amber, size: 20),
-                              const SizedBox(width: 4),
-                              Text(
-                                movie.rating.toString(),
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            '${movie.year} • ${movie.duration}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                )),
+                  ),
+                ],
+              ),
+            ),
           );
         },
       ),
