@@ -23,8 +23,13 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     _fetchMovie();
   }
 
-  // Refresh data film setiap kali halaman ini dibuka kembali
+  // Fungsi untuk mengambil data film dari Supabase
   Future<void> _fetchMovie() async {
+    // Jangan set _isLoading menjadi true jika ini adalah refresh, agar UI tidak berkedip
+    if (!_isLoading) {
+        setState(() {}); // Memicu rebuild untuk menampilkan data baru
+    }
+
     try {
       final response = await Supabase.instance.client
           .from('movies')
@@ -35,7 +40,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
       if (mounted) {
         setState(() {
           _movie = Movie.fromJson(response);
-          _isLoading = false;
+          _isLoading = false; // Set loading false hanya setelah data pertama kali didapat
         });
       }
 
@@ -76,7 +81,6 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
-      // Gunakan RefreshIndicator agar bisa pull-to-refresh
       body: RefreshIndicator(
         onRefresh: _fetchMovie,
         child: SingleChildScrollView(
@@ -112,7 +116,6 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                           children: movie.genres.map((g) => Chip(label: Text(g.trim()), backgroundColor: Colors.lightGreen.shade100)).toList(),
                         ),
                         const SizedBox(height: 8),
-                        // Menampilkan jumlah vote langsung dari data film
                         Row(
                           children: [
                             const Icon(Icons.thumb_up, color: Colors.green, size: 16),
@@ -136,7 +139,8 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
               const SizedBox(height: 16),
               const Text('Berikan Penilaian Anda', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
-              VoteWidget(movieId: movie.id),
+              // 3. Meneruskan fungsi _fetchMovie sebagai callback onVoted
+              VoteWidget(movieId: movie.id, onVoted: _fetchMovie),
             ],
           ),
         ),

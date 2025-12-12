@@ -70,19 +70,15 @@ class __HomeContentState extends State<_HomeContent> {
   @override
   void initState() {
     super.initState();
-    _fetchMovies();
+    _fetchMovies(); // Hanya perlu fetch movies
   }
 
   Future<void> _fetchMovies() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
     try {
-      // PERBAIKAN: Menambahkan .order() untuk mengurutkan berdasarkan vote_count
-      final response = await Supabase.instance.client
-          .from('movies')
-          .select()
-          .order('vote_count', ascending: false);
-
+      final response = await Supabase.instance.client.from('movies')
+          .select().order('vote_count', ascending: false);
       if (mounted) {
         final allMovies = (response as List).map((data) => Movie.fromJson(data)).toList();
         setState(() {
@@ -104,7 +100,7 @@ class __HomeContentState extends State<_HomeContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar: AppBar(
+      appBar: AppBar(
         title: const Text('Home'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
@@ -186,7 +182,6 @@ class __HomeContentState extends State<_HomeContent> {
   }
 
   Widget _buildPopularMoviesList() {
-    // Karena _allMovies sudah diurutkan dari database, kita hanya perlu mengambil 4 pertama
     final popularMoviesToShow = _allMovies.take(4).toList();
     return ListView.builder(
       itemCount: popularMoviesToShow.length,
