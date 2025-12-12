@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/desktop_login_ui.dart';
-import 'package:multi_kelompok/landscape_ui.dart';
-import 'package:multi_kelompok/portrait_ui.dart';
-import 'package:multi_kelompok/popular_movie_ui.dart';
+import 'package:multi_kelompok/screen/desktop_login_ui.dart';
+import 'package:multi_kelompok/screen/landscape_ui.dart';
+import 'package:multi_kelompok/screen/portrait_ui.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});

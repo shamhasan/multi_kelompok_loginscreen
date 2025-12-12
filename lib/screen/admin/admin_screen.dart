@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:multi_kelompok/admin/genre_admin_screen.dart';
-import 'package:multi_kelompok/admin/movie_admin_screen.dart';
-import 'package:multi_kelompok/profile_ui.dart';
+import 'package:multi_kelompok/screen/admin/genre_admin_screen.dart';
+import 'package:multi_kelompok/screen/admin/movie_admin_screen.dart';
+import 'package:multi_kelompok/screen/profile_ui.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});

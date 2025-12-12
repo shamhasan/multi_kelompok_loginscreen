@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/login_screen.dart';
+import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
 import 'package:multi_kelompok/widgets/profile_field.dart';
 import 'package:multi_kelompok/widgets/setting_field.dart';
+import 'package:provider/provider.dart';
 
 class ProfileUi extends StatelessWidget {
   const ProfileUi({super.key});
@@ -92,12 +93,12 @@ class ProfileUi extends StatelessWidget {
 
             const SizedBox(height: 16),
             TextButton.icon(
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (Route<dynamic> route) => false,
-                );
+              onPressed: ()async {
+                try {
+                  await Provider.of<AuthProvider>(context, listen: false).signOut();
+                }catch (e) {
+                  rethrow;
+                }
               },
               icon: const Icon(Icons.logout, color: Colors.red),
               label: const Text("Keluar", style: TextStyle(color: Colors.red)),

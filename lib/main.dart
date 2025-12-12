@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/daftar_genre.dart';
-import 'package:multi_kelompok/home_screen.dart';
-import 'package:multi_kelompok/login_screen.dart';
-import 'package:multi_kelompok/popular_movie_ui.dart';
-import 'package:multi_kelompok/watchlist.dart';
-import 'package:multi_kelompok/admin/admin_screen.dart';
-import 'package:multi_kelompok/admin/genre_admin_screen.dart';
-import 'package:multi_kelompok/admin/movie_admin_screen.dart';
+import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
+import 'package:multi_kelompok/Providers/MovieProvider.dart';
+import 'package:multi_kelompok/widgets/auth/AuthGate.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -22,19 +18,23 @@ void main() async {
   );
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ReviewProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => MovieProvider()),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home:
-        // HomeScreen()
-        // WatchlistPage()
-        // PopularMoviesPage()
-        // GenreListPage()
-         // LoginScreen(),
-        // MovieAdminScreen(),
-        GenreAdminPage()
-        // AdminScreen()
+            // HomeScreen()
+            // WatchlistPage()
+            // PopularMoviesPage()
+            // GenreListPage()
+            // LoginScreen(),
+            // MovieAdminScreen(),
+            // GenreAdminScreen()
+            // AdminScreen()
+            AuthGate(),
       ),
     ),
   );
