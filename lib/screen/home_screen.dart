@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/daftar_genre.dart';
 import 'package:multi_kelompok/data/movie.dart';
-import 'package:multi_kelompok/popular_movie_ui.dart';
-import 'package:multi_kelompok/profile_ui.dart';
-import 'package:multi_kelompok/watchlist.dart';
+import 'package:multi_kelompok/screen/daftar_genre.dart';
+import 'package:multi_kelompok/screen/popular_movie_ui.dart';
+import 'package:multi_kelompok/screen/profile_ui.dart';
+import 'package:multi_kelompok/screen/watchlist.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

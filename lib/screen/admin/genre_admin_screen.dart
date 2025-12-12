@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/Providers/MovieProvider.dart';
-import 'package:multi_kelompok/admin/add_genre_screen.dart';
+import 'package:multi_kelompok/screen/admin/add_genre_screen.dart';
 import 'package:provider/provider.dart';
 
 class GenreAdminScreen extends StatefulWidget {

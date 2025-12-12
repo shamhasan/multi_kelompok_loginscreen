@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
-import 'package:multi_kelompok/login_screen.dart';
 import 'package:multi_kelompok/widgets/profile_field.dart';
 import 'package:multi_kelompok/widgets/setting_field.dart';
 import 'package:provider/provider.dart';

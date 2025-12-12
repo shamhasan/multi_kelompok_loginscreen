@@ -1,5 +1,4 @@
 import 'package:multi_kelompok/models/movie_model.dart';
-import 'package:multi_kelompok/popular_movie_ui.dart';
 
 final List<Map<String, String>> nowPlayingItems = const [
   {

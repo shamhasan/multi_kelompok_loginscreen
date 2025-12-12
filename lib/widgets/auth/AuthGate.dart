@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
-import 'package:multi_kelompok/admin/admin_screen.dart';
-import 'package:multi_kelompok/admin/movie_admin_screen.dart';
+import 'package:multi_kelompok/screen/admin/admin_screen.dart';
+import 'package:multi_kelompok/screen/home_screen.dart';
+import 'package:multi_kelompok/screen/login_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:multi_kelompok/login_screen.dart'; // Import Login screen kamu
-import 'package:multi_kelompok/home_screen.dart'; // Import Home screen kamu
+
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
-import 'package:multi_kelompok/home_screen.dart';
-import 'package:multi_kelompok/login_screen.dart';
-import 'package:multi_kelompok/profile_ui.dart';
+import 'package:multi_kelompok/screen/login_screen.dart';
 import 'package:multi_kelompok/widgets/social_button.dart';
 import 'package:multi_kelompok/widgets/text_field.dart';
 import 'package:provider/provider.dart';
