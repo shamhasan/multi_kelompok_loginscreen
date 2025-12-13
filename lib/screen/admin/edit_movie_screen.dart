@@ -4,7 +4,6 @@ import 'package:multi_kelompok/Providers/MovieProvider.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
 
 class EditMovieScreen extends StatefulWidget {
-  // Kita butuh data film yang akan diedit
   final Movie movie; 
 
   const EditMovieScreen({super.key, required this.movie});
@@ -14,14 +13,12 @@ class EditMovieScreen extends StatefulWidget {
 }
 
 class _EditMovieScreenState extends State<EditMovieScreen> {
-  // Controller
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _yearController = TextEditingController();
   final _durationController = TextEditingController();
   final _posterUrlController = TextEditingController();
 
-  // State Variables
   String _previewImage = "";
   String? _selectedAgeRating;
   List<String> _selectedGenres = [];
@@ -85,7 +82,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
           ? "https://via.placeholder.com/150" 
           : _posterUrlController.text,
       isNowPlaying: _isNowPlaying,
-      voteCount: widget.movie.voteCount, 
+      likes: widget.movie.likes, // DIGANTI DARI voteCount KE likes
       rating: widget.movie.rating,       
       year: int.tryParse(_yearController.text) ?? 2024,
       duration: _durationController.text,
@@ -169,8 +166,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
         title: const Text('Edit Movie'), // Ubah Judul
         centerTitle: true,
         backgroundColor: Colors.green[200], // Ubah warna biar beda dikit
-      ),
-      body: SingleChildScrollView(
+      ),      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -227,11 +223,8 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               builder: (context, provider, child) {
                 if (provider.ageRatings.isEmpty) return const LinearProgressIndicator();
                 
-                // Safety Check: Pastikan rating lama ada di list provider
-                // Jika tidak ada (misal DB berubah), reset dropdown value
                 if (_selectedAgeRating != null && 
                     !provider.ageRatings.any((r) => r.name == _selectedAgeRating)) {
-                   // _selectedAgeRating = null; // Bisa di-uncomment jika ingin force reset
                 }
 
                 return DropdownButtonFormField<String>(
@@ -282,7 +275,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text("Genre film: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                ElevatedButton( // Pakai tombol kecil biar rapi
+                ElevatedButton( 
                   onPressed: _showGenreDialog,
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[50]),
                   child: const Text("Edit Genre"),
@@ -318,7 +311,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               child: ElevatedButton(
                 onPressed: _updateMovie,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, // Tombol hijau menandakan update
+                  backgroundColor: Colors.green, 
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),
                 child: const Text(

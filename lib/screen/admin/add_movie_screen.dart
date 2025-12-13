@@ -79,7 +79,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
           ? "https://via.placeholder.com/150"
           : _posterUrlController.text,
       isNowPlaying: _isNowPlaying,
-      voteCount: 0,
+      likes: 0, // DIGANTI DARI voteCount KE likes
       rating: 0.0,
       // Parse tahun ke integer (default 2024 jika error/kosong)
       year: int.tryParse(_yearController.text) ?? 2024,
