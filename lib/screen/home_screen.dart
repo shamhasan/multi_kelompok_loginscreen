@@ -77,8 +77,9 @@ class __HomeContentState extends State<_HomeContent> {
     if (!mounted) return;
     setState(() => _isLoading = true);
     try {
+      // PERBAIKAN: Mengurutkan berdasarkan 'likes'
       final response = await Supabase.instance.client.from('movies')
-          .select().order('vote_count', ascending: false);
+          .select().order('likes', ascending: false);
       if (mounted) {
         final allMovies = (response as List).map((data) => Movie.fromJson(data)).toList();
         setState(() {
@@ -211,14 +212,11 @@ class __HomeContentState extends State<_HomeContent> {
                   const SizedBox(height: 8),
                   Text(movie.genres.join(', '), style: const TextStyle(color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 8),
+                  // PERBAIKAN: Menampilkan HANYA jumlah likes
                   Row(children: [
                     const Icon(Icons.thumb_up, color: Colors.green, size: 16),
                     const SizedBox(width: 4),
-                    Text(movie.voteCount.toString()),
-                    const SizedBox(width: 16),
-                    const Icon(Icons.thumb_down, color: Colors.red, size: 16),
-                    const SizedBox(width: 4),
-                    Text(movie.dislikeCount.toString()),
+                    Text(movie.likes.toString()),
                   ]),
                 ]),
               ),

@@ -11,8 +11,7 @@ class Movie {
   final String duration;
   final String ageRating;
   final bool isNowPlaying;
-  final int voteCount;
-  final int dislikeCount;
+  final int likes;
 
   Movie({
     required this.id,
@@ -25,8 +24,7 @@ class Movie {
     required this.duration,
     required this.ageRating,
     required this.isNowPlaying,
-    required this.voteCount,
-    required this.dislikeCount,
+    required this.likes,
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
@@ -51,8 +49,7 @@ class Movie {
       duration: json['duration'] ?? 'N/A',
       ageRating: json['age_rating'] ?? 'N/A',
       isNowPlaying: json['is_now_playing'] ?? false,
-      voteCount: json['vote_count'] ?? 0,
-      dislikeCount: json['dislike_count'] ?? 0,
+      likes: json['likes'] ?? 0,
     );
   }
 }

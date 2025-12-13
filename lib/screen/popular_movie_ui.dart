@@ -31,11 +31,11 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
       _error = null;
     });
     try {
-      // Mengambil data film dan langsung mengurutkannya berdasarkan vote_count
+      // PERBAIKAN: Mengurutkan berdasarkan 'likes'
       final moviesResponse = await Supabase.instance.client
           .from('movies')
           .select()
-          .order('vote_count', ascending: false); // Urutkan dari vote terbanyak
+          .order('likes', ascending: false); // Urutkan dari like terbanyak
 
       if (mounted) {
         final allMovies = (moviesResponse as List).map((data) => Movie.fromJson(data)).toList();
@@ -138,20 +138,13 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
                         children: movie.genres.map((genre) => Chip(label: Text(genre.trim()), backgroundColor: Colors.green.shade100)).toList(),
                       ),
                       const SizedBox(height: 8),
-                      // PERBAIKAN: Menampilkan vote count langsung dari objek movie
+                      // PERBAIKAN: Menampilkan HANYA jumlah likes
                       Row(
                         children: [
                           Icon(Icons.thumb_up, color: Colors.green, size: detailSize + 2),
                           const SizedBox(width: 4),
                           Text(
-                            movie.voteCount.toString(), // Langsung dari movie
-                            style: TextStyle(fontSize: detailSize, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(width: 12),
-                          Icon(Icons.thumb_down, color: Colors.red, size: detailSize + 2),
-                          const SizedBox(width: 4),
-                          Text(
-                            movie.dislikeCount.toString(), // Langsung dari movie
+                            movie.likes.toString(), // Menggunakan movie.likes
                             style: TextStyle(fontSize: detailSize, fontWeight: FontWeight.bold),
                           ),
                         ],

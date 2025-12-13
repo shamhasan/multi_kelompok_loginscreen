@@ -4,7 +4,7 @@ class Movie {
   final String overview; 
   final String posterUrl;
   final bool isNowPlaying;
-  final int voteCount;
+  final int likes;
   final double rating;
   final int year;
   final String duration;
@@ -17,7 +17,7 @@ class Movie {
     required this.overview,
     required this.posterUrl,
     required this.isNowPlaying,
-    required this.voteCount,
+    required this.likes,
     required this.rating,
     required this.year,
     required this.duration,
@@ -35,7 +35,7 @@ class Movie {
       overview: map['description'] ?? '', 
       posterUrl: map['poster_url'] ?? '',
       isNowPlaying: map['is_now_playing'] ?? false,
-      voteCount: map['vote_count'] ?? 0,
+      likes: map['likes'] ?? 0, // Diubah dari vote_count ke likes
       
       // Konversi aman ke double (karena DB bisa return int atau float)
       rating: (map['rating'] ?? 0).toDouble(),
@@ -58,7 +58,7 @@ class Movie {
       'description': overview, // Kirim sebagai 'description'
       'poster_url': posterUrl,
       'is_now_playing': isNowPlaying,
-      'vote_count': voteCount,
+      'likes': likes, // Diubah dari vote_count ke likes
       'rating': rating,
       'year': year,
       'duration': duration,

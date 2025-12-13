@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/models/movie.dart';
-import 'package:multi_kelompok/models/vote.dart';
-import 'package:provider/provider.dart';
-import 'package:multi_kelompok/providers/vote_provider.dart';
+import 'package:multi_kelompok/screens/movie_detail_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MyVotesScreen extends StatefulWidget {
@@ -13,38 +11,34 @@ class MyVotesScreen extends StatefulWidget {
 }
 
 class _MyVotesScreenState extends State<MyVotesScreen> {
-  late final Future<Map<String, dynamic>> _initialDataFuture;
+  late Future<List<Map<String, dynamic>>> _votedMoviesFuture;
 
   @override
   void initState() {
     super.initState();
-    _initialDataFuture = _fetchInitialData();
+    _votedMoviesFuture = _fetchVotedMovies();
   }
 
-  Future<Map<String, dynamic>> _fetchInitialData() async {
+  // FUNGSI BARU: Mengambil vote dan data filmnya sekaligus menggunakan JOIN
+  Future<List<Map<String, dynamic>>> _fetchVotedMovies() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) {
       throw Exception('Pengguna tidak login.');
     }
 
     try {
-      final results = await Future.wait([
-        Provider.of<VoteProvider>(context, listen: false).getVotesByUser(userId),
-        _fetchAllMovies(),
-      ]);
+      // Query ini mengambil semua kolom dari 'votes' DAN semua kolom dari 'movies' yang terkait
+      final response = await Supabase.instance.client
+          .from('votes')
+          .select('is_like, movies(*)') // Ini adalah "magic"-nya
+          .eq('user_id', userId);
 
-      return {
-        'userVotes': results[0] as List<Vote>,
-        'allMovies': results[1] as List<Movie>,
-      };
+      // Hasilnya adalah List<Map<String, dynamic>>
+      return List<Map<String, dynamic>>.from(response);
     } catch (e) {
+      // Jika terjadi error (misalnya, RLS), lempar kembali untuk ditangani FutureBuilder
       rethrow;
     }
-  }
-
-  Future<List<Movie>> _fetchAllMovies() async {
-    final response = await Supabase.instance.client.from('movies').select();
-    return (response as List).map((data) => Movie.fromJson(data)).toList();
   }
 
   @override
@@ -55,8 +49,8 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _initialDataFuture,
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _votedMoviesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -65,23 +59,20 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
           if (snapshot.hasError) {
             if (snapshot.error.toString().contains('Pengguna tidak login')) {
               return const Center(
-                child: Text(
-                  'Silakan login untuk melihat riwayat vote Anda.',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Silakan login untuk melihat riwayat vote Anda.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
                 ),
               );
             }
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          if (!snapshot.hasData) {
-            return const Center(child: Text('Tidak ada data tersedia.'));
-          }
-
-          final userVotes = snapshot.data!['userVotes'] as List<Vote>;
-          final allMovies = snapshot.data!['allMovies'] as List<Movie>;
-
-          if (userVotes.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
               child: Text(
                 'Anda belum pernah memberikan vote.',
@@ -90,28 +81,16 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
             );
           }
 
+          final votedMovies = snapshot.data!;
+
           return ListView.builder(
             padding: const EdgeInsets.all(8.0),
-            itemCount: userVotes.length,
+            itemCount: votedMovies.length,
             itemBuilder: (context, index) {
-              final vote = userVotes[index];
-              final movie = allMovies.firstWhere(
-                (m) => m.id == vote.movieId,
-                orElse: () => Movie(
-                  id: vote.movieId, 
-                  title: 'Unknown Movie', 
-                  posterUrl: '', 
-                  rating: 0, 
-                  overview: '', 
-                  genres: [], 
-                  year: 0, 
-                  duration: '', 
-                  ageRating: '', 
-                  isNowPlaying: false, 
-                  voteCount: 0,
-                  dislikeCount: 0,
-                ),
-              );
+              final voteData = votedMovies[index];
+              // Data film sekarang ada di dalam properti 'movies'
+              final movie = Movie.fromJson(voteData['movies'] as Map<String, dynamic>);
+              final isLike = voteData['is_like'] as bool;
 
               return Card(
                 elevation: 2,
@@ -123,6 +102,7 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
                         ? Image.network(
                             movie.posterUrl,
                             width: 50,
+                            height: 80,
                             fit: BoxFit.cover,
                             errorBuilder: (c, o, s) => const Icon(Icons.movie, size: 40),
                           )
@@ -132,12 +112,23 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
                     movie.title,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: Text('Film ID: ${vote.movieId}'),
+                  subtitle: Text(movie.year.toString()),
                   trailing: Icon(
-                    vote.isLike ? Icons.thumb_up : Icons.thumb_down,
-                    color: vote.isLike ? Colors.green : Colors.red,
+                    isLike ? Icons.thumb_up : Icons.thumb_down,
+                    color: isLike ? Colors.green : Colors.red,
                     size: 24,
                   ),
+                   onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movie.id)),
+                    ).then((_) {
+                      // Refresh halaman ini saat kembali
+                      setState(() {
+                        _votedMoviesFuture = _fetchVotedMovies();
+                      });
+                    });
+                  },
                 ),
               );
             },

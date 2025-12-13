@@ -1,38 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/models/movie_model.dart'; // Impor model Movie yang sudah diperbaiki
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-// --- Model Movie (Tidak Berubah) ---
-class Movie {
-  final int id;
-  final String title;
-  final String overview;
-  final String posterUrl;
-  final bool isNowPlaying;
-  final int voteCount;
-  final DateTime createdAt;
-
-  Movie({
-    required this.id,
-    required this.title,
-    required this.overview,
-    required this.posterUrl,
-    required this.isNowPlaying,
-    required this.voteCount,
-    required this.createdAt,
-  });
-
-  factory Movie.fromMap(Map<String, dynamic> map) {
-    return Movie(
-      id: map['id'] as int,
-      title: map['title'] as String,
-      overview: map['overview'] as String,
-      posterUrl: map['poster_url'] as String,
-      isNowPlaying: map['is_now_playing'] as bool,
-      voteCount: map['vote_count'] as int,
-      createdAt: DateTime.parse(map['created_at'] as String),
-    );
-  }
-}
 
 // --- Model Genre (Tidak Berubah) ---
 class Genre {
@@ -286,13 +254,13 @@ class FunMovieCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
 
-                    // --- Vote Count ---
+                    // --- Likes Count (DIUBAH) ---
                     Row(
                       children: [
                         Icon(Icons.thumb_up_alt_outlined,
                             color: _primaryColor, size: 16),
                         const SizedBox(width: 6),
-                        Text('${movie.voteCount} Likes',
+                        Text('${movie.likes} Likes', // Menggunakan movie.likes
                             style: TextStyle(
                                 fontSize: 12,
                                 color: _primaryColor,

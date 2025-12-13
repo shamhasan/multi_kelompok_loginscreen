@@ -4,7 +4,6 @@ import 'package:multi_kelompok/providers/vote_provider.dart';
 
 class VoteWidget extends StatefulWidget {
   final int movieId;
-  // 1. Menambahkan callback untuk memberi sinyal setelah vote
   final VoidCallback onVoted;
 
   const VoteWidget({super.key, required this.movieId, required this.onVoted});
@@ -18,6 +17,7 @@ class _VoteWidgetState extends State<VoteWidget> {
   @override
   void initState() {
     super.initState();
+    // Mengambil status vote awal saat widget pertama kali dibuat
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<VoteProvider>(context, listen: false).fetchUserVote(widget.movieId);
     });
@@ -39,9 +39,9 @@ class _VoteWidgetState extends State<VoteWidget> {
             color: userVote == true ? Colors.green : Colors.grey,
             size: 32,
           ),
-          // 2. Mengubah onPressed menjadi async dan memanggil callback
           onPressed: () async {
-            await voteProvider.vote(widget.movieId);
+            // Panggil fungsi handleVote dengan isLike: true
+            await voteProvider.handleVote(widget.movieId, true);
             widget.onVoted(); // Memberi sinyal ke parent untuk refresh
           },
         ),
@@ -54,7 +54,8 @@ class _VoteWidgetState extends State<VoteWidget> {
             size: 32,
           ),
           onPressed: () async {
-            await voteProvider.dislike(widget.movieId);
+            // Panggil fungsi handleVote dengan isLike: false
+            await voteProvider.handleVote(widget.movieId, false);
             widget.onVoted(); // Memberi sinyal ke parent untuk refresh
           },
         ),

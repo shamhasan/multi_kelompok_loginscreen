@@ -14,6 +14,7 @@ class MovieDetailScreen extends StatefulWidget {
 
 class _MovieDetailScreenState extends State<MovieDetailScreen> {
   Movie? _movie;
+  int _dislikeCount = 0; 
   bool _isLoading = true;
   String? _error;
 
@@ -23,27 +24,39 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     _fetchMovie();
   }
 
-  // Fungsi untuk mengambil data film dari Supabase
+  // Fungsi untuk mengambil data film dan jumlah dislike
   Future<void> _fetchMovie() async {
-    // Jangan set _isLoading menjadi true jika ini adalah refresh, agar UI tidak berkedip
-    if (!_isLoading) {
-        setState(() {}); // Memicu rebuild untuk menampilkan data baru
+    // Memicu rebuild untuk menampilkan state loading jika ini adalah refresh
+    if (mounted && !_isLoading) {
+      setState(() {
+        _isLoading = true;
+      });
     }
 
     try {
-      final response = await Supabase.instance.client
+      // 1. Ambil data film dari tabel 'movies'
+      final movieResponse = await Supabase.instance.client
           .from('movies')
           .select()
           .eq('id', widget.movieId)
           .single();
-      
+
+      // 2. Ambil jumlah dislike dengan cara yang kompatibel dengan semua versi Supabase
+      final dislikeResponse = await Supabase.instance.client
+          .from('votes')
+          .select('id') // Hanya ambil kolom ID untuk efisiensi
+          .eq('movie_id', widget.movieId)
+          .eq('is_like', false);
+
       if (mounted) {
         setState(() {
-          _movie = Movie.fromJson(response);
-          _isLoading = false; // Set loading false hanya setelah data pertama kali didapat
+          _movie = Movie.fromJson(movieResponse);
+          // Hitung jumlah item dalam list yang dikembalikan
+          _dislikeCount = dislikeResponse.length;
+          _isLoading = false; 
+          _error = null;
         });
       }
-
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -120,11 +133,11 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                           children: [
                             const Icon(Icons.thumb_up, color: Colors.green, size: 16),
                             const SizedBox(width: 4),
-                            Text(movie.voteCount.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text(movie.likes.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
                             const SizedBox(width: 16),
                             const Icon(Icons.thumb_down, color: Colors.red, size: 16),
                             const SizedBox(width: 4),
-                            Text(movie.dislikeCount.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text(_dislikeCount.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ],
@@ -139,7 +152,6 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
               const SizedBox(height: 16),
               const Text('Berikan Penilaian Anda', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
-              // 3. Meneruskan fungsi _fetchMovie sebagai callback onVoted
               VoteWidget(movieId: movie.id, onVoted: _fetchMovie),
             ],
           ),
