@@ -1,31 +1,37 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
 
-import 'package:multi_kelompok/data/movie.dart';
-import 'package:multi_kelompok/models/movie.dart';
-import 'package:multi_kelompok/providers/review_provider.dart';
-import 'package:multi_kelompok/movie_detail_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:multi_kelompok/Providers/MovieProvider.dart';
+import 'package:multi_kelompok/models/movie_model.dart';
+import 'package:multi_kelompok/screen/movie_detail_screen.dart';
 
 class PopularMoviesPage extends StatelessWidget {
   const PopularMoviesPage({super.key});
 
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Consumer(
+      builder: (BuildContext context, MovieProvider provider, Widget? child) {
+        return Scaffold(
       appBar: AppBar(
         title: const Text('Film Populer'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
       body: ListView.builder(
-        itemCount: popularMovies.length,
+        itemCount: provider.movies.length,
         itemBuilder: (context, index) {
-          final movie = popularMovies[index];
+          final movie = provider.movies[index];
           return _buildMovieListItem(context, movie);
         },
       ),
     );
+      },
+    );
+    
   }
 
   Widget _buildMovieListItem(BuildContext context, Movie movie) {
@@ -64,7 +70,7 @@ class PopularMoviesPage extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8.0),
                     child: Image.network(
-                      movie.imageUrl,
+                      movie.posterUrl,
                       fit: BoxFit.cover,
                       loadingBuilder: (context, child, progress) =>
                       progress == null ? child : const Center(child: CircularProgressIndicator()),
@@ -110,21 +116,6 @@ class PopularMoviesPage extends StatelessWidget {
                         }).toList(),
                       ),
                       const SizedBox(height: 8),
-                      Consumer<ReviewProvider>(
-                        builder: (context, reviewProvider, child) {
-                          final averageRating = reviewProvider.getAverageRating(movie.id);
-                          return Row(
-                            children: [
-                              Icon(Icons.star, color: Colors.amber, size: detailSize + 4),
-                              const SizedBox(width: 4),
-                              Text(
-                                averageRating > 0 ? averageRating.toStringAsFixed(1) : "N/A",
-                                style: TextStyle(fontSize: detailSize, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
                       const SizedBox(height: 12),
                       Text(
                         movie.overview,

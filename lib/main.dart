@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/genre_list.dart';
+import 'package:multi_kelompok/daftar_genre.dart';
 import 'package:multi_kelompok/home_screen.dart';
 import 'package:multi_kelompok/login_screen.dart';
-import 'package:multi_kelompok/movies_by_genres.dart';
 import 'package:multi_kelompok/popular_movie_ui.dart';
 import 'package:multi_kelompok/watchlist.dart';
 import 'package:multi_kelompok/admin/admin_screen.dart';
@@ -10,9 +9,8 @@ import 'package:multi_kelompok/admin/genre_admin_screen.dart';
 import 'package:multi_kelompok/admin/movie_admin_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
 import 'package:multi_kelompok/providers/review_provider.dart';
-import 'package:multi_kelompok/providers/genre_provider.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,22 +22,19 @@ void main() async {
   );
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => GenreProvider()),
-        ChangeNotifierProvider(create: (context) => ReviewProvider()),
-      ],
+    ChangeNotifierProvider(
+      create: (context) => ReviewProvider(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home:
         // HomeScreen()
         // WatchlistPage()
-        //PopularMoviesPage()
-         LoginScreen(),
-       //MoviesByGenrePage(genreId: 8, genreName: 'Action',),
-        //MovieAdminScreen(),
-        //GenreAdminPage(),
-        //AdminScreen()
+        // PopularMoviesPage()
+        // GenreListPage()
+         // LoginScreen(),
+        // MovieAdminScreen(),
+        GenreAdminPage()
+        // AdminScreen()
       ),
     ),
   );

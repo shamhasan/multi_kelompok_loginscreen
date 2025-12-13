@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/home_screen.dart';
-import 'package:multi_kelompok/login_screen.dart';
-import 'package:multi_kelompok/profile_ui.dart';
+import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
+import 'package:multi_kelompok/screen/login_screen.dart';
 import 'package:multi_kelompok/widgets/social_button.dart';
 import 'package:multi_kelompok/widgets/text_field.dart';
+import 'package:provider/provider.dart';
 
 class RegisterUi extends StatelessWidget {
-  const RegisterUi({super.key});
+  RegisterUi({super.key});
+
+  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _passwordConfirmationController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -34,24 +40,44 @@ class RegisterUi extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            CustomTextField(hint: "Email"),
+            CustomTextField(hint: "Email", controller: _emailController),
             const SizedBox(height: 16),
-            CustomTextField(hint: "Username"),
+            CustomTextField(hint: "Username", controller: _usernameController,),
             const SizedBox(height: 16),
-            CustomTextField(hint: "Kata sandi", isPassword: true),
+            CustomTextField(hint: "Kata sandi", isPassword: true, controller: _passwordController,),
             const SizedBox(height: 16),
-            CustomTextField(hint: "Tulis ulang kata sandi", isPassword: true),
+            CustomTextField(hint: "Tulis ulang kata sandi", isPassword: true, controller: _passwordConfirmationController,),
             const SizedBox(height: 24),
 
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                onPressed: () async {
+                 if (_passwordController.text != _passwordConfirmationController.text) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Password tidak sesuai: ${_passwordController.text} tidak sama ${_passwordConfirmationController.text}") ),
                   );
+                  return;
+                 } else {
+                  try {
+                    await  Provider.of<AuthProvider>(context, listen: false).signUp(
+                      _emailController.text,
+                      _passwordController.text,
+                      _usernameController.text,
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Pendaftaran berhasil! Silakan cek email untuk konfirmasi.")),
+                    );
+                    
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Gagal daftar: $e")),
+                    );
+                    return;
+                  }
+                 }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,

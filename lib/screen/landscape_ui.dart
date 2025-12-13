@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/home_screen.dart';
-import 'package:multi_kelompok/profile_ui.dart';
-import 'package:multi_kelompok/register_ui.dart';
+import 'package:multi_kelompok/screen/home_screen.dart';
+import 'package:multi_kelompok/screen/register_ui.dart';
 
 class LandscapeUI extends StatelessWidget {
   const LandscapeUI({super.key});

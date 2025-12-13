@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/home_screen.dart';
-import 'package:multi_kelompok/profile_ui.dart';
-import 'package:multi_kelompok/register_ui.dart';
+import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
+import 'package:multi_kelompok/screen/home_screen.dart';
+import 'package:multi_kelompok/screen/register_ui.dart';
 import 'package:multi_kelompok/widgets/social_button.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PortraitUi extends StatelessWidget {
-  const PortraitUi({super.key});
+  PortraitUi({super.key});
+
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +40,7 @@ class PortraitUi extends StatelessWidget {
             const SizedBox(height: 40),
 
             TextField(
+              controller: _emailController,
               decoration: InputDecoration(
                 hintText: "Email",
                 filled: true,
@@ -48,6 +54,7 @@ class PortraitUi extends StatelessWidget {
             const SizedBox(height: 16),
 
             TextField(
+              controller: _passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 hintText: "Kata sandi",
@@ -78,11 +85,27 @@ class PortraitUi extends StatelessWidget {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                  );
+                onPressed: () async {
+                  try {
+                    await Provider.of<AuthProvider>(
+                      context,
+                      listen: false,
+                    ).signIn(_emailController.text, _passwordController.text);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Berhasil masuk")),
+                    );
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
+                  } on AuthException catch (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Gagal masuk: ${e.message}")),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -100,7 +123,10 @@ class PortraitUi extends StatelessWidget {
 
             GestureDetector(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterUi()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterUi()),
+                );
               },
               child: const Text(
                 "Daftar",
