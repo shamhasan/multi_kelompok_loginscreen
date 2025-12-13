@@ -9,124 +9,122 @@ class ProfileUi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 50),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
+   return Consumer(
+      builder: (context, AuthProvider authProvider, child) {
+        var user = authProvider.user;
+        return Container(
+          color: Colors.white,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    const CircleAvatar(
+                      radius: 55,
+                      backgroundImage: NetworkImage(
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSLU5_eUUGBfxfxRd4IquPiEwLbt4E_6RYMw&s",
+                      ), // contoh gambar
+                    ),
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                      ),
+                      padding: const EdgeInsets.all(6),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: const Text(
+                    "Detail Profil",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                ProfileField(
+                  icon: Icons.email,
+                  label: "Email",
+                  value: user!.email.toString(),
+                ),
+                const SizedBox(height: 12),
+                ProfileField(
+                  icon: Icons.phone,
+                  label: "No Telp",
+                  value: "082247283745",
+                ),
+
+                const SizedBox(height: 24),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: const Text(
+                    "Pengaturan",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                SettingField(
+                  icon: Icons.notifications,
+                  title: "Atur Notifikasi",
+                ),
+                SettingField(icon: Icons.lock, title: "Ubah Kata Sandi"),
+
+                const SizedBox(height: 16),
+                TextButton.icon(
+                  onPressed: () async {
+                    try {
+                      await Provider.of<AuthProvider>(
+                        context,
+                        listen: false,
+                      ).signOut();
+                    } catch (e) {
+                      rethrow;
+                    }
                   },
-                  icon: const Icon(Icons.arrow_back),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  "Edit Profile",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                const CircleAvatar(
-                  radius: 55,
-                  backgroundImage: NetworkImage(
-                    "https://i.pravatar.cc/150?img=47",
-                  ), // contoh gambar
-                ),
-                Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
+                  icon: const Icon(Icons.logout, color: Colors.red),
+                  label: const Text(
+                    "Keluar",
+                    style: TextStyle(color: Colors.red),
                   ),
-                  padding: const EdgeInsets.all(6),
-                  child: const Icon(
-                    Icons.camera_alt,
-                    color: Colors.white,
-                    size: 18,
+                ),
+                const SizedBox(height: 30),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Add logic for "Edit Akun" button
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      "Edit Akun",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 30),
-
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: const Text(
-                "Detail Profil",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            ProfileField(
-              icon: Icons.email,
-              label: "Email",
-              value: "jollybeer@gmail.com",
-            ),
-            const SizedBox(height: 12),
-            ProfileField(
-              icon: Icons.phone,
-              label: "No Telp",
-              value: "082247283745",
-            ),
-
-            const SizedBox(height: 24),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: const Text(
-                "Pengaturan",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            SettingField(icon: Icons.notifications, title: "Atur Notifikasi"),
-            SettingField(icon: Icons.lock, title: "Ubah Kata Sandi"),
-
-            const SizedBox(height: 16),
-            TextButton.icon(
-              onPressed: ()async {
-                try {
-                  await Provider.of<AuthProvider>(context, listen: false).signOut();
-                }catch (e) {
-                  rethrow;
-                }
-              },
-              icon: const Icon(Icons.logout, color: Colors.red),
-              label: const Text("Keluar", style: TextStyle(color: Colors.red)),
-            ),
-            const SizedBox(height: 30),
-
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Add logic for "Edit Akun" button
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  "Edit Akun",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

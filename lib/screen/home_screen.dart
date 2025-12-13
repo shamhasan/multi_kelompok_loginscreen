@@ -351,7 +351,7 @@ class _HomeContent extends StatelessWidget {
                                               child: const Icon(
                                                 Icons.movie,
                                                 color: Colors.blue,
-                                                size: 40,
+                                                 size: 40,
                                               ),
                                             ),
                                   ),
