@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
-import 'package:multi_kelompok/Providers/MovieProvider.dart';
-import 'package:multi_kelompok/widgets/auth/AuthGate.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter/material.dart';
-import 'package:multi_kelompok/providers/review_provider.dart';
+
+import 'package:multi_kelompok/Providers/MovieProvider.dart';
+import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
+import 'package:multi_kelompok/providers/genre_provider.dart';
+import 'package:multi_kelompok/widgets/auth/AuthGate.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +21,8 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => MovieProvider()),
+        ChangeNotifierProvider(create: (_) => GenreProvider()),
+
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

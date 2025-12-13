@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
+import 'package:multi_kelompok/screen/home_screen.dart';
 import 'package:multi_kelompok/screen/register_ui.dart';
 import 'package:multi_kelompok/widgets/social_button.dart';
 import 'package:provider/provider.dart';
@@ -92,7 +93,12 @@ class PortraitUi extends StatelessWidget {
                     ).signIn(_emailController.text, _passwordController.text);
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Berhasil masuk") ),
+                      const SnackBar(content: Text("Berhasil masuk")),
+                    );
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
                     );
                   } on AuthException catch (e) {
                     if (!context.mounted) return;

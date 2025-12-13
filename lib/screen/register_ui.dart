@@ -61,7 +61,7 @@ class RegisterUi extends StatelessWidget {
                   return;
                  } else {
                   try {
-                    await Provider.of<AuthProvider>(context, listen: false).signUp(
+                    await  Provider.of<AuthProvider>(context, listen: false).signUp(
                       _emailController.text,
                       _passwordController.text,
                       _usernameController.text,

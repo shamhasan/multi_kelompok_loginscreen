@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/models/movie.dart';
-import 'package:multi_kelompok/providers/review_provider.dart';
-import 'package:multi_kelompok/widgets/add_review_form.dart';
-import 'package:multi_kelompok/widgets/review_list.dart';
+import 'package:multi_kelompok/models/movie_model.dart';
 import 'package:provider/provider.dart';
 
 class MovieDetailScreen extends StatelessWidget {
@@ -30,7 +27,7 @@ class MovieDetailScreen extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Image.network(
-                    movie.imageUrl, //<- Perbaikan 1: Menggunakan posterUrl
+                    movie.posterUrl, //<- Perbaikan 1: Menggunakan posterUrl
                     width: 120,
                     height: 180,
                     fit: BoxFit.cover,
@@ -64,25 +61,6 @@ class MovieDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       // Perbaikan 2: Menambahkan tampilan Rating Rata-rata
-                      Consumer<ReviewProvider>(
-                        builder: (context, reviewProvider, child) {
-                          final averageRating = reviewProvider.getAverageRating(movie.id);
-                          return Row(
-                            children: [
-                              const Icon(Icons.star, color: Colors.amber, size: 22),
-                              const SizedBox(width: 4),
-                              Text(
-                                averageRating.toStringAsFixed(1),
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              const Text(
-                                ' / 10.0',
-                                style: TextStyle(fontSize: 14, color: Colors.black54),
-                              )
-                            ],
-                          );
-                        },
-                      ),
                     ],
                   ),
                 ),
@@ -106,7 +84,6 @@ class MovieDetailScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Menampilkan daftar review menggunakan widget yang sudah dibuat
-            ReviewList(movieId: movie.id),
 
             const SizedBox(height: 24),
             const Divider(thickness: 1),
@@ -119,8 +96,6 @@ class MovieDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Menampilkan form tambah review menggunakan widget yang sudah dibuat
-            AddReviewForm(movieId: movie.id),
           ],
         ),
       ),

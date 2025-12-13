@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:multi_kelompok/providers/genre_provider.dart';
-import 'package:multi_kelompok/movies_by_genres.dart' hide Genre;
+import 'package:multi_kelompok/screen/movies_by_genres.dart' hide Genre;
 import 'package:multi_kelompok/models/genre.dart';
 
 class GenreAdminPage extends StatefulWidget {
