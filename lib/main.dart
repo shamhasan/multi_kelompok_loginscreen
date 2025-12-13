@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/screen/admin/add_genre_screen.dart';
+import 'package:multi_kelompok/screen/admin/genre_admin_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -34,9 +36,11 @@ void main() async {
         // GenreListPage()
         // LoginScreen(),
         // MovieAdminScreen(),
-        // GenreAdminScreen()
+        GenreAdminScreen()
         // AdminScreen()
-        AuthGate(),
+        //AddGenreScreen()
+
+        //AuthGate(),
       ),
     ),
   );

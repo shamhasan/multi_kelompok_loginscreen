@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:multi_kelompok/providers/genre_provider.dart';
-import 'package:multi_kelompok/screen/movies_by_genres.dart' hide Genre;
+import 'package:multi_kelompok/movies_by_genres.dart' hide Genre;
 import 'package:multi_kelompok/models/genre.dart';
 
+// Halaman utama untuk manajemen Genre (CRUD)
 class GenreAdminPage extends StatefulWidget {
   const GenreAdminPage({super.key});
 
@@ -12,14 +13,15 @@ class GenreAdminPage extends StatefulWidget {
 }
 
 class _GenreAdminPageState extends State<GenreAdminPage> {
-  static const Color _primaryColor = Color(0xFF469756);
-  static const Color _secondaryColor = Color(0xFF88D68A);
-  static const Color _accentColor = Color(0xFF457346);
-  static const Color _backgroundColor = Color(0xFFF0F8FF);
+  // --- KONSTANTA WARNA ---
+  static const Color _primaryColor = Color(0xFF469756); // Hijau Primer
+  static const Color _secondaryColor = Color(0xFF88D68A); // Hijau Sekunder
+  static const Color _backgroundColor = Color(0xFFF0F8FF); // Latar Belakang
 
   @override
   void initState() {
     super.initState();
+    // Memuat data genre saat inisialisasi
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<GenreProvider>(context, listen: false).fetchGenres(context);
     });
@@ -52,7 +54,7 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
       child: Scaffold(
         backgroundColor: _backgroundColor,
         appBar: AppBar(
-          title: const Text('🚀 Manajemen Genre Film'),
+          title: const Text('🎬 Cinema Genre'),
           centerTitle: true,
           actions: [
             IconButton(
@@ -67,24 +69,7 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
           child: isLoading
               ? Center(child: CircularProgressIndicator(color: _primaryColor.withOpacity(0.7)))
               : genres.isEmpty
-              ? Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.movie_filter_outlined, size: 100, color: Colors.grey[400]),
-                const SizedBox(height: 24),
-                Text(
-                  'Belum ada genre yang ditambahkan.',
-                  style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Tekan tombol "+" untuk memulai.',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                ),
-              ],
-            ),
-          )
+              ? const _EmptyStateWidget()
               : ListView.separated(
             physics: const BouncingScrollPhysics(),
             itemCount: genres.length,
@@ -98,6 +83,7 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
                 onDelete: () async {
                   final ok = await _confirmDelete(g);
                   if (ok == true) {
+                    // Memanggil deleteGenre dari provider
                     provider.deleteGenre(context, g.id, g.name);
                   }
                 },
@@ -123,140 +109,23 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
     );
   }
 
+  // --- LOGIKA DIALOG TAMBAH/EDIT GENRE ---
   Future<void> _showAddEditDialog({Genre? genre}) async {
-    final nameController = TextEditingController(text: genre?.name ?? '');
-    final descController = TextEditingController(text: genre?.description ?? '');
-    final isNew = genre == null;
-    final formKey = GlobalKey<FormState>();
-    bool isSaving = false;
-
-    final provider = context.read<GenreProvider>();
-
     await showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateSB) {
-          return Dialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            elevation: 10,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isNew ? 'Tambah Genre Baru' : 'Edit Genre',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: _primaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      TextFormField(
-                        controller: nameController,
-                        autofocus: true,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Nama genre tidak boleh kosong.';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Nama Genre',
-                          hintText: '',
-                          prefixIcon: const Icon(Icons.category_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: _primaryColor, width: 2),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: descController,
-                        maxLines: 2,
-                        maxLength: 100,
-                        decoration: InputDecoration(
-                          labelText: 'Deskripsi Singkat',
-                          hintText: 'Misalnya: Film yang bergenre aksi penuh ledakan.',
-                          prefixIcon: const Icon(Icons.short_text_rounded),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: _primaryColor, width: 2),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: TextButton.styleFrom(
-                                foregroundColor: Colors.grey[600]),
-                            child: const Text('Batal'),
-                          ),
-                          const SizedBox(width: 12),
-                          FilledButton.icon(
-                            icon: isSaving
-                                ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                : Icon(isNew ? Icons.add : Icons.save),
-                            onPressed: isSaving
-                                ? null
-                                : () async {
-                              if (formKey.currentState!.validate()) {
-                                setStateSB(() => isSaving = true);
-                                final name = nameController.text.trim();
-                                final description = descController.text.trim();
-
-                                bool success;
-                                if (isNew) {
-                                  success = await provider.addGenre(context, name, description);
-                                } else {
-                                  success = await provider.editGenre(context, genre!.id, name, description);
-                                }
-
-                                setStateSB(() => isSaving = false);
-
-                                if (mounted && success) Navigator.pop(context);
-                              }
-                            },
-                            style: FilledButton.styleFrom(
-                              backgroundColor: _primaryColor,
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16)),
-                            ),
-                            label: Text(
-                              isSaving ? 'Menyimpan...' : (isNew ? 'Tambahkan' : 'Simpan Perubahan'),
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
+      builder: (context) => _AddEditGenreDialog(
+        genre: genre,
+        primaryColor: _primaryColor,
       ),
-    );
+    ).then((result) {
+      // Memastikan genre list di-refresh jika ada perubahan dari dialog
+      if (result == true) {
+        context.read<GenreProvider>().fetchGenres(context);
+      }
+    });
   }
 
+  // --- LOGIKA DIALOG KONFIRMASI HAPUS ---
   Future<bool?> _confirmDelete(Genre g) async {
     return await showDialog<bool>(
       context: context,
@@ -284,6 +153,192 @@ class _GenreAdminPageState extends State<GenreAdminPage> {
   }
 }
 
+// ====================================================================
+// --- WIDGET BARU UNTUK MERAPIKAN KODE ---
+// ====================================================================
+
+// Widget untuk Tampilan State Kosong
+class _EmptyStateWidget extends StatelessWidget {
+  const _EmptyStateWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.movie_filter_outlined, size: 100, color: Colors.grey[400]),
+          const SizedBox(height: 24),
+          Text(
+            'Belum ada genre yang ditambahkan.',
+            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Tekan tombol "+" untuk memulai.',
+            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+// Widget untuk Dialog Tambah/Edit Genre
+class _AddEditGenreDialog extends StatefulWidget {
+  final Genre? genre;
+  final Color primaryColor;
+
+  const _AddEditGenreDialog({this.genre, required this.primaryColor});
+
+  @override
+  State<_AddEditGenreDialog> createState() => __AddEditGenreDialogState();
+}
+
+class __AddEditGenreDialogState extends State<_AddEditGenreDialog> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _descController;
+  final _formKey = GlobalKey<FormState>();
+  bool _isSaving = false;
+  late final bool _isNew;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.genre?.name ?? '');
+    _descController = TextEditingController(text: widget.genre?.description ?? '');
+    _isNew = widget.genre == null;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSave() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSaving = true);
+
+    final provider = context.read<GenreProvider>();
+    final name = _nameController.text.trim();
+    final description = _descController.text.trim();
+    bool success;
+
+    if (_isNew) {
+      success = await provider.addGenre(context, name, description);
+    } else {
+      success = await provider.editGenre(context, widget.genre!.id, name, description);
+    }
+
+    if (mounted) {
+      // Menggunakan pop dengan true untuk memberi tahu halaman utama agar refresh
+      Navigator.pop(context, success);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 10,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _isNew ? 'Tambah Genre Baru' : 'Edit Genre',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: widget.primaryColor,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                TextFormField(
+                  controller: _nameController,
+                  autofocus: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Nama genre tidak boleh kosong.';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Nama Genre',
+                    prefixIcon: const Icon(Icons.category_outlined),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: widget.primaryColor, width: 2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _descController,
+                  maxLines: 2,
+                  maxLength: 100,
+                  decoration: InputDecoration(
+                    labelText: 'Deskripsi Singkat',
+                    hintText: 'Misalnya: Film yang bergenre aksi penuh ledakan.',
+                    prefixIcon: const Icon(Icons.short_text_rounded),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: widget.primaryColor, width: 2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
+                      child: const Text('Batal'),
+                    ),
+                    const SizedBox(width: 12),
+                    FilledButton.icon(
+                      icon: _isSaving
+                          ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : Icon(_isNew ? Icons.add : Icons.save),
+                      onPressed: _isSaving ? null : _handleSave,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: widget.primaryColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      label: Text(
+                        _isSaving ? 'Menyimpan...' : (_isNew ? 'Tambahkan' : 'Simpan Perubahan'),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+// Widget untuk Setiap Item Genre di Daftar
 class _GenreListItem extends StatelessWidget {
   final Genre genre;
   final Color primaryColor;
@@ -305,6 +360,7 @@ class _GenreListItem extends StatelessWidget {
       margin: EdgeInsets.zero,
       child: InkWell(
         onTap: () {
+          // Navigasi ke halaman film berdasarkan genre
           Navigator.push(
             context,
             MaterialPageRoute(

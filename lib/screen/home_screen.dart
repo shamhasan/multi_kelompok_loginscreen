@@ -237,11 +237,11 @@ class _HomeContent extends StatelessWidget {
                     ),
                     GridView.builder(
                       gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                          ),
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                      ),
                       itemCount: min(6, movies.length),
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
@@ -344,23 +344,23 @@ class _HomeContent extends StatelessWidget {
                                     fit: BoxFit.cover,
                                     errorBuilder:
                                         (context, error, stackTrace) =>
-                                            Container(
-                                              width: 80,
-                                              height: 120,
-                                              color: Colors.grey[200],
-                                              child: const Icon(
-                                                Icons.movie,
-                                                color: Colors.blue,
-                                                 size: 40,
-                                              ),
-                                            ),
+                                        Container(
+                                          width: 80,
+                                          height: 120,
+                                          color: Colors.grey[200],
+                                          child: const Icon(
+                                            Icons.movie,
+                                            color: Colors.blue,
+                                            size: 40,
+                                          ),
+                                        ),
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         movieItem.title,

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:multi_kelompok/models/movie.dart';
 
 // --- Model Movie (Tidak Berubah) ---
 class Movie {
   final int id;
   final String title;
-  final String overview;
-  final String posterUrl;
+  final String? overview; // Ubah menjadi nullable
+  final String? posterUrl; // Ubah menjadi nullable
   final bool isNowPlaying;
   final int voteCount;
   final DateTime createdAt;
@@ -14,19 +15,20 @@ class Movie {
   Movie({
     required this.id,
     required this.title,
-    required this.overview,
-    required this.posterUrl,
     required this.isNowPlaying,
     required this.voteCount,
     required this.createdAt,
+    this.overview, // Hapus 'required' jika null
+    this.posterUrl, // Hapus 'required' jika null
   });
 
   factory Movie.fromMap(Map<String, dynamic> map) {
+    final String titleValue = map['title'] as String? ?? 'Judul Tidak Tersedia';
     return Movie(
       id: map['id'] as int,
-      title: map['title'] as String,
-      overview: map['overview'] as String,
-      posterUrl: map['poster_url'] as String,
+      title: map['title'] as String? ?? 'Judul Tidak Tersedia',
+      overview: map['description'] as String?,
+      posterUrl: map['poster_url'] as String?, // Dapatkan sebagai String?
       isNowPlaying: map['is_now_playing'] as bool,
       voteCount: map['vote_count'] as int,
       createdAt: DateTime.parse(map['created_at'] as String),
@@ -61,15 +63,17 @@ const Color _accentColor = Color(0xFF88D68A);
 // ---------------------------------------------
 // ⚙ LOGIKA SUPABASE (Tidak Berubah)
 // ---------------------------------------------
+const String ACTUAL_GENRE_FK_COLUMN = 'genres_id';
 
 Future<List<Movie>> fetchMoviesByGenreId(int genreId) async {
+  debugPrint('Mencari film untuk genre ID: $genreId, menggunakan kolom: $ACTUAL_GENRE_FK_COLUMN');
   try {
     final response = await supabase
         .from('movies')
         .select('*')
-        .eq('genre_id', genreId);
+        .eq(ACTUAL_GENRE_FK_COLUMN, genreId);
 
-    debugPrint('Response dari Supabase: ${response.length} items ditemukan.');
+    debugPrint('Hasil query Supabase: ${response.length} film ditemukan.');
 
     return (response as List)
         .map((item) => Movie.fromMap(item))
@@ -196,9 +200,9 @@ class FunMovieCard extends StatelessWidget {
               // 1. Poster Film (30% Lebar Card)
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: movie.posterUrl.isNotEmpty
+                child: (movie.posterUrl != null && movie.posterUrl!.isNotEmpty)
                     ? Image.network(
-                  movie.posterUrl,
+                  movie.posterUrl ?? "https://via.placeholder.com/150",
                   width: 80,
                   height: 120,
                   fit: BoxFit.cover,
@@ -279,7 +283,7 @@ class FunMovieCard extends StatelessWidget {
 
                     // --- Sinopsis Singkat ---
                     Text(
-                      movie.overview,
+                      movie.overview ?? 'Sinopsis tidak tersedia.',
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 13, color: Colors.grey[600]),
