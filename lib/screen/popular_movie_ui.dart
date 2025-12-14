@@ -4,8 +4,6 @@ import 'package:multi_kelompok/models/movie_model.dart';
 import 'package:multi_kelompok/providers/MovieProvider.dart';
 import 'package:multi_kelompok/screen/movie_detail_screen.dart';
 
-import 'movie_detail_screen.dart';
-
 // PERUBAHAN: Halaman ini sekarang lebih sederhana dan hanya bergantung pada MovieProvider.
 class PopularMoviesPage extends StatefulWidget {
   const PopularMoviesPage({super.key});
