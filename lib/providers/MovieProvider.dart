@@ -71,20 +71,6 @@ class MovieProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchGenres() async {
-    try {
-      final response = await _client
-          .from("genres")
-          .select()
-          .order('name', ascending: true);
-
-      final List<dynamic> data = response as List<dynamic>;
-      _genres = data.map((item) => Genre.fromMap(item)).toList();
-    } catch (e) {
-      _errorMessage = "Terjadi kesalahan: $e";
-      debugPrint("Error fetching genres: $e");
-    }
-  }
 
   Future<void> fetchAgeRatings() async {
     try {
@@ -105,33 +91,19 @@ class MovieProvider extends ChangeNotifier {
     try {
       notifyListeners();
 
-      await _client.from('movies').insert(movie.toMap());
+      await _client.from('movies').insert(movie.toMap()).select();
 
       await fetchMovies();
       notifyListeners();
-      return true; // Beritahu UI kalau SUKSES
+      return true;
     } catch (e) {
+
       notifyListeners();
       _errorMessage = e.toString();
       return false; // Beritahu UI kalau GAGAL
     }
   }
 
-  Future<bool> addGenre(Genre genre) async {
-    try {
-      notifyListeners();
-
-      await _client.from('genres').insert(genre);
-
-      await fetchGenres();
-      notifyListeners();
-      return true; // Beritahu UI kalau SUKSES
-    } catch (e) {
-      notifyListeners();
-      _errorMessage = e.toString();
-      return false; // Beritahu UI kalau GAGAL
-    }
-  }
 
   Future<void> updateMovie(Movie movie) async {
     try {

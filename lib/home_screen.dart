@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:multi_kelompok/Providers/MovieProvider.dart';
-import 'package:multi_kelompok/data/movie.dart';
+import 'package:multi_kelompok/providers/genre_provider.dart';
 import 'package:multi_kelompok/screen/daftar_genre.dart';
 import 'package:multi_kelompok/screen/movie_detail_screen.dart';
-import 'package:multi_kelompok/screen/popular_movie_ui.dart';
 import 'package:multi_kelompok/screen/profile_ui.dart';
 import 'package:multi_kelompok/screen/watchlist.dart';
 
@@ -29,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      Provider.of<MovieProvider>(context, listen: false).fetchGenres();
+      Provider.of<GenreProvider>(context, listen: false).fetchGenres(context);
       Provider.of<MovieProvider>(context, listen: false).fetchMovies();
     });
   }
@@ -61,11 +60,15 @@ class _HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // PERBAIKAN 1: Tambahkan <MovieProvider> agar tidak error
-    return Consumer<MovieProvider>(
-      builder: (context, provider, child) {
-        final genres = provider.genres;
-        final movies = provider.movies;
+    // PERBAIKAN: Gunakan Consumer2 (MovieProvider + GenreProvider)
+    return Consumer2<MovieProvider, GenreProvider>(
+      builder: (context, movieProvider, genreProvider, child) {
+        
+        // 1. Ambil Movies dari MovieProvider
+        final movies = movieProvider.movies;
+        
+        // 2. Ambil Genres dari GenreProvider (INI YANG PENTING)
+        final genres = genreProvider.genres; 
 
         // Filter Now Playing
         final nowPlayingMovies = movies.where((m) => m.isNowPlaying).toList();
@@ -73,8 +76,15 @@ class _HomeContent extends StatelessWidget {
             ? nowPlayingMovies 
             : movies.take(5).toList();
 
+        // LOGIC LOADING:
+        // Cek isLoading dari provider (jika sudah kamu tambahkan variable isLoading di provider)
+        // Atau cek isEmpty seperti logic awal kamu, tapi sekarang sumber datanya sudah benar.
+      
+
         if (genres.isEmpty || movies.isEmpty) {
-          return const Center(child: Text("Belum ada data .."));
+          // Opsi: Tetap tampilkan loading jika data kosong tapi provider tidak error
+          // Atau tampilkan pesan kosong
+          return const Center(child: Text("Data kosong / Loading..."));
         }
         
         return SingleChildScrollView(
@@ -120,6 +130,8 @@ class _HomeContent extends StatelessWidget {
                 ),
               ),
 
+              // ... (Sisa kode ke bawah SAMA PERSIS dengan punya kamu) ...
+              
               // --- NOW PLAYING SECTION ---
               Container(
                 padding: const EdgeInsets.all(8.0),
@@ -132,7 +144,7 @@ class _HomeContent extends StatelessWidget {
                       child: Text("Now Playing", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                     SizedBox(
-                      height: 280, // Sesuaikan tinggi agar tidak overflow
+                      height: 280, 
                       child: ListView.builder(
                         itemCount: nowPlayingItems.length,
                         scrollDirection: Axis.horizontal,
@@ -144,7 +156,6 @@ class _HomeContent extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  // Pastikan MovieDetailScreen menerima parameter 'movie'
                                   builder: (context) => MovieDetailScreen(movie: movie),
                                 ),
                               );
@@ -215,9 +226,8 @@ class _HomeContent extends StatelessWidget {
                         crossAxisCount: 3,
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
-                        childAspectRatio: 0.55, // Rasio kartu agar muat text
+                        childAspectRatio: 0.55, 
                       ),
-                      // Gunakan min agar tidak crash jika data < 6
                       itemCount: min(6, movies.length),
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
@@ -261,7 +271,6 @@ class _HomeContent extends StatelessWidget {
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                                       ),
-                                      const SizedBox(height: 4),
                                     ],
                                   ),
                                 ),

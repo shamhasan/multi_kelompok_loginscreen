@@ -31,11 +31,10 @@ class Movie {
       id: map['id'],
       title: map['title'] ?? '',
       
-      // PERHATIKAN: Mapping nama kolom beda
       overview: map['description'] ?? '', 
       posterUrl: map['poster_url'] ?? '',
       isNowPlaying: map['is_now_playing'] ?? false,
-      voteCount: map['vote_count'] ?? 0,
+      voteCount: map['likes'] ?? 0,
       
       // Konversi aman ke double (karena DB bisa return int atau float)
       rating: (map['rating'] ?? 0).toDouble(),
@@ -58,7 +57,7 @@ class Movie {
       'description': overview, // Kirim sebagai 'description'
       'poster_url': posterUrl,
       'is_now_playing': isNowPlaying,
-      'vote_count': voteCount,
+      'likes': voteCount,
       'rating': rating,
       'year': year,
       'duration': duration,

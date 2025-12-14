@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/providers/genre_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:multi_kelompok/Providers/MovieProvider.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
@@ -45,7 +46,8 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<MovieProvider>(context, listen: false);
-      provider.fetchGenres();
+      final providerG = Provider.of<GenreProvider>(context, listen: false);
+      providerG.fetchGenres(context);
       provider.fetchAgeRatings();
     });
 

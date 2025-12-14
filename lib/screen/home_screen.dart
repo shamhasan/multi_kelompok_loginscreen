@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
+import 'package:multi_kelompok/providers/genre_provider.dart';
 import 'package:multi_kelompok/providers/watchlist_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -32,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<MovieProvider>(context, listen: false).fetchGenres();
+      Provider.of<GenreProvider>(context, listen: false).fetchGenres(context);
       Provider.of<MovieProvider>(context, listen: false).fetchMovies();
       Provider.of<WatchlistProvider>(context, listen: false).loadWatchlist();
     });
@@ -71,14 +72,10 @@ class _HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MovieProvider>(
-      builder: (context, movieProvider, child) {
-        final genres = movieProvider.genres;
+    return Consumer2<MovieProvider, GenreProvider>(
+      builder: (context, movieProvider, genreProvider, child) {
+        final genres = genreProvider.genres;
         final movies = movieProvider.movies;
-
-        if (genres.isEmpty || movies.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
-        }
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
