@@ -2,29 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
 
-// Model Genre tidak berubah
-class Genre {
-  final int id;
-  String name;
-  String? description;
-  final DateTime createdAt;
-
-  Genre({required this.id, required this.name, required this.createdAt, this.description});
-
-  factory Genre.fromMap(Map<String, dynamic> map) {
-    return Genre(
-      id: map['id'] as int,
-      name: map['name'] as String,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      description: map['description'] as String?,
-    );
-  }
-}
-
-
-// ---------------------------------------------
-// 2. KONSTANTA DAN LOGIKA SUPABASE
-// ---------------------------------------------
 
 // Asumsikan Supabase sudah diinisialisasi
 final supabase = Supabase.instance.client;

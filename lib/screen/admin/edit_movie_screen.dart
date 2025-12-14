@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/providers/genre_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:multi_kelompok/Providers/MovieProvider.dart';
+import 'package:multi_kelompok/providers/MovieProvider.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
 
 class EditMovieScreen extends StatefulWidget {
@@ -113,15 +113,15 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Consumer<MovieProvider>(
-          builder: (context, provider, child) {
+        return Consumer2<MovieProvider, GenreProvider>(
+          builder: (context, movieProvider,genreProvider, child) {
             return AlertDialog(
               title: const Text("Pilih Genre"),
               content: SizedBox(
                 width: double.maxFinite,
                 child: StatefulBuilder(
                   builder: (context, setStateDialog) {
-                    final allGenres = provider.genres;
+                    final allGenres = genreProvider.genres;
                     return ListView.builder(
                       shrinkWrap: true,
                       itemCount: allGenres.length,

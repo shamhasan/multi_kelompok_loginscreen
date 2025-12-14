@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/screen/admin/add_genre_screen.dart';
-import 'package:multi_kelompok/movies_by_genres.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:multi_kelompok/screen/admin/add_genre_screen.dart';
+import 'package:multi_kelompok/screen/movies_by_genres.dart';
 
 // --- DEFINISI WARNA SENADA ---
 const Color _primaryColor = Color(0xFF469756);

@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:multi_kelompok/models/movie_model.dart';
-import 'package:multi_kelompok/screen/popular_movie_ui.dart';
-import 'package:multi_kelompok/screen/profile_ui.dart';
-import 'package:multi_kelompok/screen/movie_detail_screen.dart'; // DIUBAH
-import 'package:multi_kelompok/screen/watchlist.dart';
 import 'package:multi_kelompok/providers/MovieProvider.dart';
 import 'package:multi_kelompok/providers/genre_provider.dart';
 import 'package:multi_kelompok/providers/watchlist_provider.dart';
-import 'package:multi_kelompok/screen/admin/genre_admin_screen.dart';
-
-import '../genre_list.dart';
-
+import 'package:multi_kelompok/screen/movie_detail_screen.dart'; // DIUBAH
+import 'package:multi_kelompok/screen/popular_movie_ui.dart';
+import 'package:multi_kelompok/screen/profile_ui.dart';
+import 'package:multi_kelompok/screen/user_genre_page.dart';
+import 'package:multi_kelompok/screen/watchlist.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -115,7 +113,7 @@ class _HomeContent extends StatelessWidget {
                   children: [
                     const Text('Genres', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     TextButton(
-                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GenreAdminPage())),
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GenrePage())),
                       child: const Text('See More', style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.blue)),
                     ),
                   ],
