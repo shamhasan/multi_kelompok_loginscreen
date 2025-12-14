@@ -1,4 +1,8 @@
+
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/screen/admin/add_genre_screen.dart';
+import 'package:multi_kelompok/screen/admin/admin_screen.dart';
+import 'package:multi_kelompok/screen/admin/genre_admin_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -13,7 +17,7 @@ void main() async {
   await Supabase.initialize(
     url: "https://vafjsmuirzjuwvuocpwq.supabase.co",
     anonKey:
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhZmpzbXVpcnpqdXd2dW9jcHdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyNDcwMTAsImV4cCI6MjA3NjgyMzAxMH0.epwC9GtxSQxb3PvVIqCWFuKNwoVti9okPqPUl-dLLWg",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhZmpzbXVpcnpqdXd2dW9jcHdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyNDcwMTAsImV4cCI6MjA3NjgyMzAxMH0.epwC9GtxSQxb3PvVIqCWFuKNwoVti9okPqPUl-dLLWg",
   );
 
   runApp(
@@ -27,15 +31,17 @@ void main() async {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home:
-            // HomeScreen()
-            // WatchlistPage()
-            // PopularMoviesPage()
-            // GenreListPage()
-            // LoginScreen(),
-            // MovieAdminScreen(),
-            // GenreAdminScreen()
-            // AdminScreen()
-            AuthGate(),
+        // HomeScreen()
+        // WatchlistPage()
+        // PopularMoviesPage()
+        // GenreListPage()
+       // LoginScreen(),
+        // MovieAdminScreen(),
+        GenreAdminScreen()
+        //AdminScreen()
+        //AddGenreScreen()
+
+        //AuthGate(),
       ),
     ),
   );
