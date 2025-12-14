@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/models/age_rating_model.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
-import 'package:multi_kelompok/models/genre.dart'; // DIUBAH: Impor diseragamkan
+import 'package:multi_kelompok/models/genre.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MovieProvider extends ChangeNotifier {
   final SupabaseClient _client = Supabase.instance.client;
 
+  // State untuk daftar film utama (digunakan di admin, dll)
   List<Movie> _movies = [];
   List<Movie> get movies => _movies;
+
+  // State terpisah untuk film populer
+  List<Movie> _popularMovies = [];
+  List<Movie> get popularMovies => _popularMovies;
+  bool _isPopularLoading = true;
+  bool get isPopularLoading => _isPopularLoading;
+  String _popularError = '';
+  String get popularError => _popularError;
 
   List<Genre> _genres = [];
   List<Genre> get genres => _genres;
@@ -27,14 +36,15 @@ class MovieProvider extends ChangeNotifier {
 
   void setSortBy(String value) {
     _sortBy = value;
-    fetchMovies(); // Langsung refresh data setelah ganti filter
+    fetchMovies();
   }
 
   void setFilterGenre(String? value) {
     _filterByGenre = value;
-    fetchMovies(); // Langsung refresh data setelah ganti filter
+    fetchMovies();
   }
 
+  // Fungsi untuk mengambil daftar film utama (untuk admin, dll)
   Future<void> fetchMovies() async {
     try {
       var query = _client.from("movies").select();
@@ -56,30 +66,44 @@ class MovieProvider extends ChangeNotifier {
       }
 
       final response = await finalQuery;
-      final List<dynamic> data = response as List<dynamic>;
-
-      _movies = data.map((item) => Movie.fromMap(item)).toList();
-      notifyListeners(); // Panggil notifikasi agar UI di-rebuild
+      _movies = (response as List).map((item) => Movie.fromMap(item)).toList();
     } catch (e) {
       _errorMessage = "Terjadi kesalahan: $e";
       debugPrint("Error fetching movies: $e");
+    } finally {
       notifyListeners();
     }
   }
 
-  // DITAMBAHKAN: Fungsi yang hilang untuk mengambil data genre
-  Future<void> fetchGenres() async {
+  // fungsi untuk mengambil daftar film terpopuler
+  Future<void> fetchPopularMovies() async {
+    _isPopularLoading = true;
+    _popularError = '';
+    notifyListeners();
+
     try {
       final response = await _client
-          .from("genres")
+          .from('movies')
           .select()
-          .order('name', ascending: true);
+          .order('likes', ascending: false);
 
-      final List<dynamic> data = response as List<dynamic>;
-      _genres = data.map((item) => Genre.fromMap(item)).toList();
-      notifyListeners(); // Beri tahu UI bahwa ada data genre baru
+      _popularMovies = (response as List).map((item) => Movie.fromMap(item)).toList();
     } catch (e) {
-      _errorMessage = "Terjadi kesalahan: $e";
+      _popularError = 'Gagal memuat film populer: $e';
+      debugPrint(_popularError);
+    } finally {
+      _isPopularLoading = false;
+      notifyListeners();
+    }
+  }
+
+
+  Future<void> fetchGenres() async {
+    try {
+      final response = await _client.from("genres").select().order('name', ascending: true);
+      _genres = (response as List).map((item) => Genre.fromMap(item)).toList();
+      notifyListeners();
+    } catch (e) {
       debugPrint("Error fetching genres: $e");
       notifyListeners();
     }
@@ -87,16 +111,10 @@ class MovieProvider extends ChangeNotifier {
 
   Future<void> fetchAgeRatings() async {
     try {
-      final response = await _client
-          .from("age_ratings")
-          .select()
-          .order('name', ascending: true);
-
-      final List<dynamic> data = response as List<dynamic>;
-      _ageRatings = data.map((item) => AgeRating.fromMap(item)).toList();
-      notifyListeners(); // Panggil notifikasi agar UI di-rebuild
+      final response = await _client.from("age_ratings").select().order('name', ascending: true);
+      _ageRatings = (response as List).map((item) => AgeRating.fromMap(item)).toList();
+      notifyListeners();
     } catch (e) {
-      _errorMessage = "Terjadi kesalahan: $e";
       debugPrint("Error fetching age ratings: $e");
       notifyListeners();
     }
@@ -104,9 +122,8 @@ class MovieProvider extends ChangeNotifier {
 
   Future<bool> addMovie(Movie movie) async {
     try {
-      await _client.from('movies').insert(movie.toMap()).select();
+      await _client.from('movies').insert(movie.toMap());
       await fetchMovies();
-      notifyListeners();
       return true;
     } catch (e) {
       _errorMessage = e.toString();

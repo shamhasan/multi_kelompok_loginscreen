@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
-
+import 'package:provider/provider.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
+import 'package:multi_kelompok/providers/MovieProvider.dart';
 import 'package:multi_kelompok/screen/movie_detail_screen.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Halaman untuk menampilkan daftar film yang diurutkan berdasarkan popularitas (jumlah likes).
+import 'movie_detail_screen.dart';
+
+// PERUBAHAN: Halaman ini sekarang lebih sederhana dan hanya bergantung pada MovieProvider.
 class PopularMoviesPage extends StatefulWidget {
   const PopularMoviesPage({super.key});
 
@@ -14,47 +15,13 @@ class PopularMoviesPage extends StatefulWidget {
 }
 
 class _PopularMoviesPageState extends State<PopularMoviesPage> {
-  List<Movie> _movies = [];
-  bool _isLoading = true;
-  String? _error;
-
   @override
   void initState() {
     super.initState();
-    _fetchPopularMovies(); // Memanggil fungsi untuk mengambil data film saat halaman pertama kali dibuka.
-  }
-
-  // Fungsi untuk mengambil dan mengurutkan film dari Supabase.
-  Future<void> _fetchPopularMovies() async {
-    if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-      _error = null;
+    // Memanggil fungsi untuk mengambil data film populer dari provider.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<MovieProvider>(context, listen: false).fetchPopularMovies();
     });
-    try {
-      // Membuat query ke tabel 'movies' dan mengurutkannya berdasarkan 'likes' dari tertinggi ke terendah.
-      final moviesResponse = await Supabase.instance.client
-          .from('movies')
-          .select()
-          .order('likes', ascending: false);
-
-      if (mounted) {
-        // Mengubah data JSON dari database menjadi daftar objek Movie.
-        final allMovies = (moviesResponse as List).map((data) => Movie.fromMap(data)).toList();
-        // Memperbarui state untuk menampilkan data di UI.
-        setState(() {
-          _movies = allMovies;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = 'Gagal memuat film populer: $e';
-          _isLoading = false;
-        });
-      }
-    }
   }
 
   @override
@@ -65,37 +32,41 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
-      body: _buildBody(),
-    );
-  }
+      // Gunakan Consumer untuk mendengarkan perubahan dari MovieProvider.
+      body: Consumer<MovieProvider>(
+        builder: (context, provider, child) {
+          // Tampilkan loading indicator jika sedang memuat.
+          if (provider.isPopularLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          // Tampilkan pesan error jika terjadi kesalahan.
+          if (provider.popularError.isNotEmpty) {
+            return Center(child: Padding(padding: const EdgeInsets.all(16), child: Text(provider.popularError, textAlign: TextAlign.center)));
+          }
+          // Tampilkan pesan jika tidak ada film.
+          if (provider.popularMovies.isEmpty) {
+            return const Center(child: Text('Belum ada film di database.'));
+          }
 
-  // Widget untuk membangun tampilan body utama, dengan logika untuk loading, error, dan data.
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_error != null) {
-      return Center(child: Padding(padding: const EdgeInsets.all(16), child: Text(_error!, textAlign: TextAlign.center)));
-    }
-    if (_movies.isEmpty) {
-      return const Center(child: Text('Belum ada film di database.'));
-    }
+          final movies = provider.popularMovies;
 
-    // Widget untuk fungsionalitas "pull-to-refresh" (tarik untuk memuat ulang).
-    return RefreshIndicator(
-      onRefresh: _fetchPopularMovies,
-      child: ListView.builder(
-        itemCount: _movies.length,
-        itemBuilder: (context, index) {
-          final movie = _movies[index];
-          // Membuat widget untuk setiap item film dalam daftar.
-          return _buildMovieListItem(context, movie);
+          // Widget untuk fungsionalitas "pull-to-refresh".
+          return RefreshIndicator(
+            onRefresh: () => provider.fetchPopularMovies(),
+            child: ListView.builder(
+              itemCount: movies.length,
+              itemBuilder: (context, index) {
+                final movie = movies[index];
+                return _buildMovieListItem(context, movie);
+              },
+            ),
+          );
         },
       ),
     );
   }
 
-  // Widget untuk membangun satu item (kartu) film dalam daftar.
+  // Widget untuk membangun satu item film (tidak berubah, hanya sumber datanya yang berbeda).
   Widget _buildMovieListItem(BuildContext context, Movie movie) {
     final screenWidth = MediaQuery.of(context).size.width;
     final double detailSize = screenWidth > 720 ? 14 : 12;
@@ -107,16 +78,13 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          // Aksi ketika kartu film di-tap.
           onTap: () {
-            // Navigasi ke halaman detail film.
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => MovieDetailScreen(movieId: movie.id!),
               ),
-              // Setelah kembali dari halaman detail, muat ulang daftar film untuk mendapatkan data 'likes' terbaru.
-            ).then((_) => _fetchPopularMovies());
+            ).then((_) => Provider.of<MovieProvider>(context, listen: false).fetchPopularMovies());
           },
           child: Padding(
             padding: const EdgeInsets.all(12.0),
@@ -148,7 +116,6 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
                         children: movie.genres.map((genre) => Chip(label: Text(genre.trim()), backgroundColor: Colors.green.shade100)).toList(),
                       ),
                       const SizedBox(height: 8),
-                      // Menampilkan jumlah likes dari film.
                       Row(
                         children: [
                           Icon(Icons.thumb_up, color: Colors.green, size: detailSize + 2),
