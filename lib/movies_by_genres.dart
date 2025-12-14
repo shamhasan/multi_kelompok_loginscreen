@@ -1,40 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:multi_kelompok/models/movie.dart';
 
-// --- Model Movie (Tidak Berubah) ---
-class Movie {
-  final int id;
-  final String title;
-  final String? overview; // Ubah menjadi nullable
-  final String? posterUrl; // Ubah menjadi nullable
-  final bool isNowPlaying;
-  final int voteCount;
-  final DateTime createdAt;
-
-  Movie({
-    required this.id,
-    required this.title,
-    required this.isNowPlaying,
-    required this.voteCount,
-    required this.createdAt,
-    this.overview, // Hapus 'required' jika null
-    this.posterUrl, // Hapus 'required' jika null
-  });
-
-  factory Movie.fromMap(Map<String, dynamic> map) {
-    final String titleValue = map['title'] as String? ?? 'Judul Tidak Tersedia';
-    return Movie(
-      id: map['id'] as int,
-      title: map['title'] as String? ?? 'Judul Tidak Tersedia',
-      overview: map['description'] as String?,
-      posterUrl: map['poster_url'] as String?, // Dapatkan sebagai String?
-      isNowPlaying: map['is_now_playing'] as bool,
-      voteCount: map['vote_count'] as int,
-      createdAt: DateTime.parse(map['created_at'] as String),
-    );
-  }
-}
+import 'package:multi_kelompok/models/movie_model.dart';
 
 // --- Model Genre (Tidak Berubah) ---
 class Genre {
