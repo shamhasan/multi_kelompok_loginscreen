@@ -221,7 +221,7 @@ class FunMovieCard extends StatelessWidget {
                         Icon(Icons.thumb_up_alt_outlined,
                             color: _primaryColor, size: 16),
                         const SizedBox(width: 6),
-                        Text('${movie.voteCount} Likes',
+                        Text('${movie.likes} Likes', // Menggunakan movie.likes
                             style: TextStyle(
                                 fontSize: 12,
                                 color: _primaryColor,

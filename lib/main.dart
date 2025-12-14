@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:multi_kelompok/Providers/MovieProvider.dart';
-import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
+import 'package:multi_kelompok/providers/MovieProvider.dart';
+import 'package:multi_kelompok/providers/auth_provider/AuthProvider.dart';
 import 'package:multi_kelompok/providers/genre_provider.dart';
 import 'package:multi_kelompok/providers/watchlist_provider.dart';
 import 'package:multi_kelompok/screen/admin/add_genre_screen.dart';
 import 'package:multi_kelompok/screen/admin/admin_screen.dart';
 import 'package:multi_kelompok/screen/admin/genre_admin_screen.dart';
 import 'package:multi_kelompok/widgets/auth/AuthGate.dart';
+import 'package:multi_kelompok/providers/vote_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,9 +26,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => VoteProvider()),
-        ChangeNotifierProvider(create: (_) => MovieProvider()),
-        ChangeNotifierProvider(create: (_) => GenreProvider()),
-        ChangeNotifierProvider(create: (_) => WatchlistProvider()),
+        ChangeNotifierProvider(create: (context) => MovieProvider()),
+        ChangeNotifierProvider(create: (context) => GenreProvider()),
+        ChangeNotifierProvider(create: (context) => WatchlistProvider()),
 
       ],
       child: const MaterialApp(

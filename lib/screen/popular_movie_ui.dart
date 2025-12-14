@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 import 'package:multi_kelompok/models/movie_model.dart';
-import 'package:multi_kelompok/screens/movie_detail_screen.dart';
+import 'package:multi_kelompok/screen/movie_detail_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Halaman untuk menampilkan daftar film yang diurutkan berdasarkan popularitas (jumlah likes).
@@ -115,7 +115,7 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
               MaterialPageRoute(
                 builder: (context) => MovieDetailScreen(movieId: movie.id!),
               ),
-            // Setelah kembali dari halaman detail, muat ulang daftar film untuk mendapatkan data 'likes' terbaru.
+              // Setelah kembali dari halaman detail, muat ulang daftar film untuk mendapatkan data 'likes' terbaru.
             ).then((_) => _fetchPopularMovies());
           },
           child: Padding(

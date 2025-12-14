@@ -84,6 +84,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
           : _posterUrlController.text,
       isNowPlaying: _isNowPlaying,
       likes: widget.movie.likes,
+      rating: widget.movie.rating,
       year: int.tryParse(_yearController.text) ?? 2024,
       duration: _durationController.text,
       ageRating: _selectedAgeRating!,

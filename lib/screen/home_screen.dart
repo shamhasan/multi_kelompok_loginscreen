@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/models/movie_model.dart'; // DIUBAH
+import 'package:provider/provider.dart';
+import 'package:multi_kelompok/models/movie_model.dart';
 import 'package:multi_kelompok/screen/popular_movie_ui.dart';
 import 'package:multi_kelompok/screen/profile_ui.dart';
-import 'package:multi_kelompok/screens/movie_detail_screen.dart';
+import 'package:multi_kelompok/screen/movie_detail_screen.dart'; // DIUBAH
 import 'package:multi_kelompok/screen/watchlist.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:multi_kelompok/providers/MovieProvider.dart';
+import 'package:multi_kelompok/providers/genre_provider.dart';
+import 'package:multi_kelompok/providers/watchlist_provider.dart';
+import 'package:multi_kelompok/screen/admin/genre_admin_screen.dart';
+
+import '../genre_list.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,14 +23,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
+  // Hanya ada dua halaman utama: Home dan Profile
   static final List<Widget> _widgetOptions = <Widget>[
-    const _HomeContent(),
+    const _HomeContent(), // Konten utama halaman Home
     const ProfileUi(),
   ];
 
   @override
   void initState() {
     super.initState();
+    _fetchData();
+  }
+    // Mengambil semua data yang dibutuhkan saat aplikasi pertama kali dimuat
+  void _fetchData() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<GenreProvider>(context, listen: false).fetchGenres(context);
       Provider.of<MovieProvider>(context, listen: false).fetchMovies();
@@ -62,211 +74,49 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _HomeContent extends StatefulWidget {
+// Widget _HomeContent sekarang menjadi pusat dari UI branch 'main'
+class _HomeContent extends StatelessWidget {
   const _HomeContent();
 
-  @override
-  State<_HomeContent> createState() => __HomeContentState();
-}
-
-class __HomeContentState extends State<_HomeContent> {
-  bool _isLoading = true;
-  String? _error;
-  List<Movie> _allMovies = [];
-  List<Movie> _nowPlayingMovies = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchMovies();
-  }
-
-  Future<void> _fetchMovies() async {
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-    try {
-      final response = await Supabase.instance.client.from('movies')
-          .select().order('likes', ascending: false);
-      if (mounted) {
-        final allMovies = (response as List).map((data) => Movie.fromMap(data)).toList(); // DIUBAH
-        setState(() {
-          _allMovies = allMovies;
-          _nowPlayingMovies = allMovies.where((m) => m.isNowPlaying).toList();
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = "Gagal memuat data: $e";
-          _isLoading = false;
-        });
-      }
-    }
+  // Fungsi helper untuk navigasi dan refresh data
+  void _navigateToDetailAndRefresh(BuildContext context, int movieId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movieId)),
+    ).then((_) {
+      // Setelah kembali dari halaman detail, muat ulang semua data relevan
+      Provider.of<MovieProvider>(context, listen: false).fetchMovies();
+      Provider.of<WatchlistProvider>(context, listen: false).loadWatchlist();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
-        actions: [IconButton(onPressed: _fetchMovies, icon: const Icon(Icons.refresh))],
-      ),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_error != null) {
-      return Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text(_error!, style: const TextStyle(color: Colors.red)),
-          const SizedBox(height: 16),
-          ElevatedButton(onPressed: _fetchMovies, child: const Text('Coba Lagi'))
-        ]),
-      );
-    }
-    return RefreshIndicator(
-      onRefresh: _fetchMovies,
-      child: SingleChildScrollView(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          _buildSectionHeader("Now Playing", () {}),
-          _buildNowPlayingList(),
-          const SizedBox(height: 16),
-          _buildSectionHeader("Popular Movies", () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const PopularMoviesPage()));
-          }),
-          _buildPopularMoviesList(),
-        ]),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, VoidCallback onSeeMore) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        TextButton(onPressed: onSeeMore, child: const Text('See More')),
-      ]),
-    );
-  }
-
-  Widget _buildNowPlayingList() {
-    return SizedBox(
-      height: 250,
-      child: _nowPlayingMovies.isEmpty
-          ? const Center(child: Text("Tidak ada film yang sedang tayang."))
-          : ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _nowPlayingMovies.length,
-              itemBuilder: (context, index) {
-                final movie = _nowPlayingMovies[index];
-                return GestureDetector(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movie.id!))).then((_) => _fetchMovies()),
-                  child: Container(
-                    width: 150,
-                    margin: EdgeInsets.only(left: 16, right: index == _nowPlayingMovies.length - 1 ? 16 : 0),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(movie.posterUrl, fit: BoxFit.cover, width: double.infinity, errorBuilder: (c, e, s) => const Icon(Icons.movie, size: 50, color: Colors.grey)),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(movie.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    ]),
-                  ),
-                );
-              },
-            ),
-    );
-  }
-
-  Widget _buildPopularMoviesList() {
-    final popularMoviesToShow = _allMovies.take(4).toList();
-    return ListView.builder(
-      itemCount: popularMoviesToShow.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        final movie = popularMoviesToShow[index];
-        return InkWell(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movie.id!))).then((_) => _fetchMovies()),
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.2), spreadRadius: 2, blurRadius: 5)],
-            ),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(movie.posterUrl, width: 80, height: 120, fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(width: 80, height: 120, color: Colors.grey[200], child: const Icon(Icons.movie, color: Colors.grey, size: 40))),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(movie.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Text(movie.genres.join(', '), style: const TextStyle(color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 8),
-                  Row(children: [
-                    const Icon(Icons.thumb_up, color: Colors.green, size: 16),
-                    const SizedBox(width: 4),
-                    Text(movie.likes.toString()),
-                  ]),
-                ]),
-              ),
-            ]),
-          ),
-        );
-      },
-    return Consumer2<MovieProvider, GenreProvider>(
-      builder: (context, movieProvider, genreProvider, child) {
+    // Menggunakan Consumer untuk mendengarkan perubahan dari beberapa provider sekaligus
+    return Consumer3<MovieProvider, GenreProvider, WatchlistProvider>(
+      builder: (context, movieProvider, genreProvider, watchlistProvider, child) {
+        // Ambil data dari masing-masing provider
         final genres = genreProvider.genres;
         final movies = movieProvider.movies;
+        final nowPlayingItems = movies.where((m) => m.isNowPlaying).toList();
+        final popularMovies = List<Movie>.from(movies);
+        popularMovies.sort((a, b) => b.likes.compareTo(a.likes));
+        final popularMoviesToShow = popularMovies.take(4).toList(); // ambil 4 film teratas
+
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Bagian Genre
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Genres',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const Text('Genres', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const GenreAdminPage(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'See More',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.blue,
-                        ),
-                      ),
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GenreAdminPage())),
+                      child: const Text('See More', style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.blue)),
                     ),
                   ],
                 ),
@@ -287,6 +137,8 @@ class __HomeContentState extends State<_HomeContent> {
                   },
                 ),
               ),
+
+              // Bagian Now Playing
               Container(
                 padding: const EdgeInsets.all(8.0),
                 color: Colors.grey[200],
@@ -295,13 +147,7 @@ class __HomeContentState extends State<_HomeContent> {
                   children: [
                     const Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        "Now Playing",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: Text("Now Playing", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                     SizedBox(
                       height: 300,
@@ -310,50 +156,29 @@ class __HomeContentState extends State<_HomeContent> {
                         scrollDirection: Axis.horizontal,
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                height: 220,
-                                width: 150,
-                                margin: const EdgeInsets.all(8.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                      nowPlayingItems[index %
-                                          nowPlayingItems.length]['imageurl']!,
+                          final movie = nowPlayingItems[index];
+                          return GestureDetector(
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movie.id!))),
+                            child: Container(
+                              height: 220,
+                              width: 150,
+                              margin: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.network(movie.posterUrl, fit: BoxFit.cover, width: double.infinity, errorBuilder: (c, e, s) => const Icon(Icons.movie, size: 50, color: Colors.grey)),
                                     ),
-                                    fit: BoxFit.cover,
                                   ),
-                                ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0),
+                                    child: Text(movie.title, maxLines: 2, overflow: TextOverflow.ellipsis),
+                                  ),
+                                ],
                               ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  16.0,
-                                  0,
-                                  16.0,
-                                  0,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      nowPlayingItems[index %
-                                          nowPlayingItems.length]['title']!,
-                                    ),
-                                    Text(
-                                      nowPlayingItems[index %
-                                          nowPlayingItems.length]['genre']!,
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                            ),
                           );
                         },
                       ),
@@ -361,7 +186,8 @@ class __HomeContentState extends State<_HomeContent> {
                   ],
                 ),
               ),
-              // Updated Watchlist Section
+
+              // Bagian Watchlist
               Container(
                 color: Colors.white12,
                 padding: const EdgeInsets.all(8.0),
@@ -373,31 +199,11 @@ class __HomeContentState extends State<_HomeContent> {
                       children: [
                         const Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            "My Watchlist",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: Text("My Watchlist", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         ),
                         TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const WatchlistPage(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            'See More',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                              color: Colors.blue,
-                            ),
-                          ),
+                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const WatchlistPage())),
+                          child: const Text('See More', style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.blue)),
                         ),
                       ],
                     ),
@@ -411,10 +217,7 @@ class __HomeContentState extends State<_HomeContent> {
                           return Container(
                             height: 100,
                             alignment: Alignment.center,
-                            child: const Text(
-                              "Watchlist masih kosong.",
-                              style: TextStyle(fontSize: 16, color: Colors.grey),
-                            ),
+                            child: const Text("Watchlist masih kosong.", style: TextStyle(fontSize: 16, color: Colors.grey)),
                           );
                         }
 
@@ -426,14 +229,7 @@ class __HomeContentState extends State<_HomeContent> {
                             itemBuilder: (context, index) {
                               final Movie movie = watchlistProvider.watchlist[index];
                               return GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MovieDetailScreen(movie: movie),
-                                    ),
-                                  );
-                                },
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movie.id!))),
                                 child: Container(
                                   width: 150,
                                   margin: const EdgeInsets.all(8.0),
@@ -454,12 +250,7 @@ class __HomeContentState extends State<_HomeContent> {
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.only(top: 8.0, left: 4.0, right: 4.0),
-                                        child: Text(
-                                          movie.title,
-                                          style: const TextStyle(fontWeight: FontWeight.bold),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                        child: Text(movie.title, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
                                       ),
                                     ],
                                   ),
@@ -473,6 +264,8 @@ class __HomeContentState extends State<_HomeContent> {
                   ],
                 ),
               ),
+
+              // Bagian Popular Movie
               Container(
                 color: Colors.grey[200],
                 child: Column(
@@ -483,66 +276,29 @@ class __HomeContentState extends State<_HomeContent> {
                       children: [
                         const Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            "Popular Movie",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: Text("Popular Movie", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         ),
                         TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const PopularMoviesPage(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            'See More',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                              color: Colors.blue,
-                            ),
-                          ),
+                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PopularMoviesPage())),
+                          child: const Text('See More', style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.blue)),
                         ),
                       ],
                     ),
                     ListView.builder(
-                      itemCount: movies.length,
+                      itemCount: popularMoviesToShow.length,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
-                        final movieItem = movies[index];
+                        final movieItem = popularMovies[index];
                         return InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    MovieDetailScreen(movie: movieItem),
-                              ),
-                            );
-                          },
+                          onTap: () => _navigateToDetailAndRefresh(context, movieItem.id!),
                           child: Container(
-                            margin: const EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 16,
-                            ),
+                            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: Colors.blueGrey[200],
                               borderRadius: BorderRadius.circular(10),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 3),
-                                ),
-                              ],
+                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5, offset: Offset(0, 3))],
                             ),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -554,65 +310,30 @@ class __HomeContentState extends State<_HomeContent> {
                                     width: 80,
                                     height: 120,
                                     fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Container(
-                                              width: 80,
-                                              height: 120,
-                                              color: Colors.grey[200],
-                                              child: const Icon(
-                                                Icons.movie,
-                                                color: Colors.blue,
-                                                size: 40,
-                                              ),
-                                            ),
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        Container(
+                                          width: 80, height: 120, color: Colors.grey[200],
+                                          child: const Icon(Icons.movie, color: Colors.blue, size: 40),
+                                        ),
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        movieItem.title,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+                                      Text(movieItem.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                       const SizedBox(height: 7),
-                                      Text(
-                                        movieItem.genres.join(', '),
-                                        style: const TextStyle(
-                                          fontSize: 15,
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+                                      Text(movieItem.genres.join(', '), style: const TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold)),
                                       const SizedBox(height: 8),
-                                      Text(
-                                        movieItem.duration,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey[900],
-                                        ),
-                                      ),
+                                      Text(movieItem.duration, style: TextStyle(fontSize: 14, color: Colors.grey[900])),
                                       const SizedBox(height: 8),
+                                      // PERBAIKAN: Menggunakan 'likes' bukan 'rating'
                                       Row(
                                         children: [
-                                          Text(
-                                            movieItem.rating.toString(),
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.star,
-                                            color: Colors.amber[600],
-                                            size: 16,
-                                          ),
+                                          Icon(Icons.thumb_up, color: Colors.green, size: 16),
+                                          const SizedBox(width: 4),
+                                          Text(movieItem.likes.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
                                         ],
                                       ),
                                     ],

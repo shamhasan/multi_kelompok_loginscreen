@@ -3,8 +3,6 @@ import 'package:multi_kelompok/models/movie_model.dart';
 import 'package:multi_kelompok/providers/watchlist_provider.dart';
 import 'package:multi_kelompok/screen/movie_detail_screen.dart';
 import 'package:provider/provider.dart';
-
-import 'package:multi_kelompok/screens/movie_detail_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class WatchlistPage extends StatefulWidget {
@@ -18,9 +16,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
   @override
   void initState() {
     super.initState();
-    // Gunakan addPostFrameCallback untuk memastikan context sudah siap
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Panggil provider untuk memuat data watchlist saat halaman dibuka
       Provider.of<WatchlistProvider>(context, listen: false).loadWatchlist();
     });
   }
@@ -29,15 +25,12 @@ class _WatchlistPageState extends State<WatchlistPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("My Watchlist")),
-      // Gunakan Consumer untuk mendengarkan perubahan pada WatchlistProvider
       body: Consumer<WatchlistProvider>(
         builder: (context, watchlistProvider, child) {
-          // Tampilkan loading indicator jika sedang memuat data
           if (watchlistProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // Jika watchlist kosong, tampilkan pesan
           if (watchlistProvider.watchlist.isEmpty) {
             return const Center(
               child: Text(
@@ -47,17 +40,17 @@ class _WatchlistPageState extends State<WatchlistPage> {
             );
           }
 
-          // Jika ada data, tampilkan ListView
           return ListView.builder(
             itemCount: watchlistProvider.watchlist.length,
             itemBuilder: (context, index) {
               final Movie movie = watchlistProvider.watchlist[index];
               return InkWell(
                 onTap: () {
+                  // PERBAIKAN: Mengirim movieId, bukan seluruh objek movie.
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MovieDetailScreen(movie: movie),
+                      builder: (context) => MovieDetailScreen(movieId: movie.id!),
                     ),
                   );
                 },
