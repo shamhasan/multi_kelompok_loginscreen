@@ -101,6 +101,12 @@ class _HomeContent extends StatelessWidget {
         popularMovies.sort((a, b) => b.likes.compareTo(a.likes));
         final popularMoviesToShow = popularMovies.take(4).toList(); // ambil 4 film teratas
 
+        if (genres.isEmpty || movies.isEmpty) {
+          // Opsi: Tetap tampilkan loading jika data kosong tapi provider tidak error
+          // Atau tampilkan pesan kosong
+          return const Center(child: Text("Data kosong / Loading..."));
+        }
+
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -6,7 +6,7 @@ import 'package:multi_kelompok/screen/landscape_ui.dart';
 import 'package:multi_kelompok/screen/desktop_login_ui.dart';
 import 'package:provider/provider.dart';
 
-// 1. Mengubah menjadi StatefulWidget untuk menampung state
+// Mengubah menjadi StatefulWidget untuk menampung state
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -24,20 +24,16 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Cukup panggil signIn. AuthGate akan menangani navigasi secara otomatis.
       await Provider.of<AuthProvider>(context, listen: false).signIn(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
       
-      // 4. Jika berhasil, navigasi ke HomeScreen
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-      }
+      // PERBAIKAN: Hapus navigasi manual dari sini.
+      // AuthGate akan secara reaktif membangun ulang dan menampilkan HomeScreen.
+      
     } catch (e) {
-      // 5. Jika gagal, tampilkan pesan error
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal login: ${e.toString()}'), backgroundColor: Colors.red),
@@ -78,7 +74,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         : (isPortrait ? screenWidth * 0.9 : screenWidth * 0.65),
                     padding: const EdgeInsets.all(0.0),
                     height: screenHeight,
-                    // 6. Melewatkan state dan callback ke UI widget yang sesuai
                     child: isDesktop
                         ? DesktopLoginUi(
                             screenWidth: screenWidth,

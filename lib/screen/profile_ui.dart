@@ -11,7 +11,7 @@ class ProfileUi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   return Consumer<AuthProvider>(
+    return Consumer<AuthProvider>(
       builder: (context, AuthProvider authProvider, child) {
         var user = authProvider.user;
         return Container(
