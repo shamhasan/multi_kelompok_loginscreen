@@ -4,6 +4,9 @@ import 'package:multi_kelompok/providers/watchlist_provider.dart';
 import 'package:multi_kelompok/screen/movie_detail_screen.dart';
 import 'package:provider/provider.dart';
 
+import 'package:multi_kelompok/screens/movie_detail_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 class WatchlistPage extends StatefulWidget {
   const WatchlistPage({super.key});
 

@@ -70,12 +70,12 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                   child: Text("Terbaru"),
                                 ),
                                 DropdownMenuItem(
-                                  value: 'rating_high',
-                                  child: Text("Rating Tinggi"),
+                                  value: 'likes_high',
+                                  child: Text("Likes Tertinggi"),
                                 ),
                                 DropdownMenuItem(
-                                  value: 'rating_low',
-                                  child: Text("Rating Rendah"),
+                                  value: 'likes_low',
+                                  child: Text("Likes Terendah"),
                                 ),
                                 DropdownMenuItem(
                                   value: 'title_az',
@@ -214,14 +214,13 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                         color: Colors.grey[900],
                                       ),
                                     ),
-                                    Text(
-                                      "⭐" +
-                                          provider.movies[index].rating
-                                              .toString(),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    // PERBAIKAN: Tampilkan likes, bukan rating
+                                    Row(
+                                      children: [
+                                        Icon(Icons.thumb_up, color: Colors.green, size: 16),
+                                        const SizedBox(width: 4),
+                                        Text(provider.movies[index].likes.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      ],
                                     ),
                                     Expanded(
                                       child: Container(

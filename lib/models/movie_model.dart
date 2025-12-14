@@ -1,10 +1,10 @@
 class Movie {
   final int? id;
   final String title;
-  final String overview; 
+  final String overview;
   final String posterUrl;
   final bool isNowPlaying;
-  final int voteCount;
+  final int likes;
   final double rating;
   final int year;
   final String duration;
@@ -17,7 +17,7 @@ class Movie {
     required this.overview,
     required this.posterUrl,
     required this.isNowPlaying,
-    required this.voteCount,
+    required this.likes,
     required this.rating,
     required this.year,
     required this.duration,
@@ -31,14 +31,15 @@ class Movie {
       id: map['id'],
       title: map['title'] ?? '',
       
+      // PERHATIKAN: Mapping nama kolom beda
       overview: map['description'] ?? '', 
       posterUrl: map['poster_url'] ?? '',
       isNowPlaying: map['is_now_playing'] ?? false,
-      voteCount: map['likes'] ?? 0,
-      
+      likes: map['likes'] ?? 0,
+
       // Konversi aman ke double (karena DB bisa return int atau float)
       rating: (map['rating'] ?? 0).toDouble(),
-      
+
       // Handle field yang di DB boleh null
       year: map['year'] ?? 0,
       duration: map['duration'] ?? '',
@@ -52,12 +53,12 @@ class Movie {
   // Method: Mengubah Object Movie menjadi JSON untuk dikirim ke Supabase
   Map<String, dynamic> toMap() {
     return {
-      // id biasanya tidak dikirim saat insert (biar auto increment)
+      'id': id,
       'title': title,
       'description': overview, // Kirim sebagai 'description'
       'poster_url': posterUrl,
       'is_now_playing': isNowPlaying,
-      'likes': voteCount,
+      'likes': likes,
       'rating': rating,
       'year': year,
       'duration': duration,

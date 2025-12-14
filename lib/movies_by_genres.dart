@@ -38,7 +38,7 @@ Future<List<Movie>> fetchMoviesByGenreId(int genreId) async {
     final response = await supabase
         .from('movies')
         .select('*')
-        .eq(ACTUAL_GENRE_FK_COLUMN, genreId);
+        .eq('genre_id', genreId);
 
     debugPrint('Hasil query Supabase: ${response.length} film ditemukan.');
 
@@ -167,9 +167,9 @@ class FunMovieCard extends StatelessWidget {
               // 1. Poster Film (30% Lebar Card)
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: (movie.posterUrl != null && movie.posterUrl!.isNotEmpty)
+                child: movie.posterUrl.isNotEmpty
                     ? Image.network(
-                  movie.posterUrl ?? "https://via.placeholder.com/150",
+                  movie.posterUrl,
                   width: 80,
                   height: 120,
                   fit: BoxFit.cover,
@@ -257,13 +257,13 @@ class FunMovieCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
 
-                    // --- Vote Count ---
+                    // --- Likes Count (DIUBAH) ---
                     Row(
                       children: [
                         Icon(Icons.thumb_up_alt_outlined,
                             color: _primaryColor, size: 16),
                         const SizedBox(width: 6),
-                        Text('${movie.voteCount} Likes',
+                        Text('${movie.likes} Likes', // Menggunakan movie.likes
                             style: TextStyle(
                                 fontSize: 12,
                                 color: _primaryColor,

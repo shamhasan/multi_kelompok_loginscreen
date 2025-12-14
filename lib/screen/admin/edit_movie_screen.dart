@@ -5,8 +5,7 @@ import 'package:multi_kelompok/Providers/MovieProvider.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
 
 class EditMovieScreen extends StatefulWidget {
-  // Kita butuh data film yang akan diedit
-  final Movie movie; 
+  final Movie movie;
 
   const EditMovieScreen({super.key, required this.movie});
 
@@ -15,14 +14,12 @@ class EditMovieScreen extends StatefulWidget {
 }
 
 class _EditMovieScreenState extends State<EditMovieScreen> {
-  // Controller
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _yearController = TextEditingController();
   final _durationController = TextEditingController();
   final _posterUrlController = TextEditingController();
 
-  // State Variables
   String _previewImage = "";
   String? _selectedAgeRating;
   List<String> _selectedGenres = [];
@@ -68,7 +65,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     super.dispose();
   }
 
-
   void _updateMovie() async {
     if (_titleController.text.isEmpty || 
         _descController.text.isEmpty || 
@@ -80,15 +76,14 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     }
 
     final updatedMovie = Movie(
-      id: widget.movie.id, 
+      id: widget.movie.id,
       title: _titleController.text,
       overview: _descController.text,
       posterUrl: _posterUrlController.text.isEmpty 
           ? "https://via.placeholder.com/150" 
           : _posterUrlController.text,
       isNowPlaying: _isNowPlaying,
-      voteCount: widget.movie.voteCount, 
-      rating: widget.movie.rating,       
+      likes: widget.movie.likes,
       year: int.tryParse(_yearController.text) ?? 2024,
       duration: _durationController.text,
       ageRating: _selectedAgeRating!,
@@ -102,7 +97,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Film berhasil diperbarui!"), backgroundColor: Colors.green),
         );
-        Navigator.pop(context); // Kembali ke list admin
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
@@ -168,15 +163,13 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Movie'), // Ubah Judul
+        title: const Text('Edit Movie'),
         centerTitle: true,
-        backgroundColor: Colors.green[200], // Ubah warna biar beda dikit
-      ),
-      body: SingleChildScrollView(
+        backgroundColor: Colors.green[200],
+      ),      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Field Judul
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
@@ -185,8 +178,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Field Deskripsi
             TextFormField(
               controller: _descController,
               maxLines: 3,
@@ -196,8 +187,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Row Tahun & Durasi
             Row(
               children: [
                 Expanded(
@@ -223,17 +212,12 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Dropdown Age Rating
             Consumer<MovieProvider>(
               builder: (context, provider, child) {
                 if (provider.ageRatings.isEmpty) return const LinearProgressIndicator();
                 
-                // Safety Check: Pastikan rating lama ada di list provider
-                // Jika tidak ada (misal DB berubah), reset dropdown value
                 if (_selectedAgeRating != null && 
                     !provider.ageRatings.any((r) => r.name == _selectedAgeRating)) {
-                   // _selectedAgeRating = null; // Bisa di-uncomment jika ingin force reset
                 }
 
                 return DropdownButtonFormField<String>(
@@ -250,8 +234,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               },
             ),
             const SizedBox(height: 16),
-
-            // URL Poster & Preview
             TextFormField(
               controller: _posterUrlController,
               decoration: InputDecoration(
@@ -278,13 +260,11 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                     ),
             ),
             const SizedBox(height: 16),
-
-            // Genre Selector
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text("Genre film: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                ElevatedButton( // Pakai tombol kecil biar rapi
+                ElevatedButton( 
                   onPressed: _showGenreDialog,
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[50]),
                   child: const Text("Edit Genre"),
@@ -303,8 +283,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
             ),
             
             const Divider(height: 30),
-
-            // Switch Now Playing
             SwitchListTile(
               title: const Text("Sedang Tayang? (Now Playing)"),
               value: _isNowPlaying,
@@ -312,15 +290,13 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
             ),
 
             const SizedBox(height: 24),
-
-            // Tombol Update
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
                 onPressed: _updateMovie,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, // Tombol hijau menandakan update
+                  backgroundColor: Colors.green, 
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),
                 child: const Text(

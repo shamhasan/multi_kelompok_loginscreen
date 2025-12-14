@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/models/age_rating_model.dart';
+import 'package:multi_kelompok/models/genre_model.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-import '../models/genre.dart';
 
 class MovieProvider extends ChangeNotifier {
   final SupabaseClient _client = Supabase.instance.client;
@@ -47,13 +46,11 @@ class MovieProvider extends ChangeNotifier {
 
       PostgrestTransformBuilder finalQuery;
 
-      if (_sortBy == 'rating_high') {
-        finalQuery = query.order(
-          'rating',
-          ascending: false,
-        ); // Rating Tertinggi
-      } else if (_sortBy == 'rating_low') {
-        finalQuery = query.order('rating', ascending: true); // Rating Terendah
+      // PERBAIKAN: Hapus 'rating' dan ganti dengan 'likes'
+      if (_sortBy == 'likes_high') {
+        finalQuery = query.order('likes', ascending: false);
+      } else if (_sortBy == 'likes_low') {
+        finalQuery = query.order('likes', ascending: true);
       } else if (_sortBy == 'title_az') {
         finalQuery = query.order('title', ascending: true); // Abjad A-Z
       } else {
@@ -95,15 +92,29 @@ class MovieProvider extends ChangeNotifier {
 
       await fetchMovies();
       notifyListeners();
-      return true;
+      return true; // Beritahu UI kalau SUKSES
     } catch (e) {
-
       notifyListeners();
       _errorMessage = e.toString();
       return false; // Beritahu UI kalau GAGAL
     }
   }
 
+  Future<bool> addGenre(Genre genre) async {
+    try {
+      notifyListeners();
+
+      await _client.from('genres').insert(genre.toMap());
+
+      await fetchGenres();
+      notifyListeners();
+      return true; // Beritahu UI kalau SUKSES
+    } catch (e) {
+      notifyListeners();
+      _errorMessage = e.toString();
+      return false; // Beritahu UI kalau GAGAL
+    }
+  }
 
   Future<void> updateMovie(Movie movie) async {
     try {

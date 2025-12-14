@@ -1,48 +1,104 @@
+import 'package:flutter/material.dart';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'package:multi_kelompok/Providers/MovieProvider.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
-import 'package:multi_kelompok/screen/movie_detail_screen.dart';
+import 'package:multi_kelompok/screens/movie_detail_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class PopularMoviesPage extends StatelessWidget {
+// Halaman untuk menampilkan daftar film yang diurutkan berdasarkan popularitas (jumlah likes).
+class PopularMoviesPage extends StatefulWidget {
   const PopularMoviesPage({super.key});
 
+  @override
+  State<PopularMoviesPage> createState() => _PopularMoviesPageState();
+}
+
+class _PopularMoviesPageState extends State<PopularMoviesPage> {
+  List<Movie> _movies = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPopularMovies(); // Memanggil fungsi untuk mengambil data film saat halaman pertama kali dibuka.
+  }
+
+  // Fungsi untuk mengambil dan mengurutkan film dari Supabase.
+  Future<void> _fetchPopularMovies() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      // Membuat query ke tabel 'movies' dan mengurutkannya berdasarkan 'likes' dari tertinggi ke terendah.
+      final moviesResponse = await Supabase.instance.client
+          .from('movies')
+          .select()
+          .order('likes', ascending: false);
+
+      if (mounted) {
+        // Mengubah data JSON dari database menjadi daftar objek Movie.
+        final allMovies = (moviesResponse as List).map((data) => Movie.fromMap(data)).toList();
+        // Memperbarui state untuk menampilkan data di UI.
+        setState(() {
+          _movies = allMovies;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Gagal memuat film populer: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (BuildContext context, MovieProvider provider, Widget? child) {
-        return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: const Text('Film Populer'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
-      body: ListView.builder(
-        itemCount: provider.movies.length,
+      body: _buildBody(),
+    );
+  }
+
+  // Widget untuk membangun tampilan body utama, dengan logika untuk loading, error, dan data.
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null) {
+      return Center(child: Padding(padding: const EdgeInsets.all(16), child: Text(_error!, textAlign: TextAlign.center)));
+    }
+    if (_movies.isEmpty) {
+      return const Center(child: Text('Belum ada film di database.'));
+    }
+
+    // Widget untuk fungsionalitas "pull-to-refresh" (tarik untuk memuat ulang).
+    return RefreshIndicator(
+      onRefresh: _fetchPopularMovies,
+      child: ListView.builder(
+        itemCount: _movies.length,
         itemBuilder: (context, index) {
-          final movie = provider.movies[index];
+          final movie = _movies[index];
+          // Membuat widget untuk setiap item film dalam daftar.
           return _buildMovieListItem(context, movie);
         },
       ),
     );
-      },
-    );
-    
   }
 
+  // Widget untuk membangun satu item (kartu) film dalam daftar.
   Widget _buildMovieListItem(BuildContext context, Movie movie) {
     final screenWidth = MediaQuery.of(context).size.width;
-
-    const double maxPosterWidth = 200.0;
-    final double posterWidth = min(screenWidth * 0.3, maxPosterWidth);
-    final double posterHeight = posterWidth * 1.5;
-    final double titleSize = screenWidth > 720 ? 18 : 16;
     final double detailSize = screenWidth > 720 ? 14 : 12;
-    final double chipTextSize = screenWidth > 720 ? 12 : 11;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -51,32 +107,30 @@ class PopularMoviesPage extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
+          // Aksi ketika kartu film di-tap.
           onTap: () {
+            // Navigasi ke halaman detail film.
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MovieDetailScreen(movie: movie),
+                builder: (context) => MovieDetailScreen(movieId: movie.id!),
               ),
-            );
+            // Setelah kembali dari halaman detail, muat ulang daftar film untuk mendapatkan data 'likes' terbaru.
+            ).then((_) => _fetchPopularMovies());
           },
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: posterWidth,
-                  height: posterHeight,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: Image.network(
-                      movie.posterUrl,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, progress) =>
-                      progress == null ? child : const Center(child: CircularProgressIndicator()),
-                      errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.movie, color: Colors.grey, size: 40),
-                    ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.network(
+                    movie.posterUrl,
+                    width: 100,
+                    height: 150,
+                    fit: BoxFit.cover,
+                    errorBuilder: (c, e, s) => const Icon(Icons.movie, color: Colors.grey, size: 50),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -84,43 +138,32 @@ class PopularMoviesPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        movie.title,
-                        style: TextStyle(fontSize: titleSize, fontWeight: FontWeight.bold),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      Text(movie.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Text(movie.year.toString(), style: TextStyle(color: Colors.grey[600], fontSize: detailSize)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                            child: Icon(Icons.circle, size: 3, color: Colors.grey[500]),
-                          ),
-                          Text(movie.duration, style: TextStyle(color: Colors.grey[600], fontSize: detailSize)),
-                        ],
-                      ),
+                      Text('${movie.year} • ${movie.duration}', style: TextStyle(color: Colors.grey[600], fontSize: detailSize)),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 6.0,
                         runSpacing: 4.0,
-                        children: movie.genres.map((genre) {
-                          return Chip(
-                            label: Text(genre),
-                            backgroundColor: Colors.green.shade100,
-                            labelStyle: TextStyle(color: Colors.green.shade900, fontSize: chipTextSize),
-                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          );
-                        }).toList(),
+                        children: movie.genres.map((genre) => Chip(label: Text(genre.trim()), backgroundColor: Colors.green.shade100)).toList(),
                       ),
                       const SizedBox(height: 8),
+                      // Menampilkan jumlah likes dari film.
+                      Row(
+                        children: [
+                          Icon(Icons.thumb_up, color: Colors.green, size: detailSize + 2),
+                          const SizedBox(width: 4),
+                          Text(
+                            movie.likes.toString(),
+                            style: TextStyle(fontSize: detailSize, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         movie.overview,
                         style: TextStyle(fontSize: detailSize, color: Colors.grey[700]),
-                        maxLines: 3,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],

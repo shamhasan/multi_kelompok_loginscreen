@@ -1,8 +1,7 @@
-  import 'package:flutter/material.dart';
-import 'package:multi_kelompok/providers/genre_provider.dart';
-  import 'package:provider/provider.dart';
-  import 'package:multi_kelompok/Providers/MovieProvider.dart'; // Sesuaikan path ini
-  import 'package:multi_kelompok/models/movie_model.dart'; // Sesuaikan path ini
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:multi_kelompok/Providers/MovieProvider.dart'; // Sesuaikan path ini
+import 'package:multi_kelompok/models/movie_model.dart'; // Sesuaikan path ini
 
   class AddMovieScreen extends StatefulWidget {
     const AddMovieScreen({super.key});
@@ -57,7 +56,6 @@ import 'package:multi_kelompok/providers/genre_provider.dart';
     }
 
     // --- LOGIKA SUBMIT DATA ---
-    // --- LOGIKA SUBMIT DATA ---
   void _submitMovie() async {
     // 1. Validasi Input Kosong
     if (_titleController.text.isEmpty ||
@@ -82,7 +80,7 @@ import 'package:multi_kelompok/providers/genre_provider.dart';
           ? "https://via.placeholder.com/150"
           : _posterUrlController.text,
       isNowPlaying: _isNowPlaying,
-      voteCount: 0,
+      likes: 0,
       rating: 0.0,
       // Parse tahun ke integer (default 2024 jika error/kosong)
       year: int.tryParse(_yearController.text) ?? 2024,
@@ -94,7 +92,7 @@ import 'package:multi_kelompok/providers/genre_provider.dart';
     try {
       // 3. Panggil Provider dan SIMPAN HASILNYA (true/false)
       final provider = Provider.of<MovieProvider>(context, listen: false);
-      
+
       // Kita tunggu hasilnya: Apakah true (sukses) atau false (gagal)?
       bool isSuccess = await provider.addMovie(newMovie);
 
@@ -112,7 +110,7 @@ import 'package:multi_kelompok/providers/genre_provider.dart';
         // --- JIKA GAGAL (FALSE) ---
         // Ambil pesan error dari provider (pastikan di provider ada getter errorMessage)
         String msg = provider.errorMessage ?? "Gagal menyimpan data";
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(msg), backgroundColor: Colors.red),
@@ -144,7 +142,7 @@ import 'package:multi_kelompok/providers/genre_provider.dart';
                   child: StatefulBuilder(
                     builder: (context, setStateDialog) {
                       final allGenres = provider.genres;
-                      
+
                       if (allGenres.isEmpty) {
                         return const Center(child: Text("Memuat genre..."));
                       }
@@ -265,7 +263,7 @@ import 'package:multi_kelompok/providers/genre_provider.dart';
                   if (provider.ageRatings.isEmpty) {
                     return const LinearProgressIndicator();
                   }
-                  
+
                   // Validasi value dropdown
                   if (_selectedAgeRating != null) {
                     bool exists = provider.ageRatings.any((r) => r.name == _selectedAgeRating);
@@ -305,7 +303,7 @@ import 'package:multi_kelompok/providers/genre_provider.dart';
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               // Container Preview Gambar
               Container(
                 height: 200,
@@ -373,7 +371,7 @@ import 'package:multi_kelompok/providers/genre_provider.dart';
                   );
                 }).toList(),
               ),
-              
+
               const Divider(height: 30),
 
               // 7. SWITCH NOW PLAYING (Tambahan)
