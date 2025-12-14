@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/models/movie.dart';
+import 'package:multi_kelompok/models/movie_model.dart'; // DIUBAH
 import 'package:multi_kelompok/widgets/vote_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -24,9 +24,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     _fetchMovie();
   }
 
-  // Fungsi untuk mengambil data film dan jumlah dislike
   Future<void> _fetchMovie() async {
-    // Memicu rebuild untuk menampilkan state loading jika ini adalah refresh
     if (mounted && !_isLoading) {
       setState(() {
         _isLoading = true;
@@ -34,24 +32,21 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     }
 
     try {
-      // 1. Ambil data film dari tabel 'movies'
       final movieResponse = await Supabase.instance.client
           .from('movies')
           .select()
           .eq('id', widget.movieId)
           .single();
 
-      // 2. Ambil jumlah dislike dengan cara yang kompatibel dengan semua versi Supabase
       final dislikeResponse = await Supabase.instance.client
           .from('votes')
-          .select('id') // Hanya ambil kolom ID untuk efisiensi
+          .select('id')
           .eq('movie_id', widget.movieId)
           .eq('is_like', false);
 
       if (mounted) {
         setState(() {
-          _movie = Movie.fromJson(movieResponse);
-          // Hitung jumlah item dalam list yang dikembalikan
+          _movie = Movie.fromMap(movieResponse); // DIUBAH
           _dislikeCount = dislikeResponse.length;
           _isLoading = false; 
           _error = null;
@@ -152,7 +147,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
               const SizedBox(height: 16),
               const Text('Berikan Penilaian Anda', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
-              VoteWidget(movieId: movie.id, onVoted: _fetchMovie),
+              VoteWidget(movieId: movie.id!, onVoted: _fetchMovie),
             ],
           ),
         ),

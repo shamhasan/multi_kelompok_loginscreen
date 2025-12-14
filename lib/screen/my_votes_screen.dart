@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/models/movie.dart';
+import 'package:multi_kelompok/models/movie_model.dart'; // DIUBAH
 import 'package:multi_kelompok/screens/movie_detail_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,7 +19,6 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
     _votedMoviesFuture = _fetchVotedMovies();
   }
 
-  // FUNGSI BARU: Mengambil vote dan data filmnya sekaligus menggunakan JOIN
   Future<List<Map<String, dynamic>>> _fetchVotedMovies() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) {
@@ -27,16 +26,13 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
     }
 
     try {
-      // Query ini mengambil semua kolom dari 'votes' DAN semua kolom dari 'movies' yang terkait
       final response = await Supabase.instance.client
           .from('votes')
-          .select('is_like, movies(*)') // Ini adalah "magic"-nya
+          .select('is_like, movies(*)')
           .eq('user_id', userId);
 
-      // Hasilnya adalah List<Map<String, dynamic>>
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      // Jika terjadi error (misalnya, RLS), lempar kembali untuk ditangani FutureBuilder
       rethrow;
     }
   }
@@ -88,8 +84,7 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
             itemCount: votedMovies.length,
             itemBuilder: (context, index) {
               final voteData = votedMovies[index];
-              // Data film sekarang ada di dalam properti 'movies'
-              final movie = Movie.fromJson(voteData['movies'] as Map<String, dynamic>);
+              final movie = Movie.fromMap(voteData['movies'] as Map<String, dynamic>); // DIUBAH
               final isLike = voteData['is_like'] as bool;
 
               return Card(
@@ -121,9 +116,8 @@ class _MyVotesScreenState extends State<MyVotesScreen> {
                    onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movie.id)),
+                      MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movie.id!)),
                     ).then((_) {
-                      // Refresh halaman ini saat kembali
                       setState(() {
                         _votedMoviesFuture = _fetchVotedMovies();
                       });

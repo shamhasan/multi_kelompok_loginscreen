@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/models/movie.dart';
+import 'package:multi_kelompok/models/movie_model.dart'; // DIUBAH
 import 'package:multi_kelompok/screen/popular_movie_ui.dart';
 import 'package:multi_kelompok/screen/profile_ui.dart';
 import 'package:multi_kelompok/screens/movie_detail_screen.dart';
@@ -70,18 +70,17 @@ class __HomeContentState extends State<_HomeContent> {
   @override
   void initState() {
     super.initState();
-    _fetchMovies(); // Hanya perlu fetch movies
+    _fetchMovies();
   }
 
   Future<void> _fetchMovies() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
     try {
-      // PERBAIKAN: Mengurutkan berdasarkan 'likes'
       final response = await Supabase.instance.client.from('movies')
           .select().order('likes', ascending: false);
       if (mounted) {
-        final allMovies = (response as List).map((data) => Movie.fromJson(data)).toList();
+        final allMovies = (response as List).map((data) => Movie.fromMap(data)).toList(); // DIUBAH
         setState(() {
           _allMovies = allMovies;
           _nowPlayingMovies = allMovies.where((m) => m.isNowPlaying).toList();
@@ -161,7 +160,7 @@ class __HomeContentState extends State<_HomeContent> {
               itemBuilder: (context, index) {
                 final movie = _nowPlayingMovies[index];
                 return GestureDetector(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movie.id))).then((_) => _fetchMovies()),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movie.id!))).then((_) => _fetchMovies()),
                   child: Container(
                     width: 150,
                     margin: EdgeInsets.only(left: 16, right: index == _nowPlayingMovies.length - 1 ? 16 : 0),
@@ -191,7 +190,7 @@ class __HomeContentState extends State<_HomeContent> {
       itemBuilder: (context, index) {
         final movie = popularMoviesToShow[index];
         return InkWell(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movie.id))).then((_) => _fetchMovies()),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: movie.id!))).then((_) => _fetchMovies()),
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             padding: const EdgeInsets.all(12),
@@ -212,7 +211,6 @@ class __HomeContentState extends State<_HomeContent> {
                   const SizedBox(height: 8),
                   Text(movie.genres.join(', '), style: const TextStyle(color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 8),
-                  // PERBAIKAN: Menampilkan HANYA jumlah likes
                   Row(children: [
                     const Icon(Icons.thumb_up, color: Colors.green, size: 16),
                     const SizedBox(width: 4),

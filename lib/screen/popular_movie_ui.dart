@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-import 'package:multi_kelompok/models/movie.dart';
+import 'package:multi_kelompok/models/movie_model.dart'; // DIUBAH
 import 'package:multi_kelompok/screens/movie_detail_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -23,7 +23,6 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
     _fetchPopularMovies();
   }
 
-  // Mengambil dan mengurutkan film langsung dari Supabase
   Future<void> _fetchPopularMovies() async {
     if (!mounted) return;
     setState(() {
@@ -31,14 +30,13 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
       _error = null;
     });
     try {
-      // PERBAIKAN: Mengurutkan berdasarkan 'likes'
       final moviesResponse = await Supabase.instance.client
           .from('movies')
           .select()
-          .order('likes', ascending: false); // Urutkan dari like terbanyak
+          .order('likes', ascending: false);
 
       if (mounted) {
-        final allMovies = (moviesResponse as List).map((data) => Movie.fromJson(data)).toList();
+        final allMovies = (moviesResponse as List).map((data) => Movie.fromMap(data)).toList(); // DIUBAH
         setState(() {
           _movies = allMovies;
           _isLoading = false;
@@ -104,9 +102,9 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MovieDetailScreen(movieId: movie.id),
+                builder: (context) => MovieDetailScreen(movieId: movie.id!),
               ),
-            ).then((_) => _fetchPopularMovies()); // Refresh saat kembali
+            ).then((_) => _fetchPopularMovies());
           },
           child: Padding(
             padding: const EdgeInsets.all(12.0),
@@ -138,13 +136,12 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
                         children: movie.genres.map((genre) => Chip(label: Text(genre.trim()), backgroundColor: Colors.green.shade100)).toList(),
                       ),
                       const SizedBox(height: 8),
-                      // PERBAIKAN: Menampilkan HANYA jumlah likes
                       Row(
                         children: [
                           Icon(Icons.thumb_up, color: Colors.green, size: detailSize + 2),
                           const SizedBox(width: 4),
                           Text(
-                            movie.likes.toString(), // Menggunakan movie.likes
+                            movie.likes.toString(),
                             style: TextStyle(fontSize: detailSize, fontWeight: FontWeight.bold),
                           ),
                         ],
