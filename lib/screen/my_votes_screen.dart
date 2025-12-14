@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/models/movie_model.dart'; // DIUBAH
+import 'package:multi_kelompok/models/movie_model.dart';
 import 'package:multi_kelompok/screens/movie_detail_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
