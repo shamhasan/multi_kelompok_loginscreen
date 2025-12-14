@@ -37,11 +37,11 @@ void main() async {
         // GenreListPage()
        // LoginScreen(),
         // MovieAdminScreen(),
-        GenreAdminScreen()
+        // GenreAdminScreen()
         //AdminScreen()
         //AddGenreScreen()
 
-        //AuthGate(),
+        AuthGate(),
       ),
     ),
   );
