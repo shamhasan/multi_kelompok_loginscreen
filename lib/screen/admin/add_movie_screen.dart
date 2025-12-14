@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/providers/MovieProvider.dart' hide MovieProvider;
 import 'package:provider/provider.dart';
 import 'package:multi_kelompok/Providers/MovieProvider.dart'; // Sesuaikan path ini
 import 'package:multi_kelompok/models/movie_model.dart'; // Sesuaikan path ini
