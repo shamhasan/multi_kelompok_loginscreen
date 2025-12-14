@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/Providers/MovieProvider.dart';
-import 'package:multi_kelompok/data/movie.dart';
+import 'package:multi_kelompok/providers/genre_provider.dart';
 import 'package:multi_kelompok/screen/admin/add_movie_screen.dart';
 import 'package:multi_kelompok/screen/admin/edit_movie_screen.dart';
 import 'package:provider/provider.dart';
@@ -20,15 +20,15 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         Provider.of<MovieProvider>(context, listen: false).fetchMovies();
-        Provider.of<MovieProvider>(context, listen: false).fetchGenres();
+        Provider.of<GenreProvider>(context, listen: false).fetchGenres(context);
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MovieProvider>(
-      builder: (BuildContext context, MovieProvider provider, Widget? child) {
+    return Consumer2<MovieProvider, GenreProvider>(
+      builder: (BuildContext context, MovieProvider provider,GenreProvider providerG, Widget? child) {
         return Stack(
           children: [
             Column(
@@ -122,13 +122,13 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                   ),
                                 ),
                                 // Looping Genre dari Provider
-                                ...provider.genres
-                                    .map((g) => g.name)
+                                ...providerG.genres
+                                    .map((g) => (g.name))
                                     .toSet()
                                     .map((name) {
                                       return DropdownMenuItem(
-                                        value: name,
-                                        child: Text(name),
+                                        value: name.toString(),
+                                        child: Text(name.toString()),
                                       );
                                     }),
                               ],

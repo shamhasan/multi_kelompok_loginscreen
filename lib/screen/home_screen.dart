@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/models/movie_model.dart';
+import 'package:multi_kelompok/providers/watchlist_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:multi_kelompok/Providers/MovieProvider.dart';
@@ -26,11 +28,19 @@ class _HomeScreenState extends State<HomeScreen> {
     const ProfileUi(),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<MovieProvider>(context, listen: false).fetchGenres();
+      Provider.of<MovieProvider>(context, listen: false).fetchMovies();
+      Provider.of<WatchlistProvider>(context, listen: false).loadWatchlist();
+    });
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      Provider.of<MovieProvider>(context, listen: false).fetchGenres();
-      Provider.of<MovieProvider>(context, listen: false).fetchMovies();
     });
   }
 
@@ -61,13 +71,13 @@ class _HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, MovieProvider provider, child) {
-        final genres = provider.genres;
-        final movies = provider.movies;
+    return Consumer<MovieProvider>(
+      builder: (context, movieProvider, child) {
+        final genres = movieProvider.genres;
+        final movies = movieProvider.movies;
 
         if (genres.isEmpty || movies.isEmpty) {
-          return const Center(child: Text("Belum ada data .."));
+          return const Center(child: CircularProgressIndicator());
         }
         return SingleChildScrollView(
           child: Column(
@@ -196,6 +206,7 @@ class _HomeContent extends StatelessWidget {
                   ],
                 ),
               ),
+              // Updated Watchlist Section
               Container(
                 color: Colors.white12,
                 padding: const EdgeInsets.all(8.0),
@@ -208,7 +219,7 @@ class _HomeContent extends StatelessWidget {
                         const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Text(
-                            "Watchlist",
+                            "My Watchlist",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -235,25 +246,71 @@ class _HomeContent extends StatelessWidget {
                         ),
                       ],
                     ),
-                    GridView.builder(
-                      gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                      ),
-                      itemCount: min(6, movies.length),
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        final movie = movies[index];
-                        return Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(movie.posterUrl),
-                              fit: BoxFit.cover,
+                    Consumer<WatchlistProvider>(
+                      builder: (context, watchlistProvider, child) {
+                        if (watchlistProvider.isLoading) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+
+                        if (watchlistProvider.watchlist.isEmpty) {
+                          return Container(
+                            height: 100,
+                            alignment: Alignment.center,
+                            child: const Text(
+                              "Watchlist masih kosong.",
+                              style: TextStyle(fontSize: 16, color: Colors.grey),
                             ),
-                            borderRadius: BorderRadius.circular(15.0),
+                          );
+                        }
+
+                        return SizedBox(
+                          height: 220,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: watchlistProvider.watchlist.length,
+                            itemBuilder: (context, index) {
+                              final Movie movie = watchlistProvider.watchlist[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MovieDetailScreen(movie: movie),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: 150,
+                                  margin: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: Image.network(
+                                            movie.posterUrl,
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            errorBuilder: (context, error, stackTrace) =>
+                                                const Center(child: Icon(Icons.movie, color: Colors.grey, size: 40)),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 8.0, left: 4.0, right: 4.0),
+                                        child: Text(
+                                          movie.title,
+                                          style: const TextStyle(fontWeight: FontWeight.bold),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         );
                       },
@@ -344,23 +401,23 @@ class _HomeContent extends StatelessWidget {
                                     fit: BoxFit.cover,
                                     errorBuilder:
                                         (context, error, stackTrace) =>
-                                        Container(
-                                          width: 80,
-                                          height: 120,
-                                          color: Colors.grey[200],
-                                          child: const Icon(
-                                            Icons.movie,
-                                            color: Colors.blue,
-                                            size: 40,
-                                          ),
-                                        ),
+                                            Container(
+                                              width: 80,
+                                              height: 120,
+                                              color: Colors.grey[200],
+                                              child: const Icon(
+                                                Icons.movie,
+                                                color: Colors.blue,
+                                                size: 40,
+                                              ),
+                                            ),
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         movieItem.title,

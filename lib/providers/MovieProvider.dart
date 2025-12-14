@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/models/age_rating_model.dart';
-import 'package:multi_kelompok/models/genre_model.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../models/genre.dart';
 
 class MovieProvider extends ChangeNotifier {
   final SupabaseClient _client = Supabase.instance.client;
@@ -120,7 +121,7 @@ class MovieProvider extends ChangeNotifier {
     try {
       notifyListeners();
 
-      await _client.from('genres').insert(genre.toMap());
+      await _client.from('genres').insert(genre);
 
       await fetchGenres();
       notifyListeners();

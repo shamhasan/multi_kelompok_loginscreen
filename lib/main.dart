@@ -1,14 +1,15 @@
 
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/screen/admin/add_genre_screen.dart';
-import 'package:multi_kelompok/screen/admin/admin_screen.dart';
-import 'package:multi_kelompok/screen/admin/genre_admin_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:multi_kelompok/Providers/MovieProvider.dart';
 import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
 import 'package:multi_kelompok/providers/genre_provider.dart';
+import 'package:multi_kelompok/providers/watchlist_provider.dart';
+import 'package:multi_kelompok/screen/admin/add_genre_screen.dart';
+import 'package:multi_kelompok/screen/admin/admin_screen.dart';
+import 'package:multi_kelompok/screen/admin/genre_admin_screen.dart';
 import 'package:multi_kelompok/widgets/auth/AuthGate.dart';
 
 void main() async {
@@ -26,6 +27,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => MovieProvider()),
         ChangeNotifierProvider(create: (_) => GenreProvider()),
+        ChangeNotifierProvider(create: (_) => WatchlistProvider()),
 
       ],
       child: MaterialApp(
