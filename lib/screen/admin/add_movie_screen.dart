@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:multi_kelompok/Providers/MovieProvider.dart'; // Sesuaikan path ini
-import 'package:multi_kelompok/models/movie_model.dart'; // Sesuaikan path ini
+import 'package:multi_kelompok/Providers/MovieProvider.dart';
+import 'package:multi_kelompok/models/movie_model.dart';
 
 class AddMovieScreen extends StatefulWidget {
   const AddMovieScreen({super.key});
@@ -11,31 +11,25 @@ class AddMovieScreen extends StatefulWidget {
 }
 
 class _AddMovieScreenState extends State<AddMovieScreen> {
-  // 1. Inisialisasi Controllers (TUGAS: Menangani Input Teks)
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _yearController = TextEditingController();
   final _durationController = TextEditingController();
   final _posterUrlController = TextEditingController();
 
-  // 2. State Variables
-  String _previewImage = ""; // Untuk menampung link gambar preview
+  String _previewImage = "";
   String? _selectedAgeRating;
   final List<String> _selectedGenres = [];
-  bool _isNowPlaying = false; // Default: Tidak sedang tayang
+  bool _isNowPlaying = false;
 
   @override
   void initState() {
     super.initState();
-
-    // Fetch data Genre & Age Rating saat halaman dibuka
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<MovieProvider>(context, listen: false);
       provider.fetchGenres();
       provider.fetchAgeRatings();
     });
-
-    // LISTENER: Update preview gambar setiap kali text di kolom URL berubah
     _posterUrlController.addListener(() {
       setState(() {
         _previewImage = _posterUrlController.text;
@@ -45,7 +39,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
 
   @override
   void dispose() {
-    // Wajib dispose controller agar tidak membebani memori
     _titleController.dispose();
     _descController.dispose();
     _yearController.dispose();
@@ -54,9 +47,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
     super.dispose();
   }
 
-  // --- LOGIKA SUBMIT DATA ---
   void _submitMovie() async {
-    // Validasi Input Kosong
     if (_titleController.text.isEmpty ||
         _descController.text.isEmpty ||
         _selectedAgeRating == null ||
@@ -69,27 +60,21 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
       return;
     }
 
-    // Buat Object Movie
     final newMovie = Movie(
-      // ID null karena auto-increment di database
       title: _titleController.text,
       overview: _descController.text,
-      // Jika poster kosong, pakai gambar placeholder
       posterUrl: _posterUrlController.text.isEmpty
           ? "https://via.placeholder.com/150"
           : _posterUrlController.text,
       isNowPlaying: _isNowPlaying,
-      likes: 0, // DIGANTI DARI voteCount KE likes
-      rating: 0.0,
-      // Parse tahun ke integer (default 2024 jika error/kosong)
+      likes: 0,
       year: int.tryParse(_yearController.text) ?? 2024,
-      duration: _durationController.text, // Simpan sebagai text (e.g. "2h 15m")
+      duration: _durationController.text,
       ageRating: _selectedAgeRating!,
       genres: _selectedGenres,
     );
 
     try {
-      // Panggil Provider untuk kirim ke Supabase
       await Provider.of<MovieProvider>(context, listen: false)
           .addMovie(newMovie);
 
@@ -99,7 +84,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
               content: Text("Berhasil menyimpan film!"),
               backgroundColor: Colors.green),
         );
-        Navigator.pop(context); // Kembali ke halaman sebelumnya
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
@@ -110,7 +95,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
     }
   }
 
-  // --- LOGIKA DIALOG GENRE ---
   void _showGenreDialog() {
     showDialog(
       context: context,
@@ -119,7 +103,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
           builder: (context, provider, child) {
             return AlertDialog(
               title: const Text("Pilih Genre"),
-              // Menggunakan SizedBox agar lebar dialog proporsional
               content: SizedBox(
                 width: double.maxFinite,
                 child: StatefulBuilder(
@@ -142,7 +125,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                           title: Text(genreItem.name),
                           value: isSelected,
                           onChanged: (bool? value) {
-                            // 1. Update List di Parent Widget
                             setState(() {
                               if (value == true) {
                                 _selectedGenres.add(genreItem.name);
@@ -150,7 +132,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                                 _selectedGenres.remove(genreItem.name);
                               }
                             });
-                            // 2. Update Tampilan Checkbox di Dialog
                             setStateDialog(() {});
                           },
                         );
@@ -184,7 +165,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // 1. INPUT JUDUL
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
@@ -195,8 +175,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // 2. INPUT DESKRIPSI
             TextFormField(
               controller: _descController,
               maxLines: 3,
@@ -208,8 +186,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // 3. ROW: TAHUN & DURASI
             Row(
               children: [
                 Expanded(
@@ -239,15 +215,12 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // 4. DROPDOWN AGE RATING
             Consumer<MovieProvider>(
               builder: (context, provider, child) {
                 if (provider.ageRatings.isEmpty) {
                   return const LinearProgressIndicator();
                 }
                 
-                // Validasi value dropdown
                 if (_selectedAgeRating != null) {
                    bool exists = provider.ageRatings.any((r) => r.name == _selectedAgeRating);
                    if (!exists) _selectedAgeRating = null;
@@ -273,8 +246,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
               },
             ),
             const SizedBox(height: 16),
-
-            // 5. INPUT LINK POSTER + PREVIEW
             TextFormField(
               controller: _posterUrlController,
               decoration: InputDecoration(
@@ -286,8 +257,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            
-            // Container Preview Gambar
             Container(
               height: 200,
               width: 140,
@@ -324,8 +293,6 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                     ),
             ),
             const SizedBox(height: 16),
-
-            // 6. GENRE SELECTOR
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -354,19 +321,13 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                 );
               }).toList(),
             ),
-            
             const Divider(height: 30),
-
-            // 7. SWITCH NOW PLAYING (Tambahan)
             SwitchListTile(
               title: const Text("Sedang Tayang? (Now Playing)"),
               value: _isNowPlaying,
               onChanged: (val) => setState(() => _isNowPlaying = val),
             ),
-
             const SizedBox(height: 24),
-
-            // 8. TOMBOL SIMPAN
             SizedBox(
               width: double.infinity,
               height: 50,

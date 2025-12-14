@@ -40,21 +40,18 @@ class MovieProvider extends ChangeNotifier {
       var query = _client.from("movies").select();
 
       if (_filterByGenre != null && _filterByGenre != 'All') {
-        // .contains digunakan karena kolom 'genres' di DB adalah Array
         query = query.contains('genres', [filterByGenre!]);
       }
 
       PostgrestTransformBuilder finalQuery;
 
-      if (_sortBy == 'rating_high') {
-        finalQuery = query.order(
-          'rating',
-          ascending: false,
-        ); // Rating Tertinggi
-      } else if (_sortBy == 'rating_low') {
-        finalQuery = query.order('rating', ascending: true); // Rating Terendah
+      // PERBAIKAN: Hapus 'rating' dan ganti dengan 'likes'
+      if (_sortBy == 'likes_high') {
+        finalQuery = query.order('likes', ascending: false);
+      } else if (_sortBy == 'likes_low') {
+        finalQuery = query.order('likes', ascending: true);
       } else if (_sortBy == 'title_az') {
-        finalQuery = query.order('title', ascending: true); // Abjad A-Z
+        finalQuery = query.order('title', ascending: true);
       } else {
         // Default: created_at (Terbaru)
         finalQuery = query.order('created_at', ascending: false);
@@ -108,11 +105,11 @@ class MovieProvider extends ChangeNotifier {
 
       await fetchMovies();
       notifyListeners();
-      return true; // Beritahu UI kalau SUKSES
+      return true;
     } catch (e) {
       notifyListeners();
       _errorMessage = e.toString();
-      return false; // Beritahu UI kalau GAGAL
+      return false;
     }
   }
 
@@ -124,11 +121,11 @@ class MovieProvider extends ChangeNotifier {
 
       await fetchGenres();
       notifyListeners();
-      return true; // Beritahu UI kalau SUKSES
+      return true;
     } catch (e) {
       notifyListeners();
       _errorMessage = e.toString();
-      return false; // Beritahu UI kalau GAGAL
+      return false;
     }
   }
 
@@ -137,7 +134,6 @@ class MovieProvider extends ChangeNotifier {
       notifyListeners();
       await _client.from('movies').update(movie.toMap()).eq('id', movie.id!);
 
-      // Refresh data lokal
       await fetchMovies();
 
       notifyListeners();
@@ -152,7 +148,6 @@ class MovieProvider extends ChangeNotifier {
       notifyListeners();
       await _client.from('movies').delete().eq('id', movieId);
 
-      // Refresh data lokal
       _movies.removeWhere((movie) => movie.id == movieId);
       notifyListeners();
     } catch (e) {

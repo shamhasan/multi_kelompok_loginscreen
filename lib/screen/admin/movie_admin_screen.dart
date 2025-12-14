@@ -63,18 +63,19 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                 fontSize: 13,
                                 color: Colors.black87,
                               ),
+                              // PERBAIKAN: Ganti opsi rating dengan likes
                               items: const [
                                 DropdownMenuItem(
                                   value: 'newest',
                                   child: Text("Terbaru"),
                                 ),
                                 DropdownMenuItem(
-                                  value: 'rating_high',
-                                  child: Text("Rating Tinggi"),
+                                  value: 'likes_high',
+                                  child: Text("Likes Tertinggi"),
                                 ),
                                 DropdownMenuItem(
-                                  value: 'rating_low',
-                                  child: Text("Rating Rendah"),
+                                  value: 'likes_low',
+                                  child: Text("Likes Terendah"),
                                 ),
                                 DropdownMenuItem(
                                   value: 'title_az',
@@ -110,7 +111,6 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                 color: Colors.black87,
                               ),
                               items: [
-                                // Opsi Default "All"
                                 const DropdownMenuItem(
                                   value: null,
                                   child: Text(
@@ -120,7 +120,6 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                     ),
                                   ),
                                 ),
-                                // Looping Genre dari Provider
                                 ...provider.genres
                                     .map((g) => g.name)
                                     .toSet()
@@ -213,14 +212,13 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                         color: Colors.grey[900],
                                       ),
                                     ),
-                                    Text(
-                                      "⭐" +
-                                          provider.movies[index].rating
-                                              .toString(),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    // PERBAIKAN: Tampilkan likes, bukan rating
+                                    Row(
+                                      children: [
+                                        Icon(Icons.thumb_up, color: Colors.green, size: 16),
+                                        const SizedBox(width: 4),
+                                        Text(provider.movies[index].likes.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      ],
                                     ),
                                     Expanded(
                                       child: Container(
@@ -243,7 +241,6 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                                       "Yakin ingin menghapus '${provider.movies[index].title}'?",
                                                     ),
                                                     actions: [
-                                                      // Tombol Batal
                                                       TextButton(
                                                         onPressed: () =>
                                                             Navigator.pop(
@@ -253,7 +250,6 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                                           "Batal",
                                                         ),
                                                       ),
-                                                      // Tombol Hapus
                                                       TextButton(
                                                         onPressed: () async {
                                                           Navigator.pop(
@@ -261,7 +257,6 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                                           ); // Tutup dialog dulu
 
                                                           try {
-                                                            // Panggil fungsi delete di Provider
                                                             await Provider.of<
                                                                   MovieProvider
                                                                 >(
@@ -274,7 +269,6 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                                                       .id!,
                                                                 );
 
-                                                            // Tampilkan pesan sukses
                                                             if (context
                                                                 .mounted) {
                                                               ScaffoldMessenger.of(
@@ -291,7 +285,6 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                                               );
                                                             }
                                                           } catch (e) {
-                                                            // Tampilkan pesan error
                                                             if (context
                                                                 .mounted) {
                                                               ScaffoldMessenger.of(
@@ -331,7 +324,6 @@ class _MovieAdminScreenState extends State<MovieAdminScreen> {
                                                 final movieToEdit =
                                                     provider.movies[index];
 
-                                                // 2. Navigasi ke Edit Screen & kirim datanya
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(

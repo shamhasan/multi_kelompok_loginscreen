@@ -4,7 +4,7 @@ import 'package:multi_kelompok/Providers/MovieProvider.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
 
 class EditMovieScreen extends StatefulWidget {
-  final Movie movie; 
+  final Movie movie;
 
   const EditMovieScreen({super.key, required this.movie});
 
@@ -63,7 +63,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     super.dispose();
   }
 
-
   void _updateMovie() async {
     if (_titleController.text.isEmpty || 
         _descController.text.isEmpty || 
@@ -75,15 +74,14 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
     }
 
     final updatedMovie = Movie(
-      id: widget.movie.id, 
+      id: widget.movie.id,
       title: _titleController.text,
       overview: _descController.text,
       posterUrl: _posterUrlController.text.isEmpty 
           ? "https://via.placeholder.com/150" 
           : _posterUrlController.text,
       isNowPlaying: _isNowPlaying,
-      likes: widget.movie.likes, // DIGANTI DARI voteCount KE likes
-      rating: widget.movie.rating,       
+      likes: widget.movie.likes,
       year: int.tryParse(_yearController.text) ?? 2024,
       duration: _durationController.text,
       ageRating: _selectedAgeRating!,
@@ -97,7 +95,7 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Film berhasil diperbarui!"), backgroundColor: Colors.green),
         );
-        Navigator.pop(context); // Kembali ke list admin
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
@@ -163,14 +161,13 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Movie'), // Ubah Judul
+        title: const Text('Edit Movie'),
         centerTitle: true,
-        backgroundColor: Colors.green[200], // Ubah warna biar beda dikit
+        backgroundColor: Colors.green[200],
       ),      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Field Judul
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
@@ -179,8 +176,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Field Deskripsi
             TextFormField(
               controller: _descController,
               maxLines: 3,
@@ -190,8 +185,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Row Tahun & Durasi
             Row(
               children: [
                 Expanded(
@@ -217,8 +210,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Dropdown Age Rating
             Consumer<MovieProvider>(
               builder: (context, provider, child) {
                 if (provider.ageRatings.isEmpty) return const LinearProgressIndicator();
@@ -241,8 +232,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
               },
             ),
             const SizedBox(height: 16),
-
-            // URL Poster & Preview
             TextFormField(
               controller: _posterUrlController,
               decoration: InputDecoration(
@@ -269,8 +258,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
                     ),
             ),
             const SizedBox(height: 16),
-
-            // Genre Selector
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -294,8 +281,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
             ),
             
             const Divider(height: 30),
-
-            // Switch Now Playing
             SwitchListTile(
               title: const Text("Sedang Tayang? (Now Playing)"),
               value: _isNowPlaying,
@@ -303,8 +288,6 @@ class _EditMovieScreenState extends State<EditMovieScreen> {
             ),
 
             const SizedBox(height: 24),
-
-            // Tombol Update
             SizedBox(
               width: double.infinity,
               height: 50,
