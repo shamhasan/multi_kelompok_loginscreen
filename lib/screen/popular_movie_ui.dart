@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-import 'package:multi_kelompok/models/movie_model.dart'; // DIUBAH
+import 'package:multi_kelompok/models/movie_model.dart';
 import 'package:multi_kelompok/screens/movie_detail_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+// Halaman untuk menampilkan daftar film yang diurutkan berdasarkan popularitas (jumlah likes).
 class PopularMoviesPage extends StatefulWidget {
   const PopularMoviesPage({super.key});
 
@@ -20,9 +21,10 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
   @override
   void initState() {
     super.initState();
-    _fetchPopularMovies();
+    _fetchPopularMovies(); // Memanggil fungsi untuk mengambil data film saat halaman pertama kali dibuka.
   }
 
+  // Fungsi untuk mengambil dan mengurutkan film dari Supabase.
   Future<void> _fetchPopularMovies() async {
     if (!mounted) return;
     setState(() {
@@ -30,13 +32,16 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
       _error = null;
     });
     try {
+      // Membuat query ke tabel 'movies' dan mengurutkannya berdasarkan 'likes' dari tertinggi ke terendah.
       final moviesResponse = await Supabase.instance.client
           .from('movies')
           .select()
           .order('likes', ascending: false);
 
       if (mounted) {
-        final allMovies = (moviesResponse as List).map((data) => Movie.fromMap(data)).toList(); // DIUBAH
+        // Mengubah data JSON dari database menjadi daftar objek Movie.
+        final allMovies = (moviesResponse as List).map((data) => Movie.fromMap(data)).toList();
+        // Memperbarui state untuk menampilkan data di UI.
         setState(() {
           _movies = allMovies;
           _isLoading = false;
@@ -64,6 +69,7 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
     );
   }
 
+  // Widget untuk membangun tampilan body utama, dengan logika untuk loading, error, dan data.
   Widget _buildBody() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -75,18 +81,21 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
       return const Center(child: Text('Belum ada film di database.'));
     }
 
+    // Widget untuk fungsionalitas "pull-to-refresh" (tarik untuk memuat ulang).
     return RefreshIndicator(
       onRefresh: _fetchPopularMovies,
       child: ListView.builder(
         itemCount: _movies.length,
         itemBuilder: (context, index) {
           final movie = _movies[index];
+          // Membuat widget untuk setiap item film dalam daftar.
           return _buildMovieListItem(context, movie);
         },
       ),
     );
   }
 
+  // Widget untuk membangun satu item (kartu) film dalam daftar.
   Widget _buildMovieListItem(BuildContext context, Movie movie) {
     final screenWidth = MediaQuery.of(context).size.width;
     final double detailSize = screenWidth > 720 ? 14 : 12;
@@ -98,12 +107,15 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
+          // Aksi ketika kartu film di-tap.
           onTap: () {
+            // Navigasi ke halaman detail film.
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => MovieDetailScreen(movieId: movie.id!),
               ),
+            // Setelah kembali dari halaman detail, muat ulang daftar film untuk mendapatkan data 'likes' terbaru.
             ).then((_) => _fetchPopularMovies());
           },
           child: Padding(
@@ -136,6 +148,7 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
                         children: movie.genres.map((genre) => Chip(label: Text(genre.trim()), backgroundColor: Colors.green.shade100)).toList(),
                       ),
                       const SizedBox(height: 8),
+                      // Menampilkan jumlah likes dari film.
                       Row(
                         children: [
                           Icon(Icons.thumb_up, color: Colors.green, size: detailSize + 2),
