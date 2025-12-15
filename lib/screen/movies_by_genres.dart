@@ -1,70 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-// import 'package:multi_kelompok/models/movie.dart'; // Model dipindahkan ke sini
+import 'package:multi_kelompok/models/movie_model.dart';
 
-// ---------------------------------------------
-// 1. MODEL DATA (Dipersingkat dan Disesuaikan)
-// ---------------------------------------------
-
-class Movie {
-  final int id;
-  final String title;
-  final String? overview;
-  final String? posterUrl;
-  final bool isNowPlaying;
-  final int voteCount;
-  final DateTime createdAt;
-
-  Movie({
-    required this.id,
-    required this.title,
-    required this.isNowPlaying,
-    required this.voteCount,
-    required this.createdAt,
-    this.overview,
-    this.posterUrl,
-  });
-
-  factory Movie.fromMap(Map<String, dynamic> map) {
-    // Pastikan nilai non-nullable memiliki fallback yang kuat
-    final String titleValue = map['title'] as String? ?? 'Judul Film Tidak Diketahui';
-
-    return Movie(
-      id: map['id'] as int,
-      title: titleValue,
-      // Menggunakan kolom 'description' dari DB untuk 'overview'
-      overview: map['description'] as String?,
-      posterUrl: map['poster_url'] as String?,
-      isNowPlaying: map['is_now_playing'] as bool? ?? false, // Fallback untuk bool
-      voteCount: map['vote_count'] as int? ?? 0, // Fallback untuk int
-      createdAt: DateTime.parse(map['created_at'] as String),
-    );
-  }
-}
-
-// Model Genre tidak berubah
-class Genre {
-  final int id;
-  String name;
-  String? description;
-  final DateTime createdAt;
-
-  Genre({required this.id, required this.name, required this.createdAt, this.description});
-
-  factory Genre.fromMap(Map<String, dynamic> map) {
-    return Genre(
-      id: map['id'] as int,
-      name: map['name'] as String,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      description: map['description'] as String?,
-    );
-  }
-}
-
-
-// ---------------------------------------------
-// 2. KONSTANTA DAN LOGIKA SUPABASE
-// ---------------------------------------------
 
 // Asumsikan Supabase sudah diinisialisasi
 final supabase = Supabase.instance.client;
@@ -261,7 +198,7 @@ class FunMovieCard extends StatelessWidget {
                         Icon(Icons.thumb_up_alt_outlined,
                             color: _primaryColor, size: 16),
                         const SizedBox(width: 6),
-                        Text('${movie.voteCount} Likes',
+                        Text('${movie.likes} Likes', // Menggunakan movie.likes
                             style: TextStyle(
                                 fontSize: 12,
                                 color: _primaryColor,

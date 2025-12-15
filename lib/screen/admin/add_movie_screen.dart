@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/providers/MovieProvider.dart' hide MovieProvider;
 import 'package:provider/provider.dart';
 import 'package:multi_kelompok/Providers/MovieProvider.dart'; // Sesuaikan path ini
-import 'package:multi_kelompok/models/movie_model.dart'; // Sesuaikan path ini
+import 'package:multi_kelompok/models/movie_model.dart';
+
+import '../../providers/genre_provider.dart'; // Sesuaikan path ini
 
 class AddMovieScreen extends StatefulWidget {
   const AddMovieScreen({super.key});
@@ -31,9 +32,10 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
 
     // Fetch data Genre & Age Rating saat halaman dibuka
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<MovieProvider>(context, listen: false);
-      provider.fetchGenres();
-      provider.fetchAgeRatings();
+      final providerM = Provider.of<MovieProvider>(context, listen: false);
+      final providerG = Provider.of<GenreProvider>(context, listen: false);
+      providerG.fetchGenres(context);
+      providerM.fetchAgeRatings();
     });
 
     // LISTENER: Update preview gambar setiap kali text di kolom URL berubah
@@ -57,7 +59,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
 
   // --- LOGIKA SUBMIT DATA ---
   void _submitMovie() async {
-    // Validasi Input Kosong
+    // 1. Validasi Input Kosong
     if (_titleController.text.isEmpty ||
         _descController.text.isEmpty ||
         _selectedAgeRating == null ||
@@ -70,7 +72,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
       return;
     }
 
-    // Buat Object Movie
+    // 2. Buat Object Movie
     final newMovie = Movie(
       // ID null karena auto-increment di database
       title: _titleController.text,
@@ -80,32 +82,48 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
           ? "https://via.placeholder.com/150"
           : _posterUrlController.text,
       isNowPlaying: _isNowPlaying,
-      voteCount: 0,
+      likes: 0,
       rating: 0.0,
       // Parse tahun ke integer (default 2024 jika error/kosong)
       year: int.tryParse(_yearController.text) ?? 2024,
-      duration: _durationController.text, // Simpan sebagai text (e.g. "2h 15m")
+      duration: _durationController.text,
       ageRating: _selectedAgeRating!,
       genres: _selectedGenres,
     );
 
     try {
-      // Panggil Provider untuk kirim ke Supabase
-      await Provider.of<MovieProvider>(context, listen: false)
-          .addMovie(newMovie);
+      // 3. Panggil Provider dan SIMPAN HASILNYA (true/false)
+      final provider = Provider.of<MovieProvider>(context, listen: false);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("Berhasil menyimpan film!"),
-              backgroundColor: Colors.green),
-        );
-        Navigator.pop(context); // Kembali ke halaman sebelumnya
+      // Kita tunggu hasilnya: Apakah true (sukses) atau false (gagal)?
+      bool isSuccess = await provider.addMovie(newMovie);
+
+      if (isSuccess) {
+        // --- JIKA SUKSES (TRUE) ---
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text("Berhasil menyimpan film!"),
+                backgroundColor: Colors.green),
+          );
+          Navigator.pop(context); // Tutup halaman
+        }
+      } else {
+        // --- JIKA GAGAL (FALSE) ---
+        // Ambil pesan error dari provider (pastikan di provider ada getter errorMessage)
+        String msg = provider.errorMessage ?? "Gagal menyimpan data";
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(msg), backgroundColor: Colors.red),
+          );
+        }
       }
     } catch (e) {
+      // Catch ini untuk error tak terduga di luar logic provider
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Gagal menyimpan: $e"), backgroundColor: Colors.red),
+          SnackBar(content: Text("System Error: $e"), backgroundColor: Colors.red),
         );
       }
     }
@@ -116,7 +134,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Consumer<MovieProvider>(
+        return Consumer<GenreProvider>(
           builder: (context, provider, child) {
             return AlertDialog(
               title: const Text("Pilih Genre"),
@@ -126,9 +144,9 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                 child: StatefulBuilder(
                   builder: (context, setStateDialog) {
                     final allGenres = provider.genres;
-                    
+
                     if (allGenres.isEmpty) {
-                       return const Center(child: Text("Memuat genre..."));
+                      return const Center(child: Text("Memuat genre..."));
                     }
 
                     return ListView.builder(
@@ -137,7 +155,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                       itemBuilder: (context, index) {
                         final genreItem = allGenres[index];
                         final isSelected =
-                            _selectedGenres.contains(genreItem.name);
+                        _selectedGenres.contains(genreItem.name);
 
                         return CheckboxListTile(
                           title: Text(genreItem.name),
@@ -247,11 +265,11 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                 if (provider.ageRatings.isEmpty) {
                   return const LinearProgressIndicator();
                 }
-                
+
                 // Validasi value dropdown
                 if (_selectedAgeRating != null) {
-                   bool exists = provider.ageRatings.any((r) => r.name == _selectedAgeRating);
-                   if (!exists) _selectedAgeRating = null;
+                  bool exists = provider.ageRatings.any((r) => r.name == _selectedAgeRating);
+                  if (!exists) _selectedAgeRating = null;
                 }
 
                 return DropdownButtonFormField<String>(
@@ -287,7 +305,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             // Container Preview Gambar
             Container(
               height: 200,
@@ -299,30 +317,30 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
               ),
               child: _previewImage.isEmpty
                   ? const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.image_search, size: 40, color: Colors.grey),
-                        Text("Preview Poster", style: TextStyle(color: Colors.grey))
-                      ],
-                    )
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.image_search, size: 40, color: Colors.grey),
+                  Text("Preview Poster", style: TextStyle(color: Colors.grey))
+                ],
+              )
                   : ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(
-                        _previewImage,
-                        fit: BoxFit.cover,
-                        errorBuilder: (ctx, err, stack) => const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.broken_image, color: Colors.red),
-                            Text("Link Error", style: TextStyle(fontSize: 12)),
-                          ],
-                        ),
-                        loadingBuilder: (ctx, child, progress) {
-                          if (progress == null) return child;
-                          return const Center(child: CircularProgressIndicator());
-                        },
-                      ),
-                    ),
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.network(
+                  _previewImage,
+                  fit: BoxFit.cover,
+                  errorBuilder: (ctx, err, stack) => const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.broken_image, color: Colors.red),
+                      Text("Link Error", style: TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                  loadingBuilder: (ctx, child, progress) {
+                    if (progress == null) return child;
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                ),
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -355,7 +373,7 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
                 );
               }).toList(),
             ),
-            
+
             const Divider(height: 30),
 
             // 7. SWITCH NOW PLAYING (Tambahan)

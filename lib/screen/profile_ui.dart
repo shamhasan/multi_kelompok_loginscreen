@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/Providers/auth_provider/AuthProvider.dart';
+import 'package:multi_kelompok/providers/auth_provider/AuthProvider.dart';
+import 'package:multi_kelompok/screen/login_screen.dart';
+import 'package:multi_kelompok/screen/my_votes_screen.dart'; // Diperbarui ke my_votes_screen.dart
 import 'package:multi_kelompok/widgets/profile_field.dart';
 import 'package:multi_kelompok/widgets/setting_field.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +11,7 @@ class ProfileUi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   return Consumer(
+    return Consumer<AuthProvider>(
       builder: (context, AuthProvider authProvider, child) {
         var user = authProvider.user;
         return Container(

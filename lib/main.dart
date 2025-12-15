@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/providers/MovieProvider.dart' hide MovieProvider;
 import 'package:multi_kelompok/screen/admin/add_genre_screen.dart';
 import 'package:multi_kelompok/screen/admin/admin_screen.dart';
 import 'package:multi_kelompok/screen/admin/genre_admin_screen.dart';
@@ -36,7 +35,7 @@ void main() async {
         // WatchlistPage()
         // PopularMoviesPage()
         // GenreListPage()
-        // LoginScreen(),
+       // LoginScreen(),
         // MovieAdminScreen(),
         // GenreAdminScreen()
         //AdminScreen()

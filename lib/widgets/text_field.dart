@@ -4,22 +4,26 @@ class CustomTextField extends StatelessWidget {
   final bool isPassword;
   final String hint;
   final TextEditingController? controller;
-
+  // 1. Menambahkan parameter validator
+  final String? Function(String?)? validator;
 
   const CustomTextField({
     super.key,
     this.isPassword = false,
-    required this.hint, required this.controller,
+    required this.hint,
+    required this.controller,
+    this.validator, // 2. Menambahkan ke konstruktor
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       obscureText: isPassword,
       controller: controller,
+      validator: validator,
       decoration: InputDecoration(
         hintText: hint,
-        suffixIcon: isPassword ? Icon(Icons.visibility_off_outlined) : null,
+        suffixIcon: isPassword ? const Icon(Icons.visibility_off_outlined) : null,
         filled: true,
         fillColor: Colors.grey[200],
         hintStyle: TextStyle(

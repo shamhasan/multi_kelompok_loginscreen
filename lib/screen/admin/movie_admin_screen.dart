@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:multi_kelompok/Providers/MovieProvider.dart';
 import 'package:multi_kelompok/data/movie.dart';
-import 'package:multi_kelompok/providers/MovieProvider.dart' hide MovieProvider;
 import 'package:multi_kelompok/screen/admin/add_movie_screen.dart';
 import 'package:multi_kelompok/screen/admin/edit_movie_screen.dart';
 import 'package:provider/provider.dart';

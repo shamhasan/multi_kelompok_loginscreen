@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:multi_kelompok/models/genre.dart';
 import 'package:provider/provider.dart';
 import 'package:multi_kelompok/providers/genre_provider.dart';
-import 'package:multi_kelompok/movies_by_genres.dart' hide Genre;
-import 'package:multi_kelompok/models/genre.dart';
+import 'package:multi_kelompok/screen/movies_by_genres.dart';
+// import 'package:multi_kelompok/models/genre.dart' as app_genre;
 
 // Halaman utama untuk menampilkan Daftar Genre (Read-only)
-class GenreAdminPage extends StatefulWidget {
-  const GenreAdminPage({super.key});
+class GenrePage extends StatefulWidget {
+  const GenrePage({super.key});
 
   @override
-  State<GenreAdminPage> createState() => _GenreAdminPageState();
+  State<GenrePage> createState() => _GenrePageState();
 }
 
-class _GenreAdminPageState extends State<GenreAdminPage> {
+class _GenrePageState extends State<GenrePage> {
   // --- KONSTANTA WARNA ---
   static const Color _primaryColor = Color(0xFF469756); // Hijau Primer
   static const Color _secondaryColor = Color(0xFF88D68A); // Hijau Sekunder

@@ -1,48 +1,73 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'package:multi_kelompok/Providers/MovieProvider.dart';
 import 'package:multi_kelompok/models/movie_model.dart';
+import 'package:multi_kelompok/providers/MovieProvider.dart';
 import 'package:multi_kelompok/screen/movie_detail_screen.dart';
 
-class PopularMoviesPage extends StatelessWidget {
+// PERUBAHAN: Halaman ini sekarang lebih sederhana dan hanya bergantung pada MovieProvider.
+class PopularMoviesPage extends StatefulWidget {
   const PopularMoviesPage({super.key});
 
+  @override
+  State<PopularMoviesPage> createState() => _PopularMoviesPageState();
+}
+
+class _PopularMoviesPageState extends State<PopularMoviesPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Memanggil fungsi untuk mengambil data film populer dari provider.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<MovieProvider>(context, listen: false).fetchPopularMovies();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (BuildContext context, MovieProvider provider, Widget? child) {
-        return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: const Text('Film Populer'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
-      body: ListView.builder(
-        itemCount: provider.movies.length,
-        itemBuilder: (context, index) {
-          final movie = provider.movies[index];
-          return _buildMovieListItem(context, movie);
+      // Gunakan Consumer untuk mendengarkan perubahan dari MovieProvider.
+      body: Consumer<MovieProvider>(
+        builder: (context, provider, child) {
+          // Tampilkan loading indicator jika sedang memuat.
+          if (provider.isPopularLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          // Tampilkan pesan error jika terjadi kesalahan.
+          if (provider.popularError.isNotEmpty) {
+            return Center(child: Padding(padding: const EdgeInsets.all(16), child: Text(provider.popularError, textAlign: TextAlign.center)));
+          }
+          // Tampilkan pesan jika tidak ada film.
+          if (provider.popularMovies.isEmpty) {
+            return const Center(child: Text('Belum ada film di database.'));
+          }
+
+          final movies = provider.popularMovies;
+
+          // Widget untuk fungsionalitas "pull-to-refresh".
+          return RefreshIndicator(
+            onRefresh: () => provider.fetchPopularMovies(),
+            child: ListView.builder(
+              itemCount: movies.length,
+              itemBuilder: (context, index) {
+                final movie = movies[index];
+                return _buildMovieListItem(context, movie);
+              },
+            ),
+          );
         },
       ),
     );
-      },
-    );
-    
   }
 
+  // Widget untuk membangun satu item film (tidak berubah, hanya sumber datanya yang berbeda).
   Widget _buildMovieListItem(BuildContext context, Movie movie) {
     final screenWidth = MediaQuery.of(context).size.width;
-
-    const double maxPosterWidth = 200.0;
-    final double posterWidth = min(screenWidth * 0.3, maxPosterWidth);
-    final double posterHeight = posterWidth * 1.5;
-    final double titleSize = screenWidth > 720 ? 18 : 16;
     final double detailSize = screenWidth > 720 ? 14 : 12;
-    final double chipTextSize = screenWidth > 720 ? 12 : 11;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -55,28 +80,23 @@ class PopularMoviesPage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MovieDetailScreen(movie: movie),
+                builder: (context) => MovieDetailScreen(movieId: movie.id!),
               ),
-            );
+            ).then((_) => Provider.of<MovieProvider>(context, listen: false).fetchPopularMovies());
           },
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: posterWidth,
-                  height: posterHeight,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: Image.network(
-                      movie.posterUrl,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, progress) =>
-                      progress == null ? child : const Center(child: CircularProgressIndicator()),
-                      errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.movie, color: Colors.grey, size: 40),
-                    ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.network(
+                    movie.posterUrl,
+                    width: 100,
+                    height: 150,
+                    fit: BoxFit.cover,
+                    errorBuilder: (c, e, s) => const Icon(Icons.movie, color: Colors.grey, size: 50),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -84,43 +104,31 @@ class PopularMoviesPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        movie.title,
-                        style: TextStyle(fontSize: titleSize, fontWeight: FontWeight.bold),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      Text(movie.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Text(movie.year.toString(), style: TextStyle(color: Colors.grey[600], fontSize: detailSize)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                            child: Icon(Icons.circle, size: 3, color: Colors.grey[500]),
-                          ),
-                          Text(movie.duration, style: TextStyle(color: Colors.grey[600], fontSize: detailSize)),
-                        ],
-                      ),
+                      Text('${movie.year} • ${movie.duration}', style: TextStyle(color: Colors.grey[600], fontSize: detailSize)),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 6.0,
                         runSpacing: 4.0,
-                        children: movie.genres.map((genre) {
-                          return Chip(
-                            label: Text(genre),
-                            backgroundColor: Colors.green.shade100,
-                            labelStyle: TextStyle(color: Colors.green.shade900, fontSize: chipTextSize),
-                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          );
-                        }).toList(),
+                        children: movie.genres.map((genre) => Chip(label: Text(genre.trim()), backgroundColor: Colors.green.shade100)).toList(),
                       ),
                       const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.thumb_up, color: Colors.green, size: detailSize + 2),
+                          const SizedBox(width: 4),
+                          Text(
+                            movie.likes.toString(),
+                            style: TextStyle(fontSize: detailSize, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         movie.overview,
                         style: TextStyle(fontSize: detailSize, color: Colors.grey[700]),
-                        maxLines: 3,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],

@@ -1,26 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:multi_kelompok/screen/home_screen.dart';
-import 'package:multi_kelompok/screen/profile_ui.dart';
+import 'package:multi_kelompok/screen/register_ui.dart';
 import 'package:multi_kelompok/widgets/desktop_social_button.dart';
-import 'package:multi_kelompok/widgets/text_field.dart';
 
 class DesktopLoginUi extends StatelessWidget {
   final double screenWidth;
-  DesktopLoginUi({super.key, required this.screenWidth});
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  // Menerima state dan callback dari parent (LoginScreen)
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+  final VoidCallback onSignIn;
+  final bool isLoading;
+
+  const DesktopLoginUi({
+    super.key,
+    required this.screenWidth,
+    required this.emailController,
+    required this.passwordController,
+    required this.onSignIn,
+    required this.isLoading,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 "Masuk Di sini",
                 style: TextStyle(
                   fontSize: 42,
@@ -29,20 +38,19 @@ class DesktopLoginUi extends StatelessWidget {
                   fontFamily: 'Poppins',
                 ),
               ),
-              SizedBox(height: 8),
-              Text(
+              const SizedBox(height: 8),
+              const Text(
                 "Selamat Datang Kembali!",
                 style: TextStyle(fontSize: 24, color: Colors.black),
               ),
-              SizedBox(height: 64),
-              Container(
+              const SizedBox(height: 64),
+              SizedBox(
                 width: screenWidth * 0.4,
-                child: TextField(
+                child: TextFormField(
                   controller: emailController,
-                  obscureText: false,
                   decoration: InputDecoration(
                     hintText: "Email",
-                    suffixIcon:  const Icon(Icons.email_outlined),
+                    suffixIcon: const Icon(Icons.email_outlined),
                     filled: true,
                     fillColor: Colors.grey[200],
                     hintStyle: TextStyle(
@@ -60,16 +68,18 @@ class DesktopLoginUi extends StatelessWidget {
                       borderSide: BorderSide.none,
                     ),
                   ),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Email tidak boleh kosong' : null,
                 ),
               ),
-              SizedBox(height: 32),
-              Container(
+              const SizedBox(height: 32),
+              SizedBox(
                 width: screenWidth * 0.4,
-                child: TextField(
+                child: TextFormField(
                   controller: passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
-                    hintText: "Email",
+                    hintText: "Kata Sandi", // Hint diperbaiki
                     suffixIcon: const Icon(Icons.visibility_off_outlined),
                     filled: true,
                     fillColor: Colors.grey[200],
@@ -88,51 +98,50 @@ class DesktopLoginUi extends StatelessWidget {
                       borderSide: BorderSide.none,
                     ),
                   ),
+                   validator: (value) =>
+                      value!.isEmpty ? 'Kata Sandi tidak boleh kosong' : null,
                 ),
               ),
-              SizedBox(height: 32),
-              Container(
+              const SizedBox(height: 32),
+              SizedBox(
                 width: screenWidth * 0.4,
-                child: Text(
+                child: const Text(
                   "Lupa Kata Sandi?",
                   textAlign: TextAlign.right,
                   style: TextStyle(color: Colors.black, fontSize: 18),
                 ),
               ),
-              SizedBox(height: 60),
-              Container(
-                width: screenWidth * 0.4,
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ProfileUi()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF329A71),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 60),
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : SizedBox(
+                      width: screenWidth * 0.4,
+                      height: 55,
+                      child: ElevatedButton(
+                        onPressed: onSignIn, // Menghubungkan ke fungsi signIn
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF329A71),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          "Masuk",
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    "Masuk",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16),
-              Container(
+              const SizedBox(height: 16),
+              SizedBox(
                 width: screenWidth * 0.4,
                 child: TextButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                      MaterialPageRoute(builder: (context) => RegisterUi()),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     "Daftar",
                     style: TextStyle(
                       color: Colors.black,
@@ -142,10 +151,10 @@ class DesktopLoginUi extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 32),
-              Container(
+              const SizedBox(height: 32),
+              SizedBox(
                 width: screenWidth * 0.25,
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(
@@ -164,8 +173,8 @@ class DesktopLoginUi extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 24),
-              Container(
+              const SizedBox(height: 24),
+              SizedBox(
                 width: screenWidth * 0.25,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -175,7 +184,7 @@ class DesktopLoginUi extends StatelessWidget {
                       title: "Google",
                       onPressed: () {},
                     ),
-                    SizedBox(width: 32),
+                    const SizedBox(width: 32),
                     DesktopSocialButton(
                       icon: "assets/images/facebook.png",
                       title: "Facebook",

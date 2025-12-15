@@ -1,7 +1,7 @@
 class Movie {
   final int? id;
   final String title;
-  final String overview;
+  final String overview; 
   final String posterUrl;
   final bool isNowPlaying;
   final int voteCount;
@@ -30,21 +30,21 @@ class Movie {
     return Movie(
       id: map['id'],
       title: map['title'] ?? '',
-
+      
       // PERHATIKAN: Mapping nama kolom beda
-      overview: map['description'] ?? '',
+      overview: map['description'] ?? '', 
       posterUrl: map['poster_url'] ?? '',
       isNowPlaying: map['is_now_playing'] ?? false,
       voteCount: map['vote_count'] ?? 0,
-
+      
       // Konversi aman ke double (karena DB bisa return int atau float)
       rating: (map['rating'] ?? 0).toDouble(),
-
+      
       // Handle field yang di DB boleh null
       year: map['year'] ?? 0,
       duration: map['duration'] ?? '',
       ageRating: map['age_rating'] ?? '',
-
+      
       // Konversi Array Postgres (text[]) ke List<String> Dart
       genres: List<String>.from(map['genres'] ?? []),
     );
