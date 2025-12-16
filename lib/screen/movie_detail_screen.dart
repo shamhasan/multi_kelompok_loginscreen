@@ -16,7 +16,7 @@ class MovieDetailScreen extends StatefulWidget {
 
 class _MovieDetailScreenState extends State<MovieDetailScreen> {
   Movie? _movie;
-  // PERBAIKAN: Mengganti nama variabel agar sesuai dengan fungsinya.
+  // Mengganti nama variabel agar sesuai dengan fungsinya.
   int _likeCount = 0;
   bool _isLoading = true;
   String? _error;
@@ -41,7 +41,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
           .eq('id', widget.movieId)
           .single();
 
-      final dislikeResponse = await Supabase.instance.client
+      final likeResponse = await Supabase.instance.client
           .from('votes')
           .select('id')
           .eq('movie_id', widget.movieId)
@@ -50,8 +50,8 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
       if (mounted) {
         setState(() {
           _movie = Movie.fromMap(movieResponse);
-          // PERBAIKAN: Menyimpan jumlah dislike dengan benar.
-          _likeCount = dislikeResponse.length;
+          // Menyimpan jumlah dislike dengan benar.
+          _likeCount = likeResponse.length;
           _isLoading = false;
           _error = null;
         });
@@ -87,7 +87,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
 
     final movie = _movie!;
 
-    // DITAMBAHKAN: Consumer untuk mendapatkan akses ke WatchlistProvider
+    // Consumer untuk mendapatkan akses ke WatchlistProvider
     return Consumer<WatchlistProvider>(
       builder: (context, watchlistProvider, child) {
         // Cek apakah film ini sudah ada di watchlist
@@ -99,7 +99,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             backgroundColor: Colors.green,
             foregroundColor: Colors.white,
             actions: [
-              // DITAMBAHKAN: Tombol untuk menambah/menghapus watchlist
+              // Tombol untuk menambah/menghapus watchlist
               IconButton(
                 icon: Icon(
                   isInWatchlist ? Icons.bookmark_added : Icons.bookmark_add_outlined,
