@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:multi_kelompok/Providers/MovieProvider.dart'; // Sesuaikan path ini
+import 'package:multi_kelompok/providers/MovieProvider.dart'; // Sesuaikan path ini
 import 'package:multi_kelompok/models/movie_model.dart';
 
 import '../../providers/genre_provider.dart'; // Sesuaikan path ini
